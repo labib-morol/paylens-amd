@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  paylens:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: paylens-solo
+    ports:
+      - "8501:8501"
+    environment:
+      - AMD_VLLM_BASE_URL=http://host.docker.internal:8000/v1
+      - AMD_TOKENFACTORY_BASE_URL=https://notebooks.amd.com/tokenfactory/v1
+      - AMD_API_KEY=${AMD_API_KEY:-mock-key-for-local-dev}
+      - VLLM_MODEL=google/gemma-4-31B-it
+      - DUCKDB_PATH=data/generated/paylens.duckdb
+      - OFFLINE_MODE=${OFFLINE_MODE:-true}
+    restart: unless-stopped

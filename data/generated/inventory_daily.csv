@@ -1,0 +1,1231 @@
+snapshot_date,merchant_id,sku,item_name,category,current_stock,unit_cost_taka,unit_retail_price_taka,unit_margin_taka,supplier_lead_time_days,reorder_point_units,units_sold_today
+2026-09-16,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,137,1800.0,3800.0,2000.0,6,24,3
+2026-09-17,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,134,1800.0,3800.0,2000.0,6,24,3
+2026-09-18,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,131,1800.0,3800.0,2000.0,6,24,3
+2026-09-19,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,128,1800.0,3800.0,2000.0,6,24,3
+2026-09-20,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,125,1800.0,3800.0,2000.0,6,24,3
+2026-09-21,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,122,1800.0,3800.0,2000.0,6,24,3
+2026-09-22,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,119,1800.0,3800.0,2000.0,6,24,3
+2026-09-23,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,116,1800.0,3800.0,2000.0,6,24,3
+2026-09-24,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,113,1800.0,3800.0,2000.0,6,24,3
+2026-09-25,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,110,1800.0,3800.0,2000.0,6,24,3
+2026-09-26,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,107,1800.0,3800.0,2000.0,6,24,3
+2026-09-27,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,104,1800.0,3800.0,2000.0,6,24,3
+2026-09-28,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,101,1800.0,3800.0,2000.0,6,24,3
+2026-09-29,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,98,1800.0,3800.0,2000.0,6,24,3
+2026-09-30,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,95,1800.0,3800.0,2000.0,6,24,3
+2026-10-01,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,92,1800.0,3800.0,2000.0,6,24,3
+2026-10-02,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,89,1800.0,3800.0,2000.0,6,24,3
+2026-10-03,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,86,1800.0,3800.0,2000.0,6,24,3
+2026-10-04,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,83,1800.0,3800.0,2000.0,6,24,3
+2026-10-05,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,80,1800.0,3800.0,2000.0,6,24,3
+2026-10-06,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,77,1800.0,3800.0,2000.0,6,24,3
+2026-10-07,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,74,1800.0,3800.0,2000.0,6,24,3
+2026-10-08,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,71,1800.0,3800.0,2000.0,6,24,3
+2026-10-09,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,66,1800.0,3800.0,2000.0,6,24,5
+2026-10-10,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,62,1800.0,3800.0,2000.0,6,24,4
+2026-10-11,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,57,1800.0,3800.0,2000.0,6,24,5
+2026-10-12,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,53,1800.0,3800.0,2000.0,6,24,4
+2026-10-13,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,48,1800.0,3800.0,2000.0,6,24,5
+2026-10-14,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,44,1800.0,3800.0,2000.0,6,24,4
+2026-10-15,MERCH_01,SKU-DTL-01,Jamdani Embroidered Panjabi,Apparel & Fashion,20,1800.0,3800.0,2000.0,6,24,5
+2026-09-16,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,200,850.0,1650.0,800.0,4,16,0
+2026-09-17,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,199,850.0,1650.0,800.0,4,16,1
+2026-09-18,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,195,850.0,1650.0,800.0,4,16,4
+2026-09-19,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,191,850.0,1650.0,800.0,4,16,4
+2026-09-20,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,188,850.0,1650.0,800.0,4,16,3
+2026-09-21,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,185,850.0,1650.0,800.0,4,16,3
+2026-09-22,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,184,850.0,1650.0,800.0,4,16,1
+2026-09-23,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,182,850.0,1650.0,800.0,4,16,2
+2026-09-24,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,182,850.0,1650.0,800.0,4,16,0
+2026-09-25,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,180,850.0,1650.0,800.0,4,16,2
+2026-09-26,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,178,850.0,1650.0,800.0,4,16,2
+2026-09-27,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,178,850.0,1650.0,800.0,4,16,0
+2026-09-28,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,178,850.0,1650.0,800.0,4,16,0
+2026-09-29,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,174,850.0,1650.0,800.0,4,16,4
+2026-09-30,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,170,850.0,1650.0,800.0,4,16,4
+2026-10-01,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,166,850.0,1650.0,800.0,4,16,4
+2026-10-02,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,165,850.0,1650.0,800.0,4,16,1
+2026-10-03,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,165,850.0,1650.0,800.0,4,16,0
+2026-10-04,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,163,850.0,1650.0,800.0,4,16,2
+2026-10-05,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,159,850.0,1650.0,800.0,4,16,4
+2026-10-06,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,157,850.0,1650.0,800.0,4,16,2
+2026-10-07,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,153,850.0,1650.0,800.0,4,16,4
+2026-10-08,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,151,850.0,1650.0,800.0,4,16,2
+2026-10-09,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,147,850.0,1650.0,800.0,4,16,4
+2026-10-10,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,143,850.0,1650.0,800.0,4,16,4
+2026-10-11,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,142,850.0,1650.0,800.0,4,16,1
+2026-10-12,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,138,850.0,1650.0,800.0,4,16,4
+2026-10-13,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,134,850.0,1650.0,800.0,4,16,4
+2026-10-14,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,130,850.0,1650.0,800.0,4,16,4
+2026-10-15,MERCH_01,SKU-DTL-02,Cotton Formal Trousers,Apparel & Fashion,126,850.0,1650.0,800.0,4,16,4
+2026-09-16,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,73,7900.0,12550.0,4650.0,7,28,2
+2026-09-17,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,71,7900.0,12550.0,4650.0,7,28,2
+2026-09-18,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,69,7900.0,12550.0,4650.0,7,28,2
+2026-09-19,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,67,7900.0,12550.0,4650.0,7,28,2
+2026-09-20,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,65,7900.0,12550.0,4650.0,7,28,2
+2026-09-21,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,63,7900.0,12550.0,4650.0,7,28,2
+2026-09-22,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,61,7900.0,12550.0,4650.0,7,28,2
+2026-09-23,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,59,7900.0,12550.0,4650.0,7,28,2
+2026-09-24,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,57,7900.0,12550.0,4650.0,7,28,2
+2026-09-25,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,55,7900.0,12550.0,4650.0,7,28,2
+2026-09-26,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,53,7900.0,12550.0,4650.0,7,28,2
+2026-09-27,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,51,7900.0,12550.0,4650.0,7,28,2
+2026-09-28,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,49,7900.0,12550.0,4650.0,7,28,2
+2026-09-29,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,47,7900.0,12550.0,4650.0,7,28,2
+2026-09-30,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,45,7900.0,12550.0,4650.0,7,28,2
+2026-10-01,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,43,7900.0,12550.0,4650.0,7,28,2
+2026-10-02,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,41,7900.0,12550.0,4650.0,7,28,2
+2026-10-03,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,39,7900.0,12550.0,4650.0,7,28,2
+2026-10-04,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,37,7900.0,12550.0,4650.0,7,28,2
+2026-10-05,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,35,7900.0,12550.0,4650.0,7,28,2
+2026-10-06,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,33,7900.0,12550.0,4650.0,7,28,2
+2026-10-07,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,31,7900.0,12550.0,4650.0,7,28,2
+2026-10-08,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,29,7900.0,12550.0,4650.0,7,28,2
+2026-10-09,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,25,7900.0,12550.0,4650.0,7,28,4
+2026-10-10,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,22,7900.0,12550.0,4650.0,7,28,3
+2026-10-11,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,18,7900.0,12550.0,4650.0,7,28,4
+2026-10-12,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,15,7900.0,12550.0,4650.0,7,28,3
+2026-10-13,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,11,7900.0,12550.0,4650.0,7,28,4
+2026-10-14,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,8,7900.0,12550.0,4650.0,7,28,3
+2026-10-15,MERCH_02,SKU-CAH-HERO-01,Handcrafted Chittagong Brass Chandelier,Home Decor & Crafts,23,7900.0,12550.0,4650.0,7,28,4
+2026-09-16,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,117,1200.0,2400.0,1200.0,5,20,3
+2026-09-17,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,114,1200.0,2400.0,1200.0,5,20,3
+2026-09-18,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,111,1200.0,2400.0,1200.0,5,20,3
+2026-09-19,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,110,1200.0,2400.0,1200.0,5,20,1
+2026-09-20,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,110,1200.0,2400.0,1200.0,5,20,0
+2026-09-21,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,109,1200.0,2400.0,1200.0,5,20,1
+2026-09-22,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,109,1200.0,2400.0,1200.0,5,20,0
+2026-09-23,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,107,1200.0,2400.0,1200.0,5,20,2
+2026-09-24,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,103,1200.0,2400.0,1200.0,5,20,4
+2026-09-25,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,100,1200.0,2400.0,1200.0,5,20,3
+2026-09-26,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,99,1200.0,2400.0,1200.0,5,20,1
+2026-09-27,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,98,1200.0,2400.0,1200.0,5,20,1
+2026-09-28,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,98,1200.0,2400.0,1200.0,5,20,0
+2026-09-29,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,94,1200.0,2400.0,1200.0,5,20,4
+2026-09-30,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,91,1200.0,2400.0,1200.0,5,20,3
+2026-10-01,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,90,1200.0,2400.0,1200.0,5,20,1
+2026-10-02,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,89,1200.0,2400.0,1200.0,5,20,1
+2026-10-03,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,89,1200.0,2400.0,1200.0,5,20,0
+2026-10-04,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,86,1200.0,2400.0,1200.0,5,20,3
+2026-10-05,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,86,1200.0,2400.0,1200.0,5,20,0
+2026-10-06,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,82,1200.0,2400.0,1200.0,5,20,4
+2026-10-07,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,80,1200.0,2400.0,1200.0,5,20,2
+2026-10-08,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,80,1200.0,2400.0,1200.0,5,20,0
+2026-10-09,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,76,1200.0,2400.0,1200.0,5,20,4
+2026-10-10,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,72,1200.0,2400.0,1200.0,5,20,4
+2026-10-11,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,68,1200.0,2400.0,1200.0,5,20,4
+2026-10-12,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,64,1200.0,2400.0,1200.0,5,20,4
+2026-10-13,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,60,1200.0,2400.0,1200.0,5,20,4
+2026-10-14,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,56,1200.0,2400.0,1200.0,5,20,4
+2026-10-15,MERCH_02,SKU-CAH-02,Teak Wood Nakshi Carved Tray,Home Decor & Crafts,52,1200.0,2400.0,1200.0,5,20,4
+2026-09-16,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,126,3500.0,5800.0,2300.0,10,40,4
+2026-09-17,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,125,3500.0,5800.0,2300.0,10,40,1
+2026-09-18,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,122,3500.0,5800.0,2300.0,10,40,3
+2026-09-19,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,122,3500.0,5800.0,2300.0,10,40,0
+2026-09-20,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,118,3500.0,5800.0,2300.0,10,40,4
+2026-09-21,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,118,3500.0,5800.0,2300.0,10,40,0
+2026-09-22,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,118,3500.0,5800.0,2300.0,10,40,0
+2026-09-23,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,114,3500.0,5800.0,2300.0,10,40,4
+2026-09-24,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,114,3500.0,5800.0,2300.0,10,40,0
+2026-09-25,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,110,3500.0,5800.0,2300.0,10,40,4
+2026-09-26,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,110,3500.0,5800.0,2300.0,10,40,0
+2026-09-27,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,106,3500.0,5800.0,2300.0,10,40,4
+2026-09-28,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,106,3500.0,5800.0,2300.0,10,40,0
+2026-09-29,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,104,3500.0,5800.0,2300.0,10,40,2
+2026-09-30,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,102,3500.0,5800.0,2300.0,10,40,2
+2026-10-01,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,99,3500.0,5800.0,2300.0,10,40,3
+2026-10-02,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,95,3500.0,5800.0,2300.0,10,40,4
+2026-10-03,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,94,3500.0,5800.0,2300.0,10,40,1
+2026-10-04,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,92,3500.0,5800.0,2300.0,10,40,2
+2026-10-05,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,88,3500.0,5800.0,2300.0,10,40,4
+2026-10-06,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,88,3500.0,5800.0,2300.0,10,40,0
+2026-10-07,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,85,3500.0,5800.0,2300.0,10,40,3
+2026-10-08,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,81,3500.0,5800.0,2300.0,10,40,4
+2026-10-09,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,81,3500.0,5800.0,2300.0,10,40,0
+2026-10-10,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,77,3500.0,5800.0,2300.0,10,40,4
+2026-10-11,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,73,3500.0,5800.0,2300.0,10,40,4
+2026-10-12,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,71,3500.0,5800.0,2300.0,10,40,2
+2026-10-13,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,67,3500.0,5800.0,2300.0,10,40,4
+2026-10-14,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,65,3500.0,5800.0,2300.0,10,40,2
+2026-10-15,MERCH_02,SKU-CAH-03,Natural Cane Lounge Chair,Home Decor & Crafts,64,3500.0,5800.0,2300.0,10,40,1
+2026-09-16,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,96,1150.0,2500.0,1350.0,5,20,4
+2026-09-17,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,92,1150.0,2500.0,1350.0,5,20,4
+2026-09-18,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,88,1150.0,2500.0,1350.0,5,20,4
+2026-09-19,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,86,1150.0,2500.0,1350.0,5,20,2
+2026-09-20,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,82,1150.0,2500.0,1350.0,5,20,4
+2026-09-21,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,78,1150.0,2500.0,1350.0,5,20,4
+2026-09-22,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,78,1150.0,2500.0,1350.0,5,20,0
+2026-09-23,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,76,1150.0,2500.0,1350.0,5,20,2
+2026-09-24,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,72,1150.0,2500.0,1350.0,5,20,4
+2026-09-25,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,69,1150.0,2500.0,1350.0,5,20,3
+2026-09-26,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,66,1150.0,2500.0,1350.0,5,20,3
+2026-09-27,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,62,1150.0,2500.0,1350.0,5,20,4
+2026-09-28,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,59,1150.0,2500.0,1350.0,5,20,3
+2026-09-29,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,56,1150.0,2500.0,1350.0,5,20,3
+2026-09-30,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,54,1150.0,2500.0,1350.0,5,20,2
+2026-10-01,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,51,1150.0,2500.0,1350.0,5,20,3
+2026-10-02,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,50,1150.0,2500.0,1350.0,5,20,1
+2026-10-03,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,127,1150.0,2500.0,1350.0,5,20,3
+2026-10-04,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,127,1150.0,2500.0,1350.0,5,20,0
+2026-10-05,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,124,1150.0,2500.0,1350.0,5,20,3
+2026-10-06,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,121,1150.0,2500.0,1350.0,5,20,3
+2026-10-07,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,118,1150.0,2500.0,1350.0,5,20,3
+2026-10-08,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,114,1150.0,2500.0,1350.0,5,20,4
+2026-10-09,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,111,1150.0,2500.0,1350.0,5,20,3
+2026-10-10,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,108,1150.0,2500.0,1350.0,5,20,3
+2026-10-11,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,104,1150.0,2500.0,1350.0,5,20,4
+2026-10-12,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,100,1150.0,2500.0,1350.0,5,20,4
+2026-10-13,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,96,1150.0,2500.0,1350.0,5,20,4
+2026-10-14,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,92,1150.0,2500.0,1350.0,5,20,4
+2026-10-15,MERCH_03,SKU-MERCH_03-A,Food Signature Product A,Food & Beverage,88,1150.0,2500.0,1350.0,5,20,4
+2026-09-16,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,180,450.0,950.0,500.0,4,16,0
+2026-09-17,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,178,450.0,950.0,500.0,4,16,2
+2026-09-18,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,175,450.0,950.0,500.0,4,16,3
+2026-09-19,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,173,450.0,950.0,500.0,4,16,2
+2026-09-20,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,171,450.0,950.0,500.0,4,16,2
+2026-09-21,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,169,450.0,950.0,500.0,4,16,2
+2026-09-22,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,165,450.0,950.0,500.0,4,16,4
+2026-09-23,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,163,450.0,950.0,500.0,4,16,2
+2026-09-24,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,159,450.0,950.0,500.0,4,16,4
+2026-09-25,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,156,450.0,950.0,500.0,4,16,3
+2026-09-26,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,153,450.0,950.0,500.0,4,16,3
+2026-09-27,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,149,450.0,950.0,500.0,4,16,4
+2026-09-28,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,147,450.0,950.0,500.0,4,16,2
+2026-09-29,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,145,450.0,950.0,500.0,4,16,2
+2026-09-30,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,144,450.0,950.0,500.0,4,16,1
+2026-10-01,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,143,450.0,950.0,500.0,4,16,1
+2026-10-02,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,139,450.0,950.0,500.0,4,16,4
+2026-10-03,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,135,450.0,950.0,500.0,4,16,4
+2026-10-04,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,131,450.0,950.0,500.0,4,16,4
+2026-10-05,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,128,450.0,950.0,500.0,4,16,3
+2026-10-06,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,127,450.0,950.0,500.0,4,16,1
+2026-10-07,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,125,450.0,950.0,500.0,4,16,2
+2026-10-08,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,123,450.0,950.0,500.0,4,16,2
+2026-10-09,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,119,450.0,950.0,500.0,4,16,4
+2026-10-10,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,116,450.0,950.0,500.0,4,16,3
+2026-10-11,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,114,450.0,950.0,500.0,4,16,2
+2026-10-12,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,110,450.0,950.0,500.0,4,16,4
+2026-10-13,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,106,450.0,950.0,500.0,4,16,4
+2026-10-14,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,102,450.0,950.0,500.0,4,16,4
+2026-10-15,MERCH_03,SKU-MERCH_03-B,Food Value Line B,Food & Beverage,98,450.0,950.0,500.0,4,16,4
+2026-09-16,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,98,1200.0,2600.0,1400.0,5,20,2
+2026-09-17,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,96,1200.0,2600.0,1400.0,5,20,2
+2026-09-18,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,94,1200.0,2600.0,1400.0,5,20,2
+2026-09-19,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,92,1200.0,2600.0,1400.0,5,20,2
+2026-09-20,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,90,1200.0,2600.0,1400.0,5,20,2
+2026-09-21,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,88,1200.0,2600.0,1400.0,5,20,2
+2026-09-22,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,86,1200.0,2600.0,1400.0,5,20,2
+2026-09-23,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,84,1200.0,2600.0,1400.0,5,20,2
+2026-09-24,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,82,1200.0,2600.0,1400.0,5,20,2
+2026-09-25,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,80,1200.0,2600.0,1400.0,5,20,2
+2026-09-26,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,78,1200.0,2600.0,1400.0,5,20,2
+2026-09-27,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,76,1200.0,2600.0,1400.0,5,20,2
+2026-09-28,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,74,1200.0,2600.0,1400.0,5,20,2
+2026-09-29,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,72,1200.0,2600.0,1400.0,5,20,2
+2026-09-30,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,70,1200.0,2600.0,1400.0,5,20,2
+2026-10-01,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,68,1200.0,2600.0,1400.0,5,20,2
+2026-10-02,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,66,1200.0,2600.0,1400.0,5,20,2
+2026-10-03,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,64,1200.0,2600.0,1400.0,5,20,2
+2026-10-04,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,62,1200.0,2600.0,1400.0,5,20,2
+2026-10-05,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,60,1200.0,2600.0,1400.0,5,20,2
+2026-10-06,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,58,1200.0,2600.0,1400.0,5,20,2
+2026-10-07,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,56,1200.0,2600.0,1400.0,5,20,2
+2026-10-08,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,54,1200.0,2600.0,1400.0,5,20,2
+2026-10-09,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,51,1200.0,2600.0,1400.0,5,20,3
+2026-10-10,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,48,1200.0,2600.0,1400.0,5,20,3
+2026-10-11,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,45,1200.0,2600.0,1400.0,5,20,3
+2026-10-12,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,42,1200.0,2600.0,1400.0,5,20,3
+2026-10-13,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,39,1200.0,2600.0,1400.0,5,20,3
+2026-10-14,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,36,1200.0,2600.0,1400.0,5,20,3
+2026-10-15,MERCH_04,SKU-MERCH_04-A,Traditional Signature Product A,Traditional Fashion,14,1200.0,2600.0,1400.0,5,20,3
+2026-09-16,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,179,450.0,950.0,500.0,4,16,1
+2026-09-17,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,177,450.0,950.0,500.0,4,16,2
+2026-09-18,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,177,450.0,950.0,500.0,4,16,0
+2026-09-19,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,174,450.0,950.0,500.0,4,16,3
+2026-09-20,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,173,450.0,950.0,500.0,4,16,1
+2026-09-21,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,173,450.0,950.0,500.0,4,16,0
+2026-09-22,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,173,450.0,950.0,500.0,4,16,0
+2026-09-23,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,170,450.0,950.0,500.0,4,16,3
+2026-09-24,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,166,450.0,950.0,500.0,4,16,4
+2026-09-25,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,162,450.0,950.0,500.0,4,16,4
+2026-09-26,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,159,450.0,950.0,500.0,4,16,3
+2026-09-27,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,155,450.0,950.0,500.0,4,16,4
+2026-09-28,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,152,450.0,950.0,500.0,4,16,3
+2026-09-29,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,151,450.0,950.0,500.0,4,16,1
+2026-09-30,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,147,450.0,950.0,500.0,4,16,4
+2026-10-01,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,145,450.0,950.0,500.0,4,16,2
+2026-10-02,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,141,450.0,950.0,500.0,4,16,4
+2026-10-03,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,137,450.0,950.0,500.0,4,16,4
+2026-10-04,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,137,450.0,950.0,500.0,4,16,0
+2026-10-05,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,133,450.0,950.0,500.0,4,16,4
+2026-10-06,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,129,450.0,950.0,500.0,4,16,4
+2026-10-07,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,129,450.0,950.0,500.0,4,16,0
+2026-10-08,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,125,450.0,950.0,500.0,4,16,4
+2026-10-09,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,122,450.0,950.0,500.0,4,16,3
+2026-10-10,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,118,450.0,950.0,500.0,4,16,4
+2026-10-11,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,114,450.0,950.0,500.0,4,16,4
+2026-10-12,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,110,450.0,950.0,500.0,4,16,4
+2026-10-13,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,106,450.0,950.0,500.0,4,16,4
+2026-10-14,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,102,450.0,950.0,500.0,4,16,4
+2026-10-15,MERCH_04,SKU-MERCH_04-B,Traditional Value Line B,Traditional Fashion,98,450.0,950.0,500.0,4,16,4
+2026-09-16,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,98,1250.0,2700.0,1450.0,5,20,2
+2026-09-17,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,97,1250.0,2700.0,1450.0,5,20,1
+2026-09-18,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,97,1250.0,2700.0,1450.0,5,20,0
+2026-09-19,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,93,1250.0,2700.0,1450.0,5,20,4
+2026-09-20,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,89,1250.0,2700.0,1450.0,5,20,4
+2026-09-21,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,85,1250.0,2700.0,1450.0,5,20,4
+2026-09-22,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,85,1250.0,2700.0,1450.0,5,20,0
+2026-09-23,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,82,1250.0,2700.0,1450.0,5,20,3
+2026-09-24,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,80,1250.0,2700.0,1450.0,5,20,2
+2026-09-25,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,76,1250.0,2700.0,1450.0,5,20,4
+2026-09-26,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,75,1250.0,2700.0,1450.0,5,20,1
+2026-09-27,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,71,1250.0,2700.0,1450.0,5,20,4
+2026-09-28,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,67,1250.0,2700.0,1450.0,5,20,4
+2026-09-29,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,64,1250.0,2700.0,1450.0,5,20,3
+2026-09-30,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,62,1250.0,2700.0,1450.0,5,20,2
+2026-10-01,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,60,1250.0,2700.0,1450.0,5,20,2
+2026-10-02,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,57,1250.0,2700.0,1450.0,5,20,3
+2026-10-03,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,57,1250.0,2700.0,1450.0,5,20,0
+2026-10-04,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,53,1250.0,2700.0,1450.0,5,20,4
+2026-10-05,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,50,1250.0,2700.0,1450.0,5,20,3
+2026-10-06,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,127,1250.0,2700.0,1450.0,5,20,3
+2026-10-07,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,127,1250.0,2700.0,1450.0,5,20,0
+2026-10-08,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,123,1250.0,2700.0,1450.0,5,20,4
+2026-10-09,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,119,1250.0,2700.0,1450.0,5,20,4
+2026-10-10,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,115,1250.0,2700.0,1450.0,5,20,4
+2026-10-11,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,111,1250.0,2700.0,1450.0,5,20,4
+2026-10-12,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,110,1250.0,2700.0,1450.0,5,20,1
+2026-10-13,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,106,1250.0,2700.0,1450.0,5,20,4
+2026-10-14,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,102,1250.0,2700.0,1450.0,5,20,4
+2026-10-15,MERCH_05,SKU-MERCH_05-A,Leather Signature Product A,Leather Goods,98,1250.0,2700.0,1450.0,5,20,4
+2026-09-16,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,179,450.0,950.0,500.0,4,16,1
+2026-09-17,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,175,450.0,950.0,500.0,4,16,4
+2026-09-18,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,171,450.0,950.0,500.0,4,16,4
+2026-09-19,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,170,450.0,950.0,500.0,4,16,1
+2026-09-20,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,170,450.0,950.0,500.0,4,16,0
+2026-09-21,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,167,450.0,950.0,500.0,4,16,3
+2026-09-22,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,163,450.0,950.0,500.0,4,16,4
+2026-09-23,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,160,450.0,950.0,500.0,4,16,3
+2026-09-24,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,159,450.0,950.0,500.0,4,16,1
+2026-09-25,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,157,450.0,950.0,500.0,4,16,2
+2026-09-26,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,154,450.0,950.0,500.0,4,16,3
+2026-09-27,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,150,450.0,950.0,500.0,4,16,4
+2026-09-28,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,148,450.0,950.0,500.0,4,16,2
+2026-09-29,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,145,450.0,950.0,500.0,4,16,3
+2026-09-30,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,142,450.0,950.0,500.0,4,16,3
+2026-10-01,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,140,450.0,950.0,500.0,4,16,2
+2026-10-02,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,136,450.0,950.0,500.0,4,16,4
+2026-10-03,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,132,450.0,950.0,500.0,4,16,4
+2026-10-04,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,132,450.0,950.0,500.0,4,16,0
+2026-10-05,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,128,450.0,950.0,500.0,4,16,4
+2026-10-06,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,128,450.0,950.0,500.0,4,16,0
+2026-10-07,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,124,450.0,950.0,500.0,4,16,4
+2026-10-08,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,121,450.0,950.0,500.0,4,16,3
+2026-10-09,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,117,450.0,950.0,500.0,4,16,4
+2026-10-10,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,114,450.0,950.0,500.0,4,16,3
+2026-10-11,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,112,450.0,950.0,500.0,4,16,2
+2026-10-12,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,108,450.0,950.0,500.0,4,16,4
+2026-10-13,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,104,450.0,950.0,500.0,4,16,4
+2026-10-14,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,100,450.0,950.0,500.0,4,16,4
+2026-10-15,MERCH_05,SKU-MERCH_05-B,Leather Value Line B,Leather Goods,96,450.0,950.0,500.0,4,16,4
+2026-09-16,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,96,1300.0,2800.0,1500.0,5,20,4
+2026-09-17,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,92,1300.0,2800.0,1500.0,5,20,4
+2026-09-18,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,89,1300.0,2800.0,1500.0,5,20,3
+2026-09-19,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,86,1300.0,2800.0,1500.0,5,20,3
+2026-09-20,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,83,1300.0,2800.0,1500.0,5,20,3
+2026-09-21,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,83,1300.0,2800.0,1500.0,5,20,0
+2026-09-22,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,81,1300.0,2800.0,1500.0,5,20,2
+2026-09-23,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,80,1300.0,2800.0,1500.0,5,20,1
+2026-09-24,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,76,1300.0,2800.0,1500.0,5,20,4
+2026-09-25,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,74,1300.0,2800.0,1500.0,5,20,2
+2026-09-26,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,70,1300.0,2800.0,1500.0,5,20,4
+2026-09-27,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,67,1300.0,2800.0,1500.0,5,20,3
+2026-09-28,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,64,1300.0,2800.0,1500.0,5,20,3
+2026-09-29,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,61,1300.0,2800.0,1500.0,5,20,3
+2026-09-30,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,58,1300.0,2800.0,1500.0,5,20,3
+2026-10-01,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,58,1300.0,2800.0,1500.0,5,20,0
+2026-10-02,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,54,1300.0,2800.0,1500.0,5,20,4
+2026-10-03,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,53,1300.0,2800.0,1500.0,5,20,1
+2026-10-04,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,50,1300.0,2800.0,1500.0,5,20,3
+2026-10-05,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,50,1300.0,2800.0,1500.0,5,20,0
+2026-10-06,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,127,1300.0,2800.0,1500.0,5,20,3
+2026-10-07,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,124,1300.0,2800.0,1500.0,5,20,3
+2026-10-08,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,120,1300.0,2800.0,1500.0,5,20,4
+2026-10-09,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,116,1300.0,2800.0,1500.0,5,20,4
+2026-10-10,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,112,1300.0,2800.0,1500.0,5,20,4
+2026-10-11,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,109,1300.0,2800.0,1500.0,5,20,3
+2026-10-12,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,107,1300.0,2800.0,1500.0,5,20,2
+2026-10-13,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,103,1300.0,2800.0,1500.0,5,20,4
+2026-10-14,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,100,1300.0,2800.0,1500.0,5,20,3
+2026-10-15,MERCH_06,SKU-MERCH_06-A,Agro Signature Product A,Agro & Groceries,99,1300.0,2800.0,1500.0,5,20,1
+2026-09-16,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,180,450.0,950.0,500.0,4,16,0
+2026-09-17,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,180,450.0,950.0,500.0,4,16,0
+2026-09-18,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,176,450.0,950.0,500.0,4,16,4
+2026-09-19,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,174,450.0,950.0,500.0,4,16,2
+2026-09-20,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,172,450.0,950.0,500.0,4,16,2
+2026-09-21,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,170,450.0,950.0,500.0,4,16,2
+2026-09-22,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,166,450.0,950.0,500.0,4,16,4
+2026-09-23,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,162,450.0,950.0,500.0,4,16,4
+2026-09-24,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,162,450.0,950.0,500.0,4,16,0
+2026-09-25,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,160,450.0,950.0,500.0,4,16,2
+2026-09-26,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,156,450.0,950.0,500.0,4,16,4
+2026-09-27,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,153,450.0,950.0,500.0,4,16,3
+2026-09-28,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,149,450.0,950.0,500.0,4,16,4
+2026-09-29,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,145,450.0,950.0,500.0,4,16,4
+2026-09-30,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,143,450.0,950.0,500.0,4,16,2
+2026-10-01,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,139,450.0,950.0,500.0,4,16,4
+2026-10-02,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,135,450.0,950.0,500.0,4,16,4
+2026-10-03,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,131,450.0,950.0,500.0,4,16,4
+2026-10-04,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,128,450.0,950.0,500.0,4,16,3
+2026-10-05,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,124,450.0,950.0,500.0,4,16,4
+2026-10-06,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,120,450.0,950.0,500.0,4,16,4
+2026-10-07,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,118,450.0,950.0,500.0,4,16,2
+2026-10-08,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,114,450.0,950.0,500.0,4,16,4
+2026-10-09,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,112,450.0,950.0,500.0,4,16,2
+2026-10-10,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,108,450.0,950.0,500.0,4,16,4
+2026-10-11,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,104,450.0,950.0,500.0,4,16,4
+2026-10-12,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,100,450.0,950.0,500.0,4,16,4
+2026-10-13,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,96,450.0,950.0,500.0,4,16,4
+2026-10-14,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,93,450.0,950.0,500.0,4,16,3
+2026-10-15,MERCH_06,SKU-MERCH_06-B,Agro Value Line B,Agro & Groceries,89,450.0,950.0,500.0,4,16,4
+2026-09-16,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,96,1350.0,2900.0,1550.0,5,20,4
+2026-09-17,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,96,1350.0,2900.0,1550.0,5,20,0
+2026-09-18,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,94,1350.0,2900.0,1550.0,5,20,2
+2026-09-19,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,90,1350.0,2900.0,1550.0,5,20,4
+2026-09-20,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,89,1350.0,2900.0,1550.0,5,20,1
+2026-09-21,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,86,1350.0,2900.0,1550.0,5,20,3
+2026-09-22,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,85,1350.0,2900.0,1550.0,5,20,1
+2026-09-23,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,81,1350.0,2900.0,1550.0,5,20,4
+2026-09-24,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,81,1350.0,2900.0,1550.0,5,20,0
+2026-09-25,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,81,1350.0,2900.0,1550.0,5,20,0
+2026-09-26,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,77,1350.0,2900.0,1550.0,5,20,4
+2026-09-27,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,74,1350.0,2900.0,1550.0,5,20,3
+2026-09-28,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,71,1350.0,2900.0,1550.0,5,20,3
+2026-09-29,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,67,1350.0,2900.0,1550.0,5,20,4
+2026-09-30,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,67,1350.0,2900.0,1550.0,5,20,0
+2026-10-01,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,63,1350.0,2900.0,1550.0,5,20,4
+2026-10-02,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,62,1350.0,2900.0,1550.0,5,20,1
+2026-10-03,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,58,1350.0,2900.0,1550.0,5,20,4
+2026-10-04,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,55,1350.0,2900.0,1550.0,5,20,3
+2026-10-05,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,52,1350.0,2900.0,1550.0,5,20,3
+2026-10-06,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,52,1350.0,2900.0,1550.0,5,20,0
+2026-10-07,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,51,1350.0,2900.0,1550.0,5,20,1
+2026-10-08,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,127,1350.0,2900.0,1550.0,5,20,4
+2026-10-09,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,123,1350.0,2900.0,1550.0,5,20,4
+2026-10-10,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,121,1350.0,2900.0,1550.0,5,20,2
+2026-10-11,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,118,1350.0,2900.0,1550.0,5,20,3
+2026-10-12,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,114,1350.0,2900.0,1550.0,5,20,4
+2026-10-13,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,110,1350.0,2900.0,1550.0,5,20,4
+2026-10-14,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,107,1350.0,2900.0,1550.0,5,20,3
+2026-10-15,MERCH_07,SKU-MERCH_07-A,Home Signature Product A,Home Textiles,107,1350.0,2900.0,1550.0,5,20,0
+2026-09-16,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,178,450.0,950.0,500.0,4,16,2
+2026-09-17,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,175,450.0,950.0,500.0,4,16,3
+2026-09-18,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,171,450.0,950.0,500.0,4,16,4
+2026-09-19,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,171,450.0,950.0,500.0,4,16,0
+2026-09-20,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,167,450.0,950.0,500.0,4,16,4
+2026-09-21,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,165,450.0,950.0,500.0,4,16,2
+2026-09-22,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,161,450.0,950.0,500.0,4,16,4
+2026-09-23,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,160,450.0,950.0,500.0,4,16,1
+2026-09-24,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,156,450.0,950.0,500.0,4,16,4
+2026-09-25,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,152,450.0,950.0,500.0,4,16,4
+2026-09-26,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,152,450.0,950.0,500.0,4,16,0
+2026-09-27,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,148,450.0,950.0,500.0,4,16,4
+2026-09-28,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,145,450.0,950.0,500.0,4,16,3
+2026-09-29,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,145,450.0,950.0,500.0,4,16,0
+2026-09-30,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,141,450.0,950.0,500.0,4,16,4
+2026-10-01,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,137,450.0,950.0,500.0,4,16,4
+2026-10-02,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,134,450.0,950.0,500.0,4,16,3
+2026-10-03,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,132,450.0,950.0,500.0,4,16,2
+2026-10-04,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,128,450.0,950.0,500.0,4,16,4
+2026-10-05,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,126,450.0,950.0,500.0,4,16,2
+2026-10-06,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,122,450.0,950.0,500.0,4,16,4
+2026-10-07,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,120,450.0,950.0,500.0,4,16,2
+2026-10-08,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,116,450.0,950.0,500.0,4,16,4
+2026-10-09,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,114,450.0,950.0,500.0,4,16,2
+2026-10-10,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,110,450.0,950.0,500.0,4,16,4
+2026-10-11,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,106,450.0,950.0,500.0,4,16,4
+2026-10-12,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,104,450.0,950.0,500.0,4,16,2
+2026-10-13,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,100,450.0,950.0,500.0,4,16,4
+2026-10-14,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,96,450.0,950.0,500.0,4,16,4
+2026-10-15,MERCH_07,SKU-MERCH_07-B,Home Value Line B,Home Textiles,92,450.0,950.0,500.0,4,16,4
+2026-09-16,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,98,1400.0,3000.0,1600.0,5,20,2
+2026-09-17,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,94,1400.0,3000.0,1600.0,5,20,4
+2026-09-18,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,91,1400.0,3000.0,1600.0,5,20,3
+2026-09-19,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,87,1400.0,3000.0,1600.0,5,20,4
+2026-09-20,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,87,1400.0,3000.0,1600.0,5,20,0
+2026-09-21,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,85,1400.0,3000.0,1600.0,5,20,2
+2026-09-22,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,81,1400.0,3000.0,1600.0,5,20,4
+2026-09-23,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,77,1400.0,3000.0,1600.0,5,20,4
+2026-09-24,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,74,1400.0,3000.0,1600.0,5,20,3
+2026-09-25,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,72,1400.0,3000.0,1600.0,5,20,2
+2026-09-26,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,71,1400.0,3000.0,1600.0,5,20,1
+2026-09-27,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,71,1400.0,3000.0,1600.0,5,20,0
+2026-09-28,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,67,1400.0,3000.0,1600.0,5,20,4
+2026-09-29,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,64,1400.0,3000.0,1600.0,5,20,3
+2026-09-30,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,61,1400.0,3000.0,1600.0,5,20,3
+2026-10-01,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,59,1400.0,3000.0,1600.0,5,20,2
+2026-10-02,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,58,1400.0,3000.0,1600.0,5,20,1
+2026-10-03,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,54,1400.0,3000.0,1600.0,5,20,4
+2026-10-04,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,51,1400.0,3000.0,1600.0,5,20,3
+2026-10-05,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,128,1400.0,3000.0,1600.0,5,20,3
+2026-10-06,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,124,1400.0,3000.0,1600.0,5,20,4
+2026-10-07,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,122,1400.0,3000.0,1600.0,5,20,2
+2026-10-08,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,118,1400.0,3000.0,1600.0,5,20,4
+2026-10-09,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,114,1400.0,3000.0,1600.0,5,20,4
+2026-10-10,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,112,1400.0,3000.0,1600.0,5,20,2
+2026-10-11,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,108,1400.0,3000.0,1600.0,5,20,4
+2026-10-12,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,104,1400.0,3000.0,1600.0,5,20,4
+2026-10-13,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,102,1400.0,3000.0,1600.0,5,20,2
+2026-10-14,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,98,1400.0,3000.0,1600.0,5,20,4
+2026-10-15,MERCH_08,SKU-MERCH_08-A,Dairy Signature Product A,Dairy & Pantry,97,1400.0,3000.0,1600.0,5,20,1
+2026-09-16,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,179,450.0,950.0,500.0,4,16,1
+2026-09-17,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,178,450.0,950.0,500.0,4,16,1
+2026-09-18,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,175,450.0,950.0,500.0,4,16,3
+2026-09-19,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,175,450.0,950.0,500.0,4,16,0
+2026-09-20,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,171,450.0,950.0,500.0,4,16,4
+2026-09-21,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,169,450.0,950.0,500.0,4,16,2
+2026-09-22,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,167,450.0,950.0,500.0,4,16,2
+2026-09-23,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,165,450.0,950.0,500.0,4,16,2
+2026-09-24,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,163,450.0,950.0,500.0,4,16,2
+2026-09-25,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,161,450.0,950.0,500.0,4,16,2
+2026-09-26,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,159,450.0,950.0,500.0,4,16,2
+2026-09-27,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,155,450.0,950.0,500.0,4,16,4
+2026-09-28,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,153,450.0,950.0,500.0,4,16,2
+2026-09-29,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,149,450.0,950.0,500.0,4,16,4
+2026-09-30,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,146,450.0,950.0,500.0,4,16,3
+2026-10-01,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,143,450.0,950.0,500.0,4,16,3
+2026-10-02,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,141,450.0,950.0,500.0,4,16,2
+2026-10-03,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,141,450.0,950.0,500.0,4,16,0
+2026-10-04,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,138,450.0,950.0,500.0,4,16,3
+2026-10-05,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,138,450.0,950.0,500.0,4,16,0
+2026-10-06,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,138,450.0,950.0,500.0,4,16,0
+2026-10-07,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,138,450.0,950.0,500.0,4,16,0
+2026-10-08,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,136,450.0,950.0,500.0,4,16,2
+2026-10-09,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,132,450.0,950.0,500.0,4,16,4
+2026-10-10,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,128,450.0,950.0,500.0,4,16,4
+2026-10-11,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,124,450.0,950.0,500.0,4,16,4
+2026-10-12,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,120,450.0,950.0,500.0,4,16,4
+2026-10-13,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,116,450.0,950.0,500.0,4,16,4
+2026-10-14,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,113,450.0,950.0,500.0,4,16,3
+2026-10-15,MERCH_08,SKU-MERCH_08-B,Dairy Value Line B,Dairy & Pantry,109,450.0,950.0,500.0,4,16,4
+2026-09-16,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,98,1450.0,3100.0,1650.0,5,20,2
+2026-09-17,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,97,1450.0,3100.0,1650.0,5,20,1
+2026-09-18,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,95,1450.0,3100.0,1650.0,5,20,2
+2026-09-19,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,92,1450.0,3100.0,1650.0,5,20,3
+2026-09-20,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,88,1450.0,3100.0,1650.0,5,20,4
+2026-09-21,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,87,1450.0,3100.0,1650.0,5,20,1
+2026-09-22,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,84,1450.0,3100.0,1650.0,5,20,3
+2026-09-23,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,80,1450.0,3100.0,1650.0,5,20,4
+2026-09-24,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,80,1450.0,3100.0,1650.0,5,20,0
+2026-09-25,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,78,1450.0,3100.0,1650.0,5,20,2
+2026-09-26,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,78,1450.0,3100.0,1650.0,5,20,0
+2026-09-27,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,75,1450.0,3100.0,1650.0,5,20,3
+2026-09-28,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,72,1450.0,3100.0,1650.0,5,20,3
+2026-09-29,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,68,1450.0,3100.0,1650.0,5,20,4
+2026-09-30,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,66,1450.0,3100.0,1650.0,5,20,2
+2026-10-01,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,66,1450.0,3100.0,1650.0,5,20,0
+2026-10-02,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,66,1450.0,3100.0,1650.0,5,20,0
+2026-10-03,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,64,1450.0,3100.0,1650.0,5,20,2
+2026-10-04,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,62,1450.0,3100.0,1650.0,5,20,2
+2026-10-05,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,60,1450.0,3100.0,1650.0,5,20,2
+2026-10-06,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,58,1450.0,3100.0,1650.0,5,20,2
+2026-10-07,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,57,1450.0,3100.0,1650.0,5,20,1
+2026-10-08,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,53,1450.0,3100.0,1650.0,5,20,4
+2026-10-09,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,129,1450.0,3100.0,1650.0,5,20,4
+2026-10-10,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,125,1450.0,3100.0,1650.0,5,20,4
+2026-10-11,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,124,1450.0,3100.0,1650.0,5,20,1
+2026-10-12,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,120,1450.0,3100.0,1650.0,5,20,4
+2026-10-13,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,116,1450.0,3100.0,1650.0,5,20,4
+2026-10-14,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,114,1450.0,3100.0,1650.0,5,20,2
+2026-10-15,MERCH_09,SKU-MERCH_09-A,Handloom Signature Product A,Handloom Fashion,110,1450.0,3100.0,1650.0,5,20,4
+2026-09-16,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,178,450.0,950.0,500.0,4,16,2
+2026-09-17,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,174,450.0,950.0,500.0,4,16,4
+2026-09-18,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,173,450.0,950.0,500.0,4,16,1
+2026-09-19,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,169,450.0,950.0,500.0,4,16,4
+2026-09-20,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,169,450.0,950.0,500.0,4,16,0
+2026-09-21,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,167,450.0,950.0,500.0,4,16,2
+2026-09-22,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,164,450.0,950.0,500.0,4,16,3
+2026-09-23,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,161,450.0,950.0,500.0,4,16,3
+2026-09-24,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,157,450.0,950.0,500.0,4,16,4
+2026-09-25,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,154,450.0,950.0,500.0,4,16,3
+2026-09-26,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,150,450.0,950.0,500.0,4,16,4
+2026-09-27,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,146,450.0,950.0,500.0,4,16,4
+2026-09-28,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,142,450.0,950.0,500.0,4,16,4
+2026-09-29,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,142,450.0,950.0,500.0,4,16,0
+2026-09-30,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,141,450.0,950.0,500.0,4,16,1
+2026-10-01,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,137,450.0,950.0,500.0,4,16,4
+2026-10-02,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,133,450.0,950.0,500.0,4,16,4
+2026-10-03,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,132,450.0,950.0,500.0,4,16,1
+2026-10-04,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,130,450.0,950.0,500.0,4,16,2
+2026-10-05,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,126,450.0,950.0,500.0,4,16,4
+2026-10-06,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,123,450.0,950.0,500.0,4,16,3
+2026-10-07,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,121,450.0,950.0,500.0,4,16,2
+2026-10-08,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,120,450.0,950.0,500.0,4,16,1
+2026-10-09,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,116,450.0,950.0,500.0,4,16,4
+2026-10-10,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,116,450.0,950.0,500.0,4,16,0
+2026-10-11,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,112,450.0,950.0,500.0,4,16,4
+2026-10-12,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,108,450.0,950.0,500.0,4,16,4
+2026-10-13,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,105,450.0,950.0,500.0,4,16,3
+2026-10-14,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,101,450.0,950.0,500.0,4,16,4
+2026-10-15,MERCH_09,SKU-MERCH_09-B,Handloom Value Line B,Handloom Fashion,97,450.0,950.0,500.0,4,16,4
+2026-09-16,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,97,1500.0,3200.0,1700.0,5,20,3
+2026-09-17,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,94,1500.0,3200.0,1700.0,5,20,3
+2026-09-18,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,90,1500.0,3200.0,1700.0,5,20,4
+2026-09-19,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,87,1500.0,3200.0,1700.0,5,20,3
+2026-09-20,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,85,1500.0,3200.0,1700.0,5,20,2
+2026-09-21,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,84,1500.0,3200.0,1700.0,5,20,1
+2026-09-22,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,84,1500.0,3200.0,1700.0,5,20,0
+2026-09-23,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,81,1500.0,3200.0,1700.0,5,20,3
+2026-09-24,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,79,1500.0,3200.0,1700.0,5,20,2
+2026-09-25,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,78,1500.0,3200.0,1700.0,5,20,1
+2026-09-26,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,75,1500.0,3200.0,1700.0,5,20,3
+2026-09-27,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,71,1500.0,3200.0,1700.0,5,20,4
+2026-09-28,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,69,1500.0,3200.0,1700.0,5,20,2
+2026-09-29,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,66,1500.0,3200.0,1700.0,5,20,3
+2026-09-30,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,63,1500.0,3200.0,1700.0,5,20,3
+2026-10-01,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,60,1500.0,3200.0,1700.0,5,20,3
+2026-10-02,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,56,1500.0,3200.0,1700.0,5,20,4
+2026-10-03,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,54,1500.0,3200.0,1700.0,5,20,2
+2026-10-04,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,53,1500.0,3200.0,1700.0,5,20,1
+2026-10-05,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,51,1500.0,3200.0,1700.0,5,20,2
+2026-10-06,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,51,1500.0,3200.0,1700.0,5,20,0
+2026-10-07,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,50,1500.0,3200.0,1700.0,5,20,1
+2026-10-08,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,129,1500.0,3200.0,1700.0,5,20,1
+2026-10-09,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,126,1500.0,3200.0,1700.0,5,20,3
+2026-10-10,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,123,1500.0,3200.0,1700.0,5,20,3
+2026-10-11,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,120,1500.0,3200.0,1700.0,5,20,3
+2026-10-12,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,116,1500.0,3200.0,1700.0,5,20,4
+2026-10-13,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,116,1500.0,3200.0,1700.0,5,20,0
+2026-10-14,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,112,1500.0,3200.0,1700.0,5,20,4
+2026-10-15,MERCH_10,SKU-MERCH_10-A,Specialty Signature Product A,Specialty Food,110,1500.0,3200.0,1700.0,5,20,2
+2026-09-16,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,177,450.0,950.0,500.0,4,16,3
+2026-09-17,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,176,450.0,950.0,500.0,4,16,1
+2026-09-18,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,174,450.0,950.0,500.0,4,16,2
+2026-09-19,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,170,450.0,950.0,500.0,4,16,4
+2026-09-20,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,169,450.0,950.0,500.0,4,16,1
+2026-09-21,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,165,450.0,950.0,500.0,4,16,4
+2026-09-22,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,161,450.0,950.0,500.0,4,16,4
+2026-09-23,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,159,450.0,950.0,500.0,4,16,2
+2026-09-24,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,155,450.0,950.0,500.0,4,16,4
+2026-09-25,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,151,450.0,950.0,500.0,4,16,4
+2026-09-26,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,147,450.0,950.0,500.0,4,16,4
+2026-09-27,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,147,450.0,950.0,500.0,4,16,0
+2026-09-28,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,144,450.0,950.0,500.0,4,16,3
+2026-09-29,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,140,450.0,950.0,500.0,4,16,4
+2026-09-30,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,137,450.0,950.0,500.0,4,16,3
+2026-10-01,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,133,450.0,950.0,500.0,4,16,4
+2026-10-02,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,129,450.0,950.0,500.0,4,16,4
+2026-10-03,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,125,450.0,950.0,500.0,4,16,4
+2026-10-04,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,122,450.0,950.0,500.0,4,16,3
+2026-10-05,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,118,450.0,950.0,500.0,4,16,4
+2026-10-06,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,114,450.0,950.0,500.0,4,16,4
+2026-10-07,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,113,450.0,950.0,500.0,4,16,1
+2026-10-08,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,109,450.0,950.0,500.0,4,16,4
+2026-10-09,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,105,450.0,950.0,500.0,4,16,4
+2026-10-10,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,101,450.0,950.0,500.0,4,16,4
+2026-10-11,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,97,450.0,950.0,500.0,4,16,4
+2026-10-12,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,94,450.0,950.0,500.0,4,16,3
+2026-10-13,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,90,450.0,950.0,500.0,4,16,4
+2026-10-14,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,86,450.0,950.0,500.0,4,16,4
+2026-10-15,MERCH_10,SKU-MERCH_10-B,Specialty Value Line B,Specialty Food,82,450.0,950.0,500.0,4,16,4
+2026-09-16,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,97,1550.0,3300.0,1750.0,5,20,3
+2026-09-17,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,93,1550.0,3300.0,1750.0,5,20,4
+2026-09-18,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,91,1550.0,3300.0,1750.0,5,20,2
+2026-09-19,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,89,1550.0,3300.0,1750.0,5,20,2
+2026-09-20,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,86,1550.0,3300.0,1750.0,5,20,3
+2026-09-21,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,84,1550.0,3300.0,1750.0,5,20,2
+2026-09-22,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,81,1550.0,3300.0,1750.0,5,20,3
+2026-09-23,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,79,1550.0,3300.0,1750.0,5,20,2
+2026-09-24,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,75,1550.0,3300.0,1750.0,5,20,4
+2026-09-25,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,72,1550.0,3300.0,1750.0,5,20,3
+2026-09-26,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,68,1550.0,3300.0,1750.0,5,20,4
+2026-09-27,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,65,1550.0,3300.0,1750.0,5,20,3
+2026-09-28,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,65,1550.0,3300.0,1750.0,5,20,0
+2026-09-29,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,64,1550.0,3300.0,1750.0,5,20,1
+2026-09-30,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,62,1550.0,3300.0,1750.0,5,20,2
+2026-10-01,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,59,1550.0,3300.0,1750.0,5,20,3
+2026-10-02,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,55,1550.0,3300.0,1750.0,5,20,4
+2026-10-03,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,52,1550.0,3300.0,1750.0,5,20,3
+2026-10-04,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,51,1550.0,3300.0,1750.0,5,20,1
+2026-10-05,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,127,1550.0,3300.0,1750.0,5,20,4
+2026-10-06,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,124,1550.0,3300.0,1750.0,5,20,3
+2026-10-07,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,121,1550.0,3300.0,1750.0,5,20,3
+2026-10-08,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,117,1550.0,3300.0,1750.0,5,20,4
+2026-10-09,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,113,1550.0,3300.0,1750.0,5,20,4
+2026-10-10,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,110,1550.0,3300.0,1750.0,5,20,3
+2026-10-11,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,107,1550.0,3300.0,1750.0,5,20,3
+2026-10-12,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,104,1550.0,3300.0,1750.0,5,20,3
+2026-10-13,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,100,1550.0,3300.0,1750.0,5,20,4
+2026-10-14,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,96,1550.0,3300.0,1750.0,5,20,4
+2026-10-15,MERCH_11,SKU-MERCH_11-A,Jewelry Signature Product A,Jewelry & Resortwear,92,1550.0,3300.0,1750.0,5,20,4
+2026-09-16,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,176,450.0,950.0,500.0,4,16,4
+2026-09-17,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,176,450.0,950.0,500.0,4,16,0
+2026-09-18,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,176,450.0,950.0,500.0,4,16,0
+2026-09-19,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,176,450.0,950.0,500.0,4,16,0
+2026-09-20,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,172,450.0,950.0,500.0,4,16,4
+2026-09-21,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,169,450.0,950.0,500.0,4,16,3
+2026-09-22,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,167,450.0,950.0,500.0,4,16,2
+2026-09-23,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,163,450.0,950.0,500.0,4,16,4
+2026-09-24,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,163,450.0,950.0,500.0,4,16,0
+2026-09-25,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,163,450.0,950.0,500.0,4,16,0
+2026-09-26,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,163,450.0,950.0,500.0,4,16,0
+2026-09-27,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,160,450.0,950.0,500.0,4,16,3
+2026-09-28,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,156,450.0,950.0,500.0,4,16,4
+2026-09-29,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,153,450.0,950.0,500.0,4,16,3
+2026-09-30,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,153,450.0,950.0,500.0,4,16,0
+2026-10-01,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,150,450.0,950.0,500.0,4,16,3
+2026-10-02,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,147,450.0,950.0,500.0,4,16,3
+2026-10-03,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,147,450.0,950.0,500.0,4,16,0
+2026-10-04,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,145,450.0,950.0,500.0,4,16,2
+2026-10-05,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,145,450.0,950.0,500.0,4,16,0
+2026-10-06,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,141,450.0,950.0,500.0,4,16,4
+2026-10-07,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,139,450.0,950.0,500.0,4,16,2
+2026-10-08,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,135,450.0,950.0,500.0,4,16,4
+2026-10-09,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,131,450.0,950.0,500.0,4,16,4
+2026-10-10,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,127,450.0,950.0,500.0,4,16,4
+2026-10-11,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,123,450.0,950.0,500.0,4,16,4
+2026-10-12,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,119,450.0,950.0,500.0,4,16,4
+2026-10-13,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,115,450.0,950.0,500.0,4,16,4
+2026-10-14,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,111,450.0,950.0,500.0,4,16,4
+2026-10-15,MERCH_11,SKU-MERCH_11-B,Jewelry Value Line B,Jewelry & Resortwear,108,450.0,950.0,500.0,4,16,3
+2026-09-16,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,99,1600.0,3400.0,1800.0,5,20,1
+2026-09-17,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,95,1600.0,3400.0,1800.0,5,20,4
+2026-09-18,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,91,1600.0,3400.0,1800.0,5,20,4
+2026-09-19,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,88,1600.0,3400.0,1800.0,5,20,3
+2026-09-20,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,84,1600.0,3400.0,1800.0,5,20,4
+2026-09-21,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,84,1600.0,3400.0,1800.0,5,20,0
+2026-09-22,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,82,1600.0,3400.0,1800.0,5,20,2
+2026-09-23,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,79,1600.0,3400.0,1800.0,5,20,3
+2026-09-24,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,76,1600.0,3400.0,1800.0,5,20,3
+2026-09-25,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,73,1600.0,3400.0,1800.0,5,20,3
+2026-09-26,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,69,1600.0,3400.0,1800.0,5,20,4
+2026-09-27,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,65,1600.0,3400.0,1800.0,5,20,4
+2026-09-28,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,64,1600.0,3400.0,1800.0,5,20,1
+2026-09-29,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,60,1600.0,3400.0,1800.0,5,20,4
+2026-09-30,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,59,1600.0,3400.0,1800.0,5,20,1
+2026-10-01,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,57,1600.0,3400.0,1800.0,5,20,2
+2026-10-02,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,55,1600.0,3400.0,1800.0,5,20,2
+2026-10-03,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,51,1600.0,3400.0,1800.0,5,20,4
+2026-10-04,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,128,1600.0,3400.0,1800.0,5,20,3
+2026-10-05,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,124,1600.0,3400.0,1800.0,5,20,4
+2026-10-06,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,121,1600.0,3400.0,1800.0,5,20,3
+2026-10-07,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,117,1600.0,3400.0,1800.0,5,20,4
+2026-10-08,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,115,1600.0,3400.0,1800.0,5,20,2
+2026-10-09,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,115,1600.0,3400.0,1800.0,5,20,0
+2026-10-10,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,111,1600.0,3400.0,1800.0,5,20,4
+2026-10-11,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,110,1600.0,3400.0,1800.0,5,20,1
+2026-10-12,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,106,1600.0,3400.0,1800.0,5,20,4
+2026-10-13,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,105,1600.0,3400.0,1800.0,5,20,1
+2026-10-14,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,101,1600.0,3400.0,1800.0,5,20,4
+2026-10-15,MERCH_12,SKU-MERCH_12-A,Apparel Signature Product A,Apparel Manufacturing,98,1600.0,3400.0,1800.0,5,20,3
+2026-09-16,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,176,450.0,950.0,500.0,4,16,4
+2026-09-17,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,176,450.0,950.0,500.0,4,16,0
+2026-09-18,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,173,450.0,950.0,500.0,4,16,3
+2026-09-19,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,169,450.0,950.0,500.0,4,16,4
+2026-09-20,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,168,450.0,950.0,500.0,4,16,1
+2026-09-21,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,164,450.0,950.0,500.0,4,16,4
+2026-09-22,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,160,450.0,950.0,500.0,4,16,4
+2026-09-23,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,157,450.0,950.0,500.0,4,16,3
+2026-09-24,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,156,450.0,950.0,500.0,4,16,1
+2026-09-25,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,154,450.0,950.0,500.0,4,16,2
+2026-09-26,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,152,450.0,950.0,500.0,4,16,2
+2026-09-27,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,148,450.0,950.0,500.0,4,16,4
+2026-09-28,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,144,450.0,950.0,500.0,4,16,4
+2026-09-29,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,140,450.0,950.0,500.0,4,16,4
+2026-09-30,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,137,450.0,950.0,500.0,4,16,3
+2026-10-01,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,134,450.0,950.0,500.0,4,16,3
+2026-10-02,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,130,450.0,950.0,500.0,4,16,4
+2026-10-03,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,126,450.0,950.0,500.0,4,16,4
+2026-10-04,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,124,450.0,950.0,500.0,4,16,2
+2026-10-05,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,124,450.0,950.0,500.0,4,16,0
+2026-10-06,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,120,450.0,950.0,500.0,4,16,4
+2026-10-07,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,120,450.0,950.0,500.0,4,16,0
+2026-10-08,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,116,450.0,950.0,500.0,4,16,4
+2026-10-09,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,112,450.0,950.0,500.0,4,16,4
+2026-10-10,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,108,450.0,950.0,500.0,4,16,4
+2026-10-11,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,104,450.0,950.0,500.0,4,16,4
+2026-10-12,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,100,450.0,950.0,500.0,4,16,4
+2026-10-13,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,96,450.0,950.0,500.0,4,16,4
+2026-10-14,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,96,450.0,950.0,500.0,4,16,0
+2026-10-15,MERCH_12,SKU-MERCH_12-B,Apparel Value Line B,Apparel Manufacturing,92,450.0,950.0,500.0,4,16,4
+2026-09-16,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,96,1650.0,3500.0,1850.0,5,20,4
+2026-09-17,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,92,1650.0,3500.0,1850.0,5,20,4
+2026-09-18,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,88,1650.0,3500.0,1850.0,5,20,4
+2026-09-19,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,87,1650.0,3500.0,1850.0,5,20,1
+2026-09-20,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,83,1650.0,3500.0,1850.0,5,20,4
+2026-09-21,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,79,1650.0,3500.0,1850.0,5,20,4
+2026-09-22,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,75,1650.0,3500.0,1850.0,5,20,4
+2026-09-23,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,71,1650.0,3500.0,1850.0,5,20,4
+2026-09-24,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,71,1650.0,3500.0,1850.0,5,20,0
+2026-09-25,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,67,1650.0,3500.0,1850.0,5,20,4
+2026-09-26,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,65,1650.0,3500.0,1850.0,5,20,2
+2026-09-27,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,61,1650.0,3500.0,1850.0,5,20,4
+2026-09-28,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,60,1650.0,3500.0,1850.0,5,20,1
+2026-09-29,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,56,1650.0,3500.0,1850.0,5,20,4
+2026-09-30,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,54,1650.0,3500.0,1850.0,5,20,2
+2026-10-01,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,50,1650.0,3500.0,1850.0,5,20,4
+2026-10-02,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,126,1650.0,3500.0,1850.0,5,20,4
+2026-10-03,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,122,1650.0,3500.0,1850.0,5,20,4
+2026-10-04,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,121,1650.0,3500.0,1850.0,5,20,1
+2026-10-05,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,121,1650.0,3500.0,1850.0,5,20,0
+2026-10-06,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,120,1650.0,3500.0,1850.0,5,20,1
+2026-10-07,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,118,1650.0,3500.0,1850.0,5,20,2
+2026-10-08,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,114,1650.0,3500.0,1850.0,5,20,4
+2026-10-09,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,110,1650.0,3500.0,1850.0,5,20,4
+2026-10-10,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,106,1650.0,3500.0,1850.0,5,20,4
+2026-10-11,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,102,1650.0,3500.0,1850.0,5,20,4
+2026-10-12,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,100,1650.0,3500.0,1850.0,5,20,2
+2026-10-13,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,96,1650.0,3500.0,1850.0,5,20,4
+2026-10-14,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,92,1650.0,3500.0,1850.0,5,20,4
+2026-10-15,MERCH_13,SKU-MERCH_13-A,Consumer Signature Product A,Consumer Gadgets,88,1650.0,3500.0,1850.0,5,20,4
+2026-09-16,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,179,450.0,950.0,500.0,4,16,1
+2026-09-17,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,179,450.0,950.0,500.0,4,16,0
+2026-09-18,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,175,450.0,950.0,500.0,4,16,4
+2026-09-19,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,174,450.0,950.0,500.0,4,16,1
+2026-09-20,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,170,450.0,950.0,500.0,4,16,4
+2026-09-21,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,168,450.0,950.0,500.0,4,16,2
+2026-09-22,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,164,450.0,950.0,500.0,4,16,4
+2026-09-23,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,160,450.0,950.0,500.0,4,16,4
+2026-09-24,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,156,450.0,950.0,500.0,4,16,4
+2026-09-25,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,155,450.0,950.0,500.0,4,16,1
+2026-09-26,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,154,450.0,950.0,500.0,4,16,1
+2026-09-27,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,154,450.0,950.0,500.0,4,16,0
+2026-09-28,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,150,450.0,950.0,500.0,4,16,4
+2026-09-29,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,146,450.0,950.0,500.0,4,16,4
+2026-09-30,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,142,450.0,950.0,500.0,4,16,4
+2026-10-01,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,142,450.0,950.0,500.0,4,16,0
+2026-10-02,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,141,450.0,950.0,500.0,4,16,1
+2026-10-03,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,141,450.0,950.0,500.0,4,16,0
+2026-10-04,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,139,450.0,950.0,500.0,4,16,2
+2026-10-05,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,135,450.0,950.0,500.0,4,16,4
+2026-10-06,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,132,450.0,950.0,500.0,4,16,3
+2026-10-07,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,130,450.0,950.0,500.0,4,16,2
+2026-10-08,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,126,450.0,950.0,500.0,4,16,4
+2026-10-09,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,125,450.0,950.0,500.0,4,16,1
+2026-10-10,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,121,450.0,950.0,500.0,4,16,4
+2026-10-11,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,117,450.0,950.0,500.0,4,16,4
+2026-10-12,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,113,450.0,950.0,500.0,4,16,4
+2026-10-13,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,109,450.0,950.0,500.0,4,16,4
+2026-10-14,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,106,450.0,950.0,500.0,4,16,3
+2026-10-15,MERCH_13,SKU-MERCH_13-B,Consumer Value Line B,Consumer Gadgets,102,450.0,950.0,500.0,4,16,4
+2026-09-16,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,99,1700.0,3600.0,1900.0,5,20,1
+2026-09-17,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,97,1700.0,3600.0,1900.0,5,20,2
+2026-09-18,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,97,1700.0,3600.0,1900.0,5,20,0
+2026-09-19,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,95,1700.0,3600.0,1900.0,5,20,2
+2026-09-20,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,91,1700.0,3600.0,1900.0,5,20,4
+2026-09-21,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,87,1700.0,3600.0,1900.0,5,20,4
+2026-09-22,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,86,1700.0,3600.0,1900.0,5,20,1
+2026-09-23,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,85,1700.0,3600.0,1900.0,5,20,1
+2026-09-24,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,85,1700.0,3600.0,1900.0,5,20,0
+2026-09-25,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,84,1700.0,3600.0,1900.0,5,20,1
+2026-09-26,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,82,1700.0,3600.0,1900.0,5,20,2
+2026-09-27,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,81,1700.0,3600.0,1900.0,5,20,1
+2026-09-28,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,77,1700.0,3600.0,1900.0,5,20,4
+2026-09-29,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,73,1700.0,3600.0,1900.0,5,20,4
+2026-09-30,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,69,1700.0,3600.0,1900.0,5,20,4
+2026-10-01,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,66,1700.0,3600.0,1900.0,5,20,3
+2026-10-02,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,66,1700.0,3600.0,1900.0,5,20,0
+2026-10-03,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,66,1700.0,3600.0,1900.0,5,20,0
+2026-10-04,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,62,1700.0,3600.0,1900.0,5,20,4
+2026-10-05,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,62,1700.0,3600.0,1900.0,5,20,0
+2026-10-06,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,59,1700.0,3600.0,1900.0,5,20,3
+2026-10-07,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,55,1700.0,3600.0,1900.0,5,20,4
+2026-10-08,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,51,1700.0,3600.0,1900.0,5,20,4
+2026-10-09,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,127,1700.0,3600.0,1900.0,5,20,4
+2026-10-10,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,123,1700.0,3600.0,1900.0,5,20,4
+2026-10-11,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,119,1700.0,3600.0,1900.0,5,20,4
+2026-10-12,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,115,1700.0,3600.0,1900.0,5,20,4
+2026-10-13,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,111,1700.0,3600.0,1900.0,5,20,4
+2026-10-14,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,107,1700.0,3600.0,1900.0,5,20,4
+2026-10-15,MERCH_14,SKU-MERCH_14-A,Traditional Signature Product A,Traditional Sarees,105,1700.0,3600.0,1900.0,5,20,2
+2026-09-16,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,177,450.0,950.0,500.0,4,16,3
+2026-09-17,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,176,450.0,950.0,500.0,4,16,1
+2026-09-18,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,172,450.0,950.0,500.0,4,16,4
+2026-09-19,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,170,450.0,950.0,500.0,4,16,2
+2026-09-20,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,170,450.0,950.0,500.0,4,16,0
+2026-09-21,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,170,450.0,950.0,500.0,4,16,0
+2026-09-22,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,167,450.0,950.0,500.0,4,16,3
+2026-09-23,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,163,450.0,950.0,500.0,4,16,4
+2026-09-24,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,159,450.0,950.0,500.0,4,16,4
+2026-09-25,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,155,450.0,950.0,500.0,4,16,4
+2026-09-26,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,151,450.0,950.0,500.0,4,16,4
+2026-09-27,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,149,450.0,950.0,500.0,4,16,2
+2026-09-28,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,146,450.0,950.0,500.0,4,16,3
+2026-09-29,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,143,450.0,950.0,500.0,4,16,3
+2026-09-30,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,139,450.0,950.0,500.0,4,16,4
+2026-10-01,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,138,450.0,950.0,500.0,4,16,1
+2026-10-02,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,134,450.0,950.0,500.0,4,16,4
+2026-10-03,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,130,450.0,950.0,500.0,4,16,4
+2026-10-04,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,126,450.0,950.0,500.0,4,16,4
+2026-10-05,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,122,450.0,950.0,500.0,4,16,4
+2026-10-06,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,118,450.0,950.0,500.0,4,16,4
+2026-10-07,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,118,450.0,950.0,500.0,4,16,0
+2026-10-08,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,114,450.0,950.0,500.0,4,16,4
+2026-10-09,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,110,450.0,950.0,500.0,4,16,4
+2026-10-10,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,107,450.0,950.0,500.0,4,16,3
+2026-10-11,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,104,450.0,950.0,500.0,4,16,3
+2026-10-12,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,100,450.0,950.0,500.0,4,16,4
+2026-10-13,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,97,450.0,950.0,500.0,4,16,3
+2026-10-14,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,95,450.0,950.0,500.0,4,16,2
+2026-10-15,MERCH_14,SKU-MERCH_14-B,Traditional Value Line B,Traditional Sarees,92,450.0,950.0,500.0,4,16,3
+2026-09-16,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,96,1750.0,3700.0,1950.0,5,20,4
+2026-09-17,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,92,1750.0,3700.0,1950.0,5,20,4
+2026-09-18,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,92,1750.0,3700.0,1950.0,5,20,0
+2026-09-19,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,89,1750.0,3700.0,1950.0,5,20,3
+2026-09-20,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,89,1750.0,3700.0,1950.0,5,20,0
+2026-09-21,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,87,1750.0,3700.0,1950.0,5,20,2
+2026-09-22,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,83,1750.0,3700.0,1950.0,5,20,4
+2026-09-23,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,80,1750.0,3700.0,1950.0,5,20,3
+2026-09-24,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,77,1750.0,3700.0,1950.0,5,20,3
+2026-09-25,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,73,1750.0,3700.0,1950.0,5,20,4
+2026-09-26,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,69,1750.0,3700.0,1950.0,5,20,4
+2026-09-27,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,67,1750.0,3700.0,1950.0,5,20,2
+2026-09-28,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,64,1750.0,3700.0,1950.0,5,20,3
+2026-09-29,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,64,1750.0,3700.0,1950.0,5,20,0
+2026-09-30,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,60,1750.0,3700.0,1950.0,5,20,4
+2026-10-01,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,58,1750.0,3700.0,1950.0,5,20,2
+2026-10-02,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,56,1750.0,3700.0,1950.0,5,20,2
+2026-10-03,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,52,1750.0,3700.0,1950.0,5,20,4
+2026-10-04,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,129,1750.0,3700.0,1950.0,5,20,3
+2026-10-05,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,125,1750.0,3700.0,1950.0,5,20,4
+2026-10-06,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,121,1750.0,3700.0,1950.0,5,20,4
+2026-10-07,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,117,1750.0,3700.0,1950.0,5,20,4
+2026-10-08,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,114,1750.0,3700.0,1950.0,5,20,3
+2026-10-09,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,110,1750.0,3700.0,1950.0,5,20,4
+2026-10-10,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,106,1750.0,3700.0,1950.0,5,20,4
+2026-10-11,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,104,1750.0,3700.0,1950.0,5,20,2
+2026-10-12,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,100,1750.0,3700.0,1950.0,5,20,4
+2026-10-13,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,100,1750.0,3700.0,1950.0,5,20,0
+2026-10-14,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,96,1750.0,3700.0,1950.0,5,20,4
+2026-10-15,MERCH_15,SKU-MERCH_15-A,Musical Signature Product A,Musical & Cultural,92,1750.0,3700.0,1950.0,5,20,4
+2026-09-16,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,180,450.0,950.0,500.0,4,16,0
+2026-09-17,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,180,450.0,950.0,500.0,4,16,0
+2026-09-18,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,176,450.0,950.0,500.0,4,16,4
+2026-09-19,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,173,450.0,950.0,500.0,4,16,3
+2026-09-20,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,169,450.0,950.0,500.0,4,16,4
+2026-09-21,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,166,450.0,950.0,500.0,4,16,3
+2026-09-22,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,166,450.0,950.0,500.0,4,16,0
+2026-09-23,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,162,450.0,950.0,500.0,4,16,4
+2026-09-24,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,159,450.0,950.0,500.0,4,16,3
+2026-09-25,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,156,450.0,950.0,500.0,4,16,3
+2026-09-26,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,155,450.0,950.0,500.0,4,16,1
+2026-09-27,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,153,450.0,950.0,500.0,4,16,2
+2026-09-28,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,151,450.0,950.0,500.0,4,16,2
+2026-09-29,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,147,450.0,950.0,500.0,4,16,4
+2026-09-30,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,144,450.0,950.0,500.0,4,16,3
+2026-10-01,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,140,450.0,950.0,500.0,4,16,4
+2026-10-02,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,139,450.0,950.0,500.0,4,16,1
+2026-10-03,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,137,450.0,950.0,500.0,4,16,2
+2026-10-04,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,134,450.0,950.0,500.0,4,16,3
+2026-10-05,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,134,450.0,950.0,500.0,4,16,0
+2026-10-06,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,134,450.0,950.0,500.0,4,16,0
+2026-10-07,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,134,450.0,950.0,500.0,4,16,0
+2026-10-08,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,132,450.0,950.0,500.0,4,16,2
+2026-10-09,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,131,450.0,950.0,500.0,4,16,1
+2026-10-10,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,127,450.0,950.0,500.0,4,16,4
+2026-10-11,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,123,450.0,950.0,500.0,4,16,4
+2026-10-12,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,120,450.0,950.0,500.0,4,16,3
+2026-10-13,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,116,450.0,950.0,500.0,4,16,4
+2026-10-14,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,112,450.0,950.0,500.0,4,16,4
+2026-10-15,MERCH_15,SKU-MERCH_15-B,Musical Value Line B,Musical & Cultural,109,450.0,950.0,500.0,4,16,3
+2026-09-16,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,97,1800.0,3800.0,2000.0,5,20,3
+2026-09-17,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,97,1800.0,3800.0,2000.0,5,20,0
+2026-09-18,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,97,1800.0,3800.0,2000.0,5,20,0
+2026-09-19,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,94,1800.0,3800.0,2000.0,5,20,3
+2026-09-20,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,91,1800.0,3800.0,2000.0,5,20,3
+2026-09-21,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,89,1800.0,3800.0,2000.0,5,20,2
+2026-09-22,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,85,1800.0,3800.0,2000.0,5,20,4
+2026-09-23,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,85,1800.0,3800.0,2000.0,5,20,0
+2026-09-24,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,81,1800.0,3800.0,2000.0,5,20,4
+2026-09-25,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,78,1800.0,3800.0,2000.0,5,20,3
+2026-09-26,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,74,1800.0,3800.0,2000.0,5,20,4
+2026-09-27,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,70,1800.0,3800.0,2000.0,5,20,4
+2026-09-28,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,67,1800.0,3800.0,2000.0,5,20,3
+2026-09-29,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,64,1800.0,3800.0,2000.0,5,20,3
+2026-09-30,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,61,1800.0,3800.0,2000.0,5,20,3
+2026-10-01,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,57,1800.0,3800.0,2000.0,5,20,4
+2026-10-02,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,57,1800.0,3800.0,2000.0,5,20,0
+2026-10-03,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,53,1800.0,3800.0,2000.0,5,20,4
+2026-10-04,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,53,1800.0,3800.0,2000.0,5,20,0
+2026-10-05,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,50,1800.0,3800.0,2000.0,5,20,3
+2026-10-06,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,127,1800.0,3800.0,2000.0,5,20,3
+2026-10-07,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,125,1800.0,3800.0,2000.0,5,20,2
+2026-10-08,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,121,1800.0,3800.0,2000.0,5,20,4
+2026-10-09,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,117,1800.0,3800.0,2000.0,5,20,4
+2026-10-10,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,113,1800.0,3800.0,2000.0,5,20,4
+2026-10-11,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,109,1800.0,3800.0,2000.0,5,20,4
+2026-10-12,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,105,1800.0,3800.0,2000.0,5,20,4
+2026-10-13,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,101,1800.0,3800.0,2000.0,5,20,4
+2026-10-14,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,98,1800.0,3800.0,2000.0,5,20,3
+2026-10-15,MERCH_16,SKU-MERCH_16-A,Premium Signature Product A,Premium Rice & Agro,95,1800.0,3800.0,2000.0,5,20,3
+2026-09-16,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,176,450.0,950.0,500.0,4,16,4
+2026-09-17,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,173,450.0,950.0,500.0,4,16,3
+2026-09-18,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,169,450.0,950.0,500.0,4,16,4
+2026-09-19,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,166,450.0,950.0,500.0,4,16,3
+2026-09-20,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,166,450.0,950.0,500.0,4,16,0
+2026-09-21,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,165,450.0,950.0,500.0,4,16,1
+2026-09-22,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,163,450.0,950.0,500.0,4,16,2
+2026-09-23,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,159,450.0,950.0,500.0,4,16,4
+2026-09-24,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,157,450.0,950.0,500.0,4,16,2
+2026-09-25,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,157,450.0,950.0,500.0,4,16,0
+2026-09-26,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,154,450.0,950.0,500.0,4,16,3
+2026-09-27,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,154,450.0,950.0,500.0,4,16,0
+2026-09-28,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,152,450.0,950.0,500.0,4,16,2
+2026-09-29,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,152,450.0,950.0,500.0,4,16,0
+2026-09-30,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,152,450.0,950.0,500.0,4,16,0
+2026-10-01,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,150,450.0,950.0,500.0,4,16,2
+2026-10-02,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,146,450.0,950.0,500.0,4,16,4
+2026-10-03,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,146,450.0,950.0,500.0,4,16,0
+2026-10-04,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,143,450.0,950.0,500.0,4,16,3
+2026-10-05,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,141,450.0,950.0,500.0,4,16,2
+2026-10-06,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,138,450.0,950.0,500.0,4,16,3
+2026-10-07,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,134,450.0,950.0,500.0,4,16,4
+2026-10-08,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,130,450.0,950.0,500.0,4,16,4
+2026-10-09,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,130,450.0,950.0,500.0,4,16,0
+2026-10-10,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,126,450.0,950.0,500.0,4,16,4
+2026-10-11,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,125,450.0,950.0,500.0,4,16,1
+2026-10-12,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,125,450.0,950.0,500.0,4,16,0
+2026-10-13,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,121,450.0,950.0,500.0,4,16,4
+2026-10-14,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,117,450.0,950.0,500.0,4,16,4
+2026-10-15,MERCH_16,SKU-MERCH_16-B,Premium Value Line B,Premium Rice & Agro,113,450.0,950.0,500.0,4,16,4
+2026-09-16,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,96,1850.0,3900.0,2050.0,5,20,4
+2026-09-17,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,92,1850.0,3900.0,2050.0,5,20,4
+2026-09-18,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,91,1850.0,3900.0,2050.0,5,20,1
+2026-09-19,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,87,1850.0,3900.0,2050.0,5,20,4
+2026-09-20,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,83,1850.0,3900.0,2050.0,5,20,4
+2026-09-21,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,80,1850.0,3900.0,2050.0,5,20,3
+2026-09-22,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,76,1850.0,3900.0,2050.0,5,20,4
+2026-09-23,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,72,1850.0,3900.0,2050.0,5,20,4
+2026-09-24,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,68,1850.0,3900.0,2050.0,5,20,4
+2026-09-25,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,64,1850.0,3900.0,2050.0,5,20,4
+2026-09-26,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,64,1850.0,3900.0,2050.0,5,20,0
+2026-09-27,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,62,1850.0,3900.0,2050.0,5,20,2
+2026-09-28,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,59,1850.0,3900.0,2050.0,5,20,3
+2026-09-29,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,55,1850.0,3900.0,2050.0,5,20,4
+2026-09-30,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,53,1850.0,3900.0,2050.0,5,20,2
+2026-10-01,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,50,1850.0,3900.0,2050.0,5,20,3
+2026-10-02,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,126,1850.0,3900.0,2050.0,5,20,4
+2026-10-03,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,126,1850.0,3900.0,2050.0,5,20,0
+2026-10-04,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,126,1850.0,3900.0,2050.0,5,20,0
+2026-10-05,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,126,1850.0,3900.0,2050.0,5,20,0
+2026-10-06,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,124,1850.0,3900.0,2050.0,5,20,2
+2026-10-07,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,120,1850.0,3900.0,2050.0,5,20,4
+2026-10-08,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,116,1850.0,3900.0,2050.0,5,20,4
+2026-10-09,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,112,1850.0,3900.0,2050.0,5,20,4
+2026-10-10,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,108,1850.0,3900.0,2050.0,5,20,4
+2026-10-11,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,104,1850.0,3900.0,2050.0,5,20,4
+2026-10-12,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,100,1850.0,3900.0,2050.0,5,20,4
+2026-10-13,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,96,1850.0,3900.0,2050.0,5,20,4
+2026-10-14,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,92,1850.0,3900.0,2050.0,5,20,4
+2026-10-15,MERCH_17,SKU-MERCH_17-A,Loom Signature Product A,Loom Fabrics,88,1850.0,3900.0,2050.0,5,20,4
+2026-09-16,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,178,450.0,950.0,500.0,4,16,2
+2026-09-17,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,177,450.0,950.0,500.0,4,16,1
+2026-09-18,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,173,450.0,950.0,500.0,4,16,4
+2026-09-19,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,171,450.0,950.0,500.0,4,16,2
+2026-09-20,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,168,450.0,950.0,500.0,4,16,3
+2026-09-21,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,166,450.0,950.0,500.0,4,16,2
+2026-09-22,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,166,450.0,950.0,500.0,4,16,0
+2026-09-23,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,166,450.0,950.0,500.0,4,16,0
+2026-09-24,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,162,450.0,950.0,500.0,4,16,4
+2026-09-25,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,158,450.0,950.0,500.0,4,16,4
+2026-09-26,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,155,450.0,950.0,500.0,4,16,3
+2026-09-27,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,151,450.0,950.0,500.0,4,16,4
+2026-09-28,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,147,450.0,950.0,500.0,4,16,4
+2026-09-29,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,146,450.0,950.0,500.0,4,16,1
+2026-09-30,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,143,450.0,950.0,500.0,4,16,3
+2026-10-01,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,141,450.0,950.0,500.0,4,16,2
+2026-10-02,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,138,450.0,950.0,500.0,4,16,3
+2026-10-03,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,135,450.0,950.0,500.0,4,16,3
+2026-10-04,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,131,450.0,950.0,500.0,4,16,4
+2026-10-05,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,127,450.0,950.0,500.0,4,16,4
+2026-10-06,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,127,450.0,950.0,500.0,4,16,0
+2026-10-07,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,123,450.0,950.0,500.0,4,16,4
+2026-10-08,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,121,450.0,950.0,500.0,4,16,2
+2026-10-09,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,117,450.0,950.0,500.0,4,16,4
+2026-10-10,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,113,450.0,950.0,500.0,4,16,4
+2026-10-11,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,109,450.0,950.0,500.0,4,16,4
+2026-10-12,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,105,450.0,950.0,500.0,4,16,4
+2026-10-13,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,103,450.0,950.0,500.0,4,16,2
+2026-10-14,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,100,450.0,950.0,500.0,4,16,3
+2026-10-15,MERCH_17,SKU-MERCH_17-B,Loom Value Line B,Loom Fabrics,96,450.0,950.0,500.0,4,16,4
+2026-09-16,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,96,1900.0,4000.0,2100.0,5,20,4
+2026-09-17,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,96,1900.0,4000.0,2100.0,5,20,0
+2026-09-18,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,92,1900.0,4000.0,2100.0,5,20,4
+2026-09-19,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,89,1900.0,4000.0,2100.0,5,20,3
+2026-09-20,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,87,1900.0,4000.0,2100.0,5,20,2
+2026-09-21,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,85,1900.0,4000.0,2100.0,5,20,2
+2026-09-22,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,83,1900.0,4000.0,2100.0,5,20,2
+2026-09-23,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,79,1900.0,4000.0,2100.0,5,20,4
+2026-09-24,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,76,1900.0,4000.0,2100.0,5,20,3
+2026-09-25,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,72,1900.0,4000.0,2100.0,5,20,4
+2026-09-26,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,69,1900.0,4000.0,2100.0,5,20,3
+2026-09-27,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,65,1900.0,4000.0,2100.0,5,20,4
+2026-09-28,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,63,1900.0,4000.0,2100.0,5,20,2
+2026-09-29,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,59,1900.0,4000.0,2100.0,5,20,4
+2026-09-30,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,55,1900.0,4000.0,2100.0,5,20,4
+2026-10-01,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,53,1900.0,4000.0,2100.0,5,20,2
+2026-10-02,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,52,1900.0,4000.0,2100.0,5,20,1
+2026-10-03,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,51,1900.0,4000.0,2100.0,5,20,1
+2026-10-04,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,127,1900.0,4000.0,2100.0,5,20,4
+2026-10-05,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,127,1900.0,4000.0,2100.0,5,20,0
+2026-10-06,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,124,1900.0,4000.0,2100.0,5,20,3
+2026-10-07,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,120,1900.0,4000.0,2100.0,5,20,4
+2026-10-08,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,116,1900.0,4000.0,2100.0,5,20,4
+2026-10-09,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,115,1900.0,4000.0,2100.0,5,20,1
+2026-10-10,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,111,1900.0,4000.0,2100.0,5,20,4
+2026-10-11,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,107,1900.0,4000.0,2100.0,5,20,4
+2026-10-12,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,104,1900.0,4000.0,2100.0,5,20,3
+2026-10-13,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,100,1900.0,4000.0,2100.0,5,20,4
+2026-10-14,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,97,1900.0,4000.0,2100.0,5,20,3
+2026-10-15,MERCH_18,SKU-MERCH_18-A,Eco Signature Product A,Eco & Jute Lifestyle,94,1900.0,4000.0,2100.0,5,20,3
+2026-09-16,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,177,450.0,950.0,500.0,4,16,3
+2026-09-17,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,173,450.0,950.0,500.0,4,16,4
+2026-09-18,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,169,450.0,950.0,500.0,4,16,4
+2026-09-19,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,169,450.0,950.0,500.0,4,16,0
+2026-09-20,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,167,450.0,950.0,500.0,4,16,2
+2026-09-21,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,165,450.0,950.0,500.0,4,16,2
+2026-09-22,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,162,450.0,950.0,500.0,4,16,3
+2026-09-23,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,161,450.0,950.0,500.0,4,16,1
+2026-09-24,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,160,450.0,950.0,500.0,4,16,1
+2026-09-25,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,156,450.0,950.0,500.0,4,16,4
+2026-09-26,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,152,450.0,950.0,500.0,4,16,4
+2026-09-27,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,152,450.0,950.0,500.0,4,16,0
+2026-09-28,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,151,450.0,950.0,500.0,4,16,1
+2026-09-29,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,150,450.0,950.0,500.0,4,16,1
+2026-09-30,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,147,450.0,950.0,500.0,4,16,3
+2026-10-01,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,147,450.0,950.0,500.0,4,16,0
+2026-10-02,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,143,450.0,950.0,500.0,4,16,4
+2026-10-03,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,139,450.0,950.0,500.0,4,16,4
+2026-10-04,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,139,450.0,950.0,500.0,4,16,0
+2026-10-05,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,137,450.0,950.0,500.0,4,16,2
+2026-10-06,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,136,450.0,950.0,500.0,4,16,1
+2026-10-07,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,136,450.0,950.0,500.0,4,16,0
+2026-10-08,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,135,450.0,950.0,500.0,4,16,1
+2026-10-09,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,131,450.0,950.0,500.0,4,16,4
+2026-10-10,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,130,450.0,950.0,500.0,4,16,1
+2026-10-11,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,126,450.0,950.0,500.0,4,16,4
+2026-10-12,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,122,450.0,950.0,500.0,4,16,4
+2026-10-13,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,118,450.0,950.0,500.0,4,16,4
+2026-10-14,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,117,450.0,950.0,500.0,4,16,1
+2026-10-15,MERCH_18,SKU-MERCH_18-B,Eco Value Line B,Eco & Jute Lifestyle,116,450.0,950.0,500.0,4,16,1
+2026-09-16,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,100,1950.0,4100.0,2150.0,5,20,0
+2026-09-17,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,99,1950.0,4100.0,2150.0,5,20,1
+2026-09-18,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,95,1950.0,4100.0,2150.0,5,20,4
+2026-09-19,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,93,1950.0,4100.0,2150.0,5,20,2
+2026-09-20,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,93,1950.0,4100.0,2150.0,5,20,0
+2026-09-21,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,93,1950.0,4100.0,2150.0,5,20,0
+2026-09-22,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,89,1950.0,4100.0,2150.0,5,20,4
+2026-09-23,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,88,1950.0,4100.0,2150.0,5,20,1
+2026-09-24,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,88,1950.0,4100.0,2150.0,5,20,0
+2026-09-25,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,85,1950.0,4100.0,2150.0,5,20,3
+2026-09-26,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,82,1950.0,4100.0,2150.0,5,20,3
+2026-09-27,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,82,1950.0,4100.0,2150.0,5,20,0
+2026-09-28,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,79,1950.0,4100.0,2150.0,5,20,3
+2026-09-29,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,77,1950.0,4100.0,2150.0,5,20,2
+2026-09-30,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,73,1950.0,4100.0,2150.0,5,20,4
+2026-10-01,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,69,1950.0,4100.0,2150.0,5,20,4
+2026-10-02,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,65,1950.0,4100.0,2150.0,5,20,4
+2026-10-03,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,62,1950.0,4100.0,2150.0,5,20,3
+2026-10-04,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,60,1950.0,4100.0,2150.0,5,20,2
+2026-10-05,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,56,1950.0,4100.0,2150.0,5,20,4
+2026-10-06,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,53,1950.0,4100.0,2150.0,5,20,3
+2026-10-07,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,129,1950.0,4100.0,2150.0,5,20,4
+2026-10-08,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,125,1950.0,4100.0,2150.0,5,20,4
+2026-10-09,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,121,1950.0,4100.0,2150.0,5,20,4
+2026-10-10,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,121,1950.0,4100.0,2150.0,5,20,0
+2026-10-11,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,118,1950.0,4100.0,2150.0,5,20,3
+2026-10-12,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,114,1950.0,4100.0,2150.0,5,20,4
+2026-10-13,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,110,1950.0,4100.0,2150.0,5,20,4
+2026-10-14,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,108,1950.0,4100.0,2150.0,5,20,2
+2026-10-15,MERCH_19,SKU-MERCH_19-A,Mobile Signature Product A,Mobile & PC Parts,104,1950.0,4100.0,2150.0,5,20,4
+2026-09-16,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,176,450.0,950.0,500.0,4,16,4
+2026-09-17,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,173,450.0,950.0,500.0,4,16,3
+2026-09-18,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,171,450.0,950.0,500.0,4,16,2
+2026-09-19,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,167,450.0,950.0,500.0,4,16,4
+2026-09-20,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,163,450.0,950.0,500.0,4,16,4
+2026-09-21,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,159,450.0,950.0,500.0,4,16,4
+2026-09-22,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,155,450.0,950.0,500.0,4,16,4
+2026-09-23,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,151,450.0,950.0,500.0,4,16,4
+2026-09-24,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,148,450.0,950.0,500.0,4,16,3
+2026-09-25,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,148,450.0,950.0,500.0,4,16,0
+2026-09-26,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,145,450.0,950.0,500.0,4,16,3
+2026-09-27,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,141,450.0,950.0,500.0,4,16,4
+2026-09-28,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,138,450.0,950.0,500.0,4,16,3
+2026-09-29,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,138,450.0,950.0,500.0,4,16,0
+2026-09-30,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,136,450.0,950.0,500.0,4,16,2
+2026-10-01,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,132,450.0,950.0,500.0,4,16,4
+2026-10-02,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,130,450.0,950.0,500.0,4,16,2
+2026-10-03,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,126,450.0,950.0,500.0,4,16,4
+2026-10-04,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,123,450.0,950.0,500.0,4,16,3
+2026-10-05,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,123,450.0,950.0,500.0,4,16,0
+2026-10-06,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,120,450.0,950.0,500.0,4,16,3
+2026-10-07,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,119,450.0,950.0,500.0,4,16,1
+2026-10-08,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,115,450.0,950.0,500.0,4,16,4
+2026-10-09,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,111,450.0,950.0,500.0,4,16,4
+2026-10-10,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,107,450.0,950.0,500.0,4,16,4
+2026-10-11,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,103,450.0,950.0,500.0,4,16,4
+2026-10-12,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,99,450.0,950.0,500.0,4,16,4
+2026-10-13,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,97,450.0,950.0,500.0,4,16,2
+2026-10-14,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,93,450.0,950.0,500.0,4,16,4
+2026-10-15,MERCH_19,SKU-MERCH_19-B,Mobile Value Line B,Mobile & PC Parts,90,450.0,950.0,500.0,4,16,3
+2026-09-16,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,98,2000.0,4200.0,2200.0,5,20,2
+2026-09-17,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,96,2000.0,4200.0,2200.0,5,20,2
+2026-09-18,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,92,2000.0,4200.0,2200.0,5,20,4
+2026-09-19,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,90,2000.0,4200.0,2200.0,5,20,2
+2026-09-20,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,87,2000.0,4200.0,2200.0,5,20,3
+2026-09-21,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,87,2000.0,4200.0,2200.0,5,20,0
+2026-09-22,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,83,2000.0,4200.0,2200.0,5,20,4
+2026-09-23,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,79,2000.0,4200.0,2200.0,5,20,4
+2026-09-24,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,78,2000.0,4200.0,2200.0,5,20,1
+2026-09-25,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,75,2000.0,4200.0,2200.0,5,20,3
+2026-09-26,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,71,2000.0,4200.0,2200.0,5,20,4
+2026-09-27,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,67,2000.0,4200.0,2200.0,5,20,4
+2026-09-28,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,67,2000.0,4200.0,2200.0,5,20,0
+2026-09-29,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,63,2000.0,4200.0,2200.0,5,20,4
+2026-09-30,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,60,2000.0,4200.0,2200.0,5,20,3
+2026-10-01,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,60,2000.0,4200.0,2200.0,5,20,0
+2026-10-02,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,56,2000.0,4200.0,2200.0,5,20,4
+2026-10-03,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,52,2000.0,4200.0,2200.0,5,20,4
+2026-10-04,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,128,2000.0,4200.0,2200.0,5,20,4
+2026-10-05,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,126,2000.0,4200.0,2200.0,5,20,2
+2026-10-06,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,123,2000.0,4200.0,2200.0,5,20,3
+2026-10-07,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,119,2000.0,4200.0,2200.0,5,20,4
+2026-10-08,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,119,2000.0,4200.0,2200.0,5,20,0
+2026-10-09,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,116,2000.0,4200.0,2200.0,5,20,3
+2026-10-10,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,112,2000.0,4200.0,2200.0,5,20,4
+2026-10-11,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,108,2000.0,4200.0,2200.0,5,20,4
+2026-10-12,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,106,2000.0,4200.0,2200.0,5,20,2
+2026-10-13,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,102,2000.0,4200.0,2200.0,5,20,4
+2026-10-14,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,98,2000.0,4200.0,2200.0,5,20,4
+2026-10-15,MERCH_20,SKU-MERCH_20-A,Herbal Signature Product A,Herbal Care,94,2000.0,4200.0,2200.0,5,20,4
+2026-09-16,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,176,450.0,950.0,500.0,4,16,4
+2026-09-17,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,172,450.0,950.0,500.0,4,16,4
+2026-09-18,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,172,450.0,950.0,500.0,4,16,0
+2026-09-19,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,168,450.0,950.0,500.0,4,16,4
+2026-09-20,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,165,450.0,950.0,500.0,4,16,3
+2026-09-21,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,161,450.0,950.0,500.0,4,16,4
+2026-09-22,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,161,450.0,950.0,500.0,4,16,0
+2026-09-23,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,161,450.0,950.0,500.0,4,16,0
+2026-09-24,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,159,450.0,950.0,500.0,4,16,2
+2026-09-25,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,155,450.0,950.0,500.0,4,16,4
+2026-09-26,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,151,450.0,950.0,500.0,4,16,4
+2026-09-27,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,148,450.0,950.0,500.0,4,16,3
+2026-09-28,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,144,450.0,950.0,500.0,4,16,4
+2026-09-29,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,140,450.0,950.0,500.0,4,16,4
+2026-09-30,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,138,450.0,950.0,500.0,4,16,2
+2026-10-01,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,135,450.0,950.0,500.0,4,16,3
+2026-10-02,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,133,450.0,950.0,500.0,4,16,2
+2026-10-03,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,130,450.0,950.0,500.0,4,16,3
+2026-10-04,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,129,450.0,950.0,500.0,4,16,1
+2026-10-05,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,125,450.0,950.0,500.0,4,16,4
+2026-10-06,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,124,450.0,950.0,500.0,4,16,1
+2026-10-07,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,123,450.0,950.0,500.0,4,16,1
+2026-10-08,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,119,450.0,950.0,500.0,4,16,4
+2026-10-09,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,118,450.0,950.0,500.0,4,16,1
+2026-10-10,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,114,450.0,950.0,500.0,4,16,4
+2026-10-11,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,111,450.0,950.0,500.0,4,16,3
+2026-10-12,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,108,450.0,950.0,500.0,4,16,3
+2026-10-13,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,104,450.0,950.0,500.0,4,16,4
+2026-10-14,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,102,450.0,950.0,500.0,4,16,2
+2026-10-15,MERCH_20,SKU-MERCH_20-B,Herbal Value Line B,Herbal Care,102,450.0,950.0,500.0,4,16,0

@@ -1,0 +1,403 @@
+{
+  "dispatched_unpaid": [
+    {
+      "order_id": "ORD-LEAK-3135",
+      "merchant_id": "MERCH_01",
+      "amount_taka": 7600.0,
+      "rail": "PAYMENT_GATEWAY",
+      "provider": "SSLCommerz"
+    },
+    {
+      "order_id": "ORD-LEAK-3136",
+      "merchant_id": "MERCH_02",
+      "amount_taka": 25100.0,
+      "rail": "BANK_TRANSFER",
+      "provider": "BRAC Bank"
+    },
+    {
+      "order_id": "ORD-LEAK-3137",
+      "merchant_id": "MERCH_03",
+      "amount_taka": 5000.0,
+      "rail": "BANK_TRANSFER",
+      "provider": "BRAC Bank"
+    },
+    {
+      "order_id": "ORD-LEAK-3138",
+      "merchant_id": "MERCH_05",
+      "amount_taka": 5400.0,
+      "rail": "BANK_TRANSFER",
+      "provider": "BRAC Bank"
+    },
+    {
+      "order_id": "ORD-LEAK-3139",
+      "merchant_id": "MERCH_07",
+      "amount_taka": 5800.0,
+      "rail": "BANK_TRANSFER",
+      "provider": "BRAC Bank"
+    },
+    {
+      "order_id": "ORD-LEAK-3140",
+      "merchant_id": "MERCH_10",
+      "amount_taka": 6400.0,
+      "rail": "BANK_TRANSFER",
+      "provider": "BRAC Bank"
+    },
+    {
+      "order_id": "ORD-LEAK-3141",
+      "merchant_id": "MERCH_13",
+      "amount_taka": 7000.0,
+      "rail": "MOBILE_WALLET_MFS",
+      "provider": "bKash"
+    },
+    {
+      "order_id": "ORD-LEAK-3142",
+      "merchant_id": "MERCH_14",
+      "amount_taka": 7200.0,
+      "rail": "PAYMENT_GATEWAY",
+      "provider": "SSLCommerz"
+    }
+  ],
+  "courier_shortfalls": [
+    {
+      "consignment_id": "CONS-SHORT-8878",
+      "order_id": "ORD-COD-SHORT-3143",
+      "merchant_id": "MERCH_01",
+      "courier_name": "Steadfast Courier",
+      "expected_net": 4670.0,
+      "actual_settled": 4020.0,
+      "shortfall_taka": 650.0
+    },
+    {
+      "consignment_id": "CONS-SHORT-8879",
+      "order_id": "ORD-COD-SHORT-3144",
+      "merchant_id": "MERCH_02",
+      "courier_name": "RedX Logistics",
+      "expected_net": 11370.0,
+      "actual_settled": 8270.0,
+      "shortfall_taka": 3100.0
+    },
+    {
+      "consignment_id": "CONS-SHORT-8880",
+      "order_id": "ORD-COD-SHORT-3145",
+      "merchant_id": "MERCH_04",
+      "courier_name": "Steadfast Courier",
+      "expected_net": 7070.0,
+      "actual_settled": 4670.0,
+      "shortfall_taka": 2400.0
+    },
+    {
+      "consignment_id": "CONS-SHORT-8881",
+      "order_id": "ORD-COD-SHORT-3146",
+      "merchant_id": "MERCH_06",
+      "courier_name": "RedX Logistics",
+      "expected_net": 15670.0,
+      "actual_settled": 15020.0,
+      "shortfall_taka": 650.0
+    },
+    {
+      "consignment_id": "CONS-SHORT-8882",
+      "order_id": "ORD-COD-SHORT-3147",
+      "merchant_id": "MERCH_08",
+      "courier_name": "Steadfast Courier",
+      "expected_net": 11370.0,
+      "actual_settled": 10120.0,
+      "shortfall_taka": 1250.0
+    },
+    {
+      "consignment_id": "CONS-SHORT-8883",
+      "order_id": "ORD-COD-SHORT-3148",
+      "merchant_id": "MERCH_11",
+      "courier_name": "RedX Logistics",
+      "expected_net": 21870.0,
+      "actual_settled": 20620.0,
+      "shortfall_taka": 1250.0
+    },
+    {
+      "consignment_id": "CONS-SHORT-8884",
+      "order_id": "ORD-COD-SHORT-3149",
+      "merchant_id": "MERCH_12",
+      "courier_name": "Steadfast Courier",
+      "expected_net": 7070.0,
+      "actual_settled": 5220.0,
+      "shortfall_taka": 1850.0
+    },
+    {
+      "consignment_id": "CONS-SHORT-8885",
+      "order_id": "ORD-COD-SHORT-3150",
+      "merchant_id": "MERCH_16",
+      "courier_name": "RedX Logistics",
+      "expected_net": 21870.0,
+      "actual_settled": 20620.0,
+      "shortfall_taka": 1250.0
+    }
+  ],
+  "fuzzy_true_negatives": [
+    {
+      "order_id": "ORD-FUZZY-TN-3151",
+      "merchant_id": "MERCH_01",
+      "phone": "01521168231",
+      "amount_taka": 3800.0,
+      "delay_minutes": 7,
+      "rail_payment_id": "RP-FUZZY-6112"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-3152",
+      "merchant_id": "MERCH_02",
+      "phone": "01398181009",
+      "amount_taka": 12550.0,
+      "delay_minutes": 8,
+      "rail_payment_id": "RP-FUZZY-6113"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-3153",
+      "merchant_id": "MERCH_03",
+      "phone": "01542657896",
+      "amount_taka": 2500.0,
+      "delay_minutes": 9,
+      "rail_payment_id": "RP-FUZZY-6114"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-3154",
+      "merchant_id": "MERCH_04",
+      "phone": "01987745263",
+      "amount_taka": 2600.0,
+      "delay_minutes": 10,
+      "rail_payment_id": "RP-FUZZY-6115"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-3155",
+      "merchant_id": "MERCH_05",
+      "phone": "01382372544",
+      "amount_taka": 2700.0,
+      "delay_minutes": 11,
+      "rail_payment_id": "RP-FUZZY-6116"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-3156",
+      "merchant_id": "MERCH_06",
+      "phone": "01453511788",
+      "amount_taka": 2800.0,
+      "delay_minutes": 12,
+      "rail_payment_id": "RP-FUZZY-6117"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-3157",
+      "merchant_id": "MERCH_07",
+      "phone": "01750345538",
+      "amount_taka": 2900.0,
+      "delay_minutes": 13,
+      "rail_payment_id": "RP-FUZZY-6118"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-3158",
+      "merchant_id": "MERCH_08",
+      "phone": "01372047676",
+      "amount_taka": 3000.0,
+      "delay_minutes": 14,
+      "rail_payment_id": "RP-FUZZY-6119"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-3159",
+      "merchant_id": "MERCH_09",
+      "phone": "01408288745",
+      "amount_taka": 3100.0,
+      "delay_minutes": 7,
+      "rail_payment_id": "RP-FUZZY-6120"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-3160",
+      "merchant_id": "MERCH_10",
+      "phone": "01720753136",
+      "amount_taka": 3200.0,
+      "delay_minutes": 8,
+      "rail_payment_id": "RP-FUZZY-6121"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-3161",
+      "merchant_id": "MERCH_11",
+      "phone": "01331526210",
+      "amount_taka": 3300.0,
+      "delay_minutes": 9,
+      "rail_payment_id": "RP-FUZZY-6122"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-3162",
+      "merchant_id": "MERCH_12",
+      "phone": "01414430106",
+      "amount_taka": 3400.0,
+      "delay_minutes": 10,
+      "rail_payment_id": "RP-FUZZY-6123"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-3163",
+      "merchant_id": "MERCH_13",
+      "phone": "01952996457",
+      "amount_taka": 3500.0,
+      "delay_minutes": 11,
+      "rail_payment_id": "RP-FUZZY-6124"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-3164",
+      "merchant_id": "MERCH_14",
+      "phone": "01831997115",
+      "amount_taka": 3600.0,
+      "delay_minutes": 12,
+      "rail_payment_id": "RP-FUZZY-6125"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-3165",
+      "merchant_id": "MERCH_15",
+      "phone": "01534972969",
+      "amount_taka": 3700.0,
+      "delay_minutes": 13,
+      "rail_payment_id": "RP-FUZZY-6126"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-3166",
+      "merchant_id": "MERCH_16",
+      "phone": "01700343449",
+      "amount_taka": 3800.0,
+      "delay_minutes": 14,
+      "rail_payment_id": "RP-FUZZY-6127"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-3167",
+      "merchant_id": "MERCH_17",
+      "phone": "01985861888",
+      "amount_taka": 3900.0,
+      "delay_minutes": 7,
+      "rail_payment_id": "RP-FUZZY-6128"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-3168",
+      "merchant_id": "MERCH_18",
+      "phone": "01360215992",
+      "amount_taka": 4000.0,
+      "delay_minutes": 8,
+      "rail_payment_id": "RP-FUZZY-6129"
+    }
+  ],
+  "failed_abandoned_checkouts": [
+    {
+      "order_id": "ORD-FAIL-3169",
+      "merchant_id": "MERCH_04",
+      "customer_phone": "01876382749",
+      "order_amount_taka": 5200.0,
+      "provider": "SSLCommerz"
+    },
+    {
+      "order_id": "ORD-FAIL-3170",
+      "merchant_id": "MERCH_05",
+      "customer_phone": "01812223954",
+      "order_amount_taka": 2700.0,
+      "provider": "bKash"
+    },
+    {
+      "order_id": "ORD-FAIL-3171",
+      "merchant_id": "MERCH_06",
+      "customer_phone": "01604731483",
+      "order_amount_taka": 2800.0,
+      "provider": "SSLCommerz"
+    },
+    {
+      "order_id": "ORD-FAIL-3172",
+      "merchant_id": "MERCH_07",
+      "customer_phone": "01977740703",
+      "order_amount_taka": 5800.0,
+      "provider": "bKash"
+    },
+    {
+      "order_id": "ORD-FAIL-3173",
+      "merchant_id": "MERCH_08",
+      "customer_phone": "01656007622",
+      "order_amount_taka": 6000.0,
+      "provider": "SSLCommerz"
+    },
+    {
+      "order_id": "ORD-FAIL-3174",
+      "merchant_id": "MERCH_09",
+      "customer_phone": "01728219386",
+      "order_amount_taka": 3100.0,
+      "provider": "bKash"
+    },
+    {
+      "order_id": "ORD-FAIL-3175",
+      "merchant_id": "MERCH_10",
+      "customer_phone": "01684726439",
+      "order_amount_taka": 3200.0,
+      "provider": "SSLCommerz"
+    },
+    {
+      "order_id": "ORD-FAIL-3176",
+      "merchant_id": "MERCH_11",
+      "customer_phone": "01504596920",
+      "order_amount_taka": 3300.0,
+      "provider": "bKash"
+    },
+    {
+      "order_id": "ORD-FAIL-3177",
+      "merchant_id": "MERCH_12",
+      "customer_phone": "01460485312",
+      "order_amount_taka": 6800.0,
+      "provider": "SSLCommerz"
+    },
+    {
+      "order_id": "ORD-FAIL-3178",
+      "merchant_id": "MERCH_13",
+      "customer_phone": "01443584981",
+      "order_amount_taka": 7000.0,
+      "provider": "bKash"
+    },
+    {
+      "order_id": "ORD-FAIL-3179",
+      "merchant_id": "MERCH_14",
+      "customer_phone": "01565124210",
+      "order_amount_taka": 7200.0,
+      "provider": "SSLCommerz"
+    },
+    {
+      "order_id": "ORD-FAIL-3180",
+      "merchant_id": "MERCH_15",
+      "customer_phone": "01681704836",
+      "order_amount_taka": 3700.0,
+      "provider": "bKash"
+    },
+    {
+      "order_id": "ORD-FAIL-3181",
+      "merchant_id": "MERCH_16",
+      "customer_phone": "01765955859",
+      "order_amount_taka": 3800.0,
+      "provider": "SSLCommerz"
+    },
+    {
+      "order_id": "ORD-FAIL-3182",
+      "merchant_id": "MERCH_17",
+      "customer_phone": "01793793136",
+      "order_amount_taka": 3900.0,
+      "provider": "bKash"
+    }
+  ],
+  "stockout_skus": [
+    {
+      "merchant_id": "MERCH_01",
+      "sku": "SKU-DTL-01",
+      "is_hero": false,
+      "unit_margin_taka": 2000.0,
+      "supplier_lead_time_days": 6
+    },
+    {
+      "merchant_id": "MERCH_02",
+      "sku": "SKU-CAH-HERO-01",
+      "is_hero": true,
+      "unit_margin_taka": 4650.0,
+      "supplier_lead_time_days": 7
+    },
+    {
+      "merchant_id": "MERCH_04",
+      "sku": "SKU-MERCH_04-A",
+      "is_hero": false,
+      "unit_margin_taka": 1400.0,
+      "supplier_lead_time_days": 5
+    }
+  ]
+}

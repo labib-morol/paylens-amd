@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "serving-llms-on-instinct": {
+      "source": "amd/skills",
+      "sourceType": "github",
+      "skillPath": "skills/serving-llms-on-instinct/SKILL.md",
+      "computedHash": "088897aeff80d898a0edacd81c43052380644c96be49c21cdee998dfe2833e66"
+    }
+  }
+}
