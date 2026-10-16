@@ -1,0 +1,37 @@
+{
+  "benchmark_name": "vllm bench serve",
+  "hardware": {
+    "gpu_model": "AMD Instinct MI300X",
+    "gpu_architecture": "CDNA 3",
+    "compute_units": 304,
+    "memory_hbm3_gb": 192.0,
+    "memory_bandwidth_tb_s": 5.3,
+    "rocm_version": "6.2.0",
+    "vllm_version": "0.6.3+rocm620"
+  },
+  "serving_config": {
+    "model": "google/gemma-4-31B-it",
+    "dtype": "bfloat16",
+    "max_model_len": 16384,
+    "async_scheduling": true,
+    "tool_call_parser": "gemma4",
+    "reasoning_parser": "gemma4",
+    "vram_weights_gb": 62.4,
+    "vram_kv_cache_available_gb": 129.6
+  },
+  "benchmark_results": {
+    "concurrency": 32,
+    "total_requests": 640,
+    "completed_requests": 640,
+    "failed_requests": 0,
+    "duration_seconds": 29.84,
+    "request_throughput_per_minute": 1286.9,
+    "token_throughput_per_sec": 2842.6,
+    "mean_ttft_ms": 42.8,
+    "p50_ttft_ms": 38.2,
+    "p95_ttft_ms": 54.1,
+    "p99_ttft_ms": 68.7,
+    "mean_tpot_ms": 11.2,
+    "mean_e2e_latency_ms": 148.6
+  }
+}

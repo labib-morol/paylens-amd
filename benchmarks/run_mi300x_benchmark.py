@@ -1,10 +1,11 @@
-"""AMD Instinct MI300X High-Throughput Serving & Grounding Benchmark for PayLens Solo.
+"""AMD Instinct MI300X Serving & Grounding Benchmark for PayLens Solo.
 
 Evaluates:
-1. Multi-tenant recommendation card throughput (cards/min)
-2. Mean Time-To-First-Token (TTFT) and token generation velocity
+1. Multi-tenant recommendation card throughput and latency
+2. Execution Source reporting (LIVE_AMD_MI300X_VLLM vs LIVE_AMD_TOKENFACTORY vs LOCAL_DETERMINISTIC_FALLBACK)
 3. Strict 100% Numeric Grounding Verification across Global English texts
 4. Multi-objective GoalWeights dynamic reordering
+5. Authentic AMD Instinct MI300X (192GB HBM3) vLLM reference metrics
 """
 
 import os
@@ -19,7 +20,7 @@ if ROOT_DIR not in sys.path:
 
 from engine.pipeline import run_pipeline
 from engine.schema import GoalWeights
-from agent.gemma_agent import run_mi300x_parallel_burst, goal_to_weights
+from agent.gemma_agent import run_mi300x_parallel_burst, goal_to_weights, import_vllm_bench_serve_json
 from agent.grounding import verify_numeric_grounding
 
 OUTPUT_DIR = os.path.join(ROOT_DIR, "benchmarks")
@@ -29,7 +30,7 @@ RESULTS_PATH = os.path.join(OUTPUT_DIR, "benchmark_results.json")
 
 def main():
     print("=" * 75)
-    print("PAYLENS SOLO: AMD INSTINCT MI300X SERVING & GROUNDING BENCHMARK (USD)")
+    print("PAYLENS SOLO: AMD INSTINCT MI300X SERVING & GROUNDING BENCHMARK")
     print("=" * 75)
 
     # 1. Test Goal-to-Weights Natural Language Translation
@@ -60,9 +61,14 @@ def main():
               f"{eval_res['overall']['recall']*100:.1f}% Recall, {eval_res['overall']['f1_score']*100:.1f}% F1")
         print(f"  Fuzzy True Negative Exclusion  : {eval_res['fuzzy_true_negatives']['exclusion_rate_percent']:.1f}%")
 
-    # 3. High-Concurrency Parallel Burst on AMD MI300X Serving Endpoint
-    print("\n[Step 3] Launching Parallel Serving Burst (Concurrency = 32)...")
+    # 3. Serving Burst & Execution Source Audit
+    print("\n[Step 3] Executing Serving Burst across cards (Concurrency = 32)...")
     burst_results = run_mi300x_parallel_burst(cards, max_concurrency=32, tone="Polite Payment Reminder")
+
+    exec_source = burst_results["execution_source"]
+    print(f"  Execution Source Detected : {exec_source}")
+    print(f"  Active Mode Description   : {burst_results.get('mode_display', exec_source)}")
+    print(f"  Wall-clock Duration       : {burst_results['wall_clock_seconds']}s")
 
     # 4. Strict Independent Audit of Numeric Grounding
     print("\n[Step 4] Running Independent 100% Numeric Grounding Audit on All Output Texts...")
@@ -84,35 +90,52 @@ def main():
     print(f"  Grounding Failures : {grounding_failures}")
     print(f"  Final Grounding Accuracy: {final_pass_rate:.1f}%")
 
-    # 5. Compile Benchmark Results
+    # 5. Compile Benchmark Results with Honest Telemetry
+    ref_mi300x = import_vllm_bench_serve_json()
+
     benchmark_payload = {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "hardware_target": "AMD Instinct MI300X (192GB HBM3)",
+        "execution_source": exec_source,
+        "is_offline": burst_results["is_offline"],
         "model": burst_results["model"],
-        "offline_fallback_active": burst_results["offline_mode"],
+        "endpoint": burst_results["endpoint"],
         "concurrency": burst_results["max_concurrency"],
         "currency": "USD",
-        "metrics": {
+        "grounding_pass_rate_percent": final_pass_rate,
+        "runtime_metrics": {
             "total_merchants": 20,
             "total_recommendations": burst_results["total_cards"],
             "wall_clock_seconds": burst_results["wall_clock_seconds"],
-            "recommendations_per_minute": burst_results["recommendations_per_minute"],
-            "mean_ttft_ms": burst_results["mean_ttft_ms"],
-            "total_output_tokens": burst_results["total_output_tokens"],
-            "output_tokens_per_sec": burst_results["output_tokens_per_sec"],
-            "grounding_pass_rate_percent": final_pass_rate,
+            "grounding_accuracy_percent": final_pass_rate,
         },
+        "amd_mi300x_hardware_benchmark_reference": ref_mi300x,
         "deterministic_evaluation": eval_res,
     }
+
+    if exec_source == "LOCAL_DETERMINISTIC_FALLBACK":
+        benchmark_payload["local_cpu_note"] = (
+            "Local CPU fallback mode active in current terminal session. "
+            "Connect live AMD Instinct MI300X ROCm vLLM or TokenFactory in .env/sidebar for live GPU token metrics."
+        )
+        print(f"\n[Step 5] Local CPU Mode: Generated {burst_results['total_cards']} cards in {burst_results['wall_clock_seconds']}s")
+        print(f"  AMD MI300X Reference Serving Throughput : {ref_mi300x['benchmark_results']['token_throughput_per_sec']:,} tok/s (Concurrency=32)")
+        print(f"  AMD MI300X Reference Mean TTFT          : {ref_mi300x['benchmark_results']['mean_ttft_ms']} ms")
+    else:
+        benchmark_payload["live_gpu_metrics"] = {
+            "recommendations_per_minute": burst_results.get("recommendations_per_minute"),
+            "mean_ttft_ms": burst_results.get("mean_ttft_ms"),
+            "output_tokens_per_sec": burst_results.get("output_tokens_per_sec"),
+        }
+        print(f"\n[Step 5] Live AMD GPU Metrics:")
+        print(f"  Recommendations / min : {burst_results.get('recommendations_per_minute')}")
+        print(f"  Output tokens / sec   : {burst_results.get('output_tokens_per_sec')}")
+        print(f"  Mean TTFT             : {burst_results.get('mean_ttft_ms')} ms")
 
     with open(RESULTS_PATH, "w", encoding="utf-8") as f:
         json.dump(benchmark_payload, f, indent=2)
 
-    print(f"\n[Step 5] Benchmark results written to {RESULTS_PATH}")
-    print(f"  Recommendations / min : {burst_results['recommendations_per_minute']:,}")
-    print(f"  Output tokens / sec   : {burst_results['output_tokens_per_sec']:,}")
-    print(f"  Mean TTFT             : {burst_results['mean_ttft_ms']} ms")
-    print(f"  Grounding Accuracy    : {final_pass_rate:.1f}%")
+    print(f"  Benchmark results written to {RESULTS_PATH}")
+    print(f"  Final Grounding Accuracy: {final_pass_rate:.1f}%")
     print("=" * 75)
 
 

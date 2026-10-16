@@ -30,7 +30,6 @@ def get_order(order_id: str, duckdb_path: Optional[str] = None) -> Optional[Dict
         if df.empty:
             return None
         row = df.iloc[0].to_dict()
-        # Convert non-serializable objects
         return {k: (v if not hasattr(v, "isoformat") else v.isoformat()) for k, v in row.items()}
     finally:
         con.close()
@@ -52,8 +51,7 @@ def get_payments(
             query += " AND transaction_ref = ?"
             params.append(transaction_ref)
         elif phone:
-            # Match on clean 11 digits
-            clean_digits = "".join([c for c in phone if c.isdigit()])[-11:]
+            clean_digits = "".join([c for c in phone if c.isdigit()])[-10:]
             query += " AND customer_phone LIKE ?"
             params.append(f"%{clean_digits}%")
 
@@ -68,7 +66,7 @@ def get_settlement(
     order_id: Optional[str] = None,
     duckdb_path: Optional[str] = None,
 ) -> Optional[Dict[str, Any]]:
-    """Retrieve courier settlement details by consignment ID or order ID."""
+    """Retrieve carrier settlement details by consignment ID or order ID."""
     con = _get_con(duckdb_path)
     try:
         if consignment_id:
@@ -110,20 +108,27 @@ def get_forecast(
         recent_sales = df["units_sold_today"].tail(7).tolist()
         total_30d_sales = int(df["units_sold_today"].sum())
 
+        margin = latest.get("unit_margin_usd", latest.get("unit_margin_taka", 0.0))
+        cost = latest.get("unit_cost_usd", latest.get("unit_cost_taka", 0.0))
+        price = latest.get("unit_retail_price_usd", latest.get("unit_retail_price_taka", 0.0))
+        lead_time = latest.get("supplier_lead_time_days", 7)
+        curr_stock = latest.get("current_stock", 0)
+        reorder_point = int(latest.get("reorder_point_units", lead_time * 10))
+
         return {
             "merchant_id": merchant_id,
             "sku": sku,
-            "item_name": latest["item_name"],
-            "category": latest["category"],
-            "current_stock": int(latest["current_stock"]),
-            "unit_cost_taka": float(latest["unit_cost_taka"]),
-            "unit_retail_price_taka": float(latest["unit_retail_price_taka"]),
-            "unit_margin_taka": float(latest["unit_margin_taka"]),
-            "supplier_lead_time_days": int(latest["supplier_lead_time_days"]),
-            "reorder_point_units": int(latest["reorder_point_units"]),
+            "item_name": str(latest.get("item_name", sku)),
+            "category": str(latest.get("category", "General")),
+            "current_stock": int(curr_stock),
+            "unit_cost_usd": float(cost),
+            "unit_retail_price_usd": float(price),
+            "unit_margin_usd": float(margin),
+            "supplier_lead_time_days": int(lead_time),
+            "reorder_point_units": reorder_point,
             "recent_7d_sales": recent_sales,
             "total_30d_sales": total_30d_sales,
-            "snapshot_date": str(latest["snapshot_date"]),
+            "snapshot_date": str(latest.get("snapshot_date", "")),
         }
     finally:
         con.close()
@@ -138,9 +143,7 @@ OPENAI_TOOL_DEFINITIONS = [
             "description": "Look up an order by order_id to inspect amount, status, customer, and payment rail.",
             "parameters": {
                 "type": "object",
-                "properties": {
-                    "order_id": {"type": "string", "description": "The order ID, e.g. ORD-1042"},
-                },
+                "properties": {"order_id": {"type": "string", "description": "e.g. ORD-1042"}},
                 "required": ["order_id"],
             },
         },
@@ -149,13 +152,13 @@ OPENAI_TOOL_DEFINITIONS = [
         "type": "function",
         "function": {
             "name": "get_payments",
-            "description": "Search rail payment records by merchant ID and customer phone or transaction reference.",
+            "description": "Look up payment rail settlement records for a merchant by transaction ref or customer phone.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "merchant_id": {"type": "string", "description": "Merchant ID, e.g. MERCH_01"},
-                    "phone": {"type": "string", "description": "Customer phone number to match"},
-                    "transaction_ref": {"type": "string", "description": "Transaction reference string"},
+                    "merchant_id": {"type": "string"},
+                    "transaction_ref": {"type": "string"},
+                    "phone": {"type": "string"},
                 },
                 "required": ["merchant_id"],
             },
@@ -165,12 +168,12 @@ OPENAI_TOOL_DEFINITIONS = [
         "type": "function",
         "function": {
             "name": "get_settlement",
-            "description": "Retrieve courier settlement records to inspect collected COD, fees, expected net payout, and actual settled amount.",
+            "description": "Look up carrier COD remittance details by consignment ID or order ID.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "consignment_id": {"type": "string", "description": "Courier consignment ID, e.g. CONS-SHORT-8001"},
-                    "order_id": {"type": "string", "description": "Associated order ID"},
+                    "consignment_id": {"type": "string"},
+                    "order_id": {"type": "string"},
                 },
             },
         },
@@ -179,12 +182,12 @@ OPENAI_TOOL_DEFINITIONS = [
         "type": "function",
         "function": {
             "name": "get_forecast",
-            "description": "Retrieve SKU inventory status, lead times, margins, and sales velocity.",
+            "description": "Retrieve 30-day sales history, current stock, and lead time for a SKU.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "merchant_id": {"type": "string", "description": "Merchant ID"},
-                    "sku": {"type": "string", "description": "Product SKU code"},
+                    "merchant_id": {"type": "string"},
+                    "sku": {"type": "string"},
                 },
                 "required": ["merchant_id", "sku"],
             },
@@ -194,9 +197,9 @@ OPENAI_TOOL_DEFINITIONS = [
 
 
 def execute_tool(name: str, arguments: Dict[str, Any], duckdb_path: Optional[str] = None) -> Any:
-    """Execute a tool by name with provided arguments."""
+    """Execute a function call by name with provided arguments."""
     if name == "get_order":
-        return get_order(arguments.get("order_id", ""), duckdb_path=duckdb_path)
+        return get_order(arguments.get("order_id", ""), duckdb_path)
     elif name == "get_payments":
         return get_payments(
             merchant_id=arguments.get("merchant_id", ""),
@@ -217,4 +220,4 @@ def execute_tool(name: str, arguments: Dict[str, Any], duckdb_path: Optional[str
             duckdb_path=duckdb_path,
         )
     else:
-        return {"error": f"Unknown tool: {name}"}
+        raise ValueError(f"Unknown tool name: {name}")

@@ -22,6 +22,12 @@ class LeakSubType(str, Enum):
     NONE = "NONE"
 
 
+class ExecutionSource(str, Enum):
+    LIVE_AMD_MI300X_VLLM = "LIVE_AMD_MI300X_VLLM"
+    LIVE_AMD_TOKENFACTORY = "LIVE_AMD_TOKENFACTORY"
+    LOCAL_DETERMINISTIC_FALLBACK = "LOCAL_DETERMINISTIC_FALLBACK"
+
+
 class GoalWeights(BaseModel):
     """Business priorities that dynamically drive recommendation card ranking.
 
@@ -86,6 +92,13 @@ class RecommendationCard(BaseModel):
     grounding_retries: int = 0
     status: str = "PENDING"
     execution_receipt_id: Optional[str] = None
+
+    # AMD GPU Telemetry & Tool-Calling Trace
+    execution_source: str = ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value
+    http_latency_ms: float = 0.0
+    model_name: str = "google/gemma-4-31B-it"
+    tool_calls_trace: List[Dict[str, Any]] = Field(default_factory=list)
+    grounding_trace: List[Dict[str, Any]] = Field(default_factory=list)
 
     @property
     def impact_taka(self) -> float:

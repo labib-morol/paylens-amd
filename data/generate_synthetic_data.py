@@ -76,12 +76,20 @@ def generate_customer() -> dict:
     return {"name": name, "email": email, "phone": phone}
 
 
+# Planted Stockout SKUs
+PLANTED_STOCKOUT_CONFIGS = {
+    ("MERCH_02", "SKU-LUM-HERO-01"): {"lead_time": 7, "surge_start": 21, "surge_sales": (16, 22), "end_stock": 8, "is_hero": True},
+    ("MERCH_01", "SKU-APX-01"): {"lead_time": 6, "surge_start": 23, "surge_sales": (12, 18), "end_stock": 6, "is_hero": False},
+    ("MERCH_03", "SKU-03-A"): {"lead_time": 6, "surge_start": 23, "surge_sales": (10, 16), "end_stock": 5, "is_hero": False},
+    ("MERCH_07", "SKU-07-A"): {"lead_time": 7, "surge_start": 23, "surge_sales": (9, 15), "end_stock": 7, "is_hero": False},
+}
+
+
 def build_sku_catalog():
     catalog = {}
     for m in MERCHANTS:
         m_id = m["id"]
         if m_id == "MERCH_02":
-            # Lumina Smart Home & Audio: includes Hero high-margin SKU
             catalog[m_id] = [
                 {
                     "sku": "SKU-LUM-HERO-01",
@@ -90,7 +98,7 @@ def build_sku_catalog():
                     "unit_retail_price_usd": 1255.0,
                     "unit_margin_usd": 465.0,
                     "supplier_lead_time_days": 7,
-                    "initial_stock": 75,
+                    "initial_stock": 140,
                     "is_hero": True,
                 },
                 {
@@ -100,7 +108,7 @@ def build_sku_catalog():
                     "unit_retail_price_usd": 480.0,
                     "unit_margin_usd": 240.0,
                     "supplier_lead_time_days": 5,
-                    "initial_stock": 120,
+                    "initial_stock": 180,
                     "is_hero": False,
                 },
                 {
@@ -109,8 +117,8 @@ def build_sku_catalog():
                     "unit_cost_usd": 350.0,
                     "unit_retail_price_usd": 580.0,
                     "unit_margin_usd": 230.0,
-                    "supplier_lead_time_days": 10,
-                    "initial_stock": 50,
+                    "supplier_lead_time_days": 6,
+                    "initial_stock": 160,
                     "is_hero": False,
                 },
             ]
@@ -133,17 +141,7 @@ def build_sku_catalog():
                     "unit_retail_price_usd": 95.0,
                     "unit_margin_usd": 60.0,
                     "supplier_lead_time_days": 4,
-                    "initial_stock": 200,
-                    "is_hero": False,
-                },
-                {
-                    "sku": "SKU-APX-03",
-                    "item_name": "Water-Repellent Commuter Mac Coat",
-                    "unit_cost_usd": 140.0,
-                    "unit_retail_price_usd": 320.0,
-                    "unit_margin_usd": 180.0,
-                    "supplier_lead_time_days": 8,
-                    "initial_stock": 80,
+                    "initial_stock": 250,
                     "is_hero": False,
                 },
             ]
@@ -155,8 +153,8 @@ def build_sku_catalog():
                     "item_name": f"Premium {cat_name} Edition A",
                     "unit_cost_usd": float(random.randint(40, 150)),
                     "unit_retail_price_usd": float(random.randint(160, 350)),
-                    "supplier_lead_time_days": random.randint(4, 9),
-                    "initial_stock": random.randint(80, 200),
+                    "supplier_lead_time_days": 6,
+                    "initial_stock": 200,
                     "is_hero": False,
                 },
                 {
@@ -164,8 +162,8 @@ def build_sku_catalog():
                     "item_name": f"Standard {cat_name} Everyday B",
                     "unit_cost_usd": float(random.randint(20, 60)),
                     "unit_retail_price_usd": float(random.randint(70, 150)),
-                    "supplier_lead_time_days": random.randint(3, 7),
-                    "initial_stock": random.randint(100, 250),
+                    "supplier_lead_time_days": 4,
+                    "initial_stock": 250,
                     "is_hero": False,
                 },
             ]
@@ -203,31 +201,38 @@ def generate_dataset():
         skus = catalog[m_id]
 
         for sku_info in skus:
-            curr_stock = sku_info["initial_stock"]
+            sku = sku_info["sku"]
             lead_time = sku_info["supplier_lead_time_days"]
+            is_planted_stockout = (m_id, sku) in PLANTED_STOCKOUT_CONFIGS
             is_hero = sku_info.get("is_hero", False)
+            curr_stock = sku_info["initial_stock"]
+
+            cfg = PLANTED_STOCKOUT_CONFIGS.get((m_id, sku), None)
 
             for day_idx in range(30):
                 snapshot_dt = (base_date + timedelta(days=day_idx)).date()
 
-                # Surge on day 22-30 for hero SKU and pre-holiday demand
-                if is_hero and day_idx >= 22:
-                    units_sold = random.randint(14, 22)  # Rapid depletion
-                elif day_idx >= 24:
-                    units_sold = random.randint(8, 16)
+                if is_planted_stockout and cfg is not None:
+                    # Surge period
+                    if day_idx >= cfg["surge_start"]:
+                        units_sold = random.randint(*cfg["surge_sales"])
+                    else:
+                        units_sold = random.randint(3, 6)
+                    curr_stock = max(cfg["end_stock"], curr_stock - units_sold)
+                    if day_idx == 29:
+                        curr_stock = cfg["end_stock"]  # Enforce exact depleted stock
                 else:
-                    units_sold = random.randint(2, 6)
-
-                curr_stock = max(0, curr_stock - units_sold)
-
-                # Restock event on day 15 for normal SKUs
-                if day_idx == 15 and not is_hero:
-                    curr_stock += random.randint(40, 80)
+                    # Non-planted healthy SKU: steady modest sales & healthy auto-replenishment
+                    units_sold = random.randint(2, 5)
+                    curr_stock -= units_sold
+                    # Keep stock well above lead time cover (current_stock >= 2.5 * lead_time * daily_sales)
+                    if curr_stock < (lead_time * 6):
+                        curr_stock += 80  # Restock
 
                 inventory_records.append({
                     "snapshot_date": str(snapshot_dt),
                     "merchant_id": m_id,
-                    "sku": sku_info["sku"],
+                    "sku": sku,
                     "item_name": sku_info["item_name"],
                     "current_stock": curr_stock,
                     "units_sold_today": units_sold,
@@ -238,22 +243,22 @@ def generate_dataset():
                     "is_hero": is_hero,
                 })
 
-            # Ground truth stockout check on latest day
-            # If current_stock / avg_sales < lead_time
-            recent_sales = [r["units_sold_today"] for r in inventory_records if r["merchant_id"] == m_id and r["sku"] == sku_info["sku"]][-7:]
-            avg_daily = sum(recent_sales) / max(1, len(recent_sales))
-            days_cover = curr_stock / max(0.1, avg_daily)
-            if days_cover < lead_time:
-                lost_units = max(0, round((lead_time - days_cover) * avg_daily, 1))
+            # Record strictly the planted stockout SKUs into ground truth
+            if is_planted_stockout and cfg is not None:
+                recent_sales = [r["units_sold_today"] for r in inventory_records if r["merchant_id"] == m_id and r["sku"] == sku][-7:]
+                avg_daily = sum(recent_sales) / max(1, len(recent_sales))
+                days_cover = round(cfg["end_stock"] / max(0.1, avg_daily), 2)
+                lost_units = max(0.0, round((lead_time - days_cover) * avg_daily, 1))
                 lost_margin = round(lost_units * sku_info["unit_margin_usd"], 2)
+
                 ground_truth["stockout_skus"].append({
                     "merchant_id": m_id,
-                    "sku": sku_info["sku"],
+                    "sku": sku,
                     "item_name": sku_info["item_name"],
-                    "current_stock": curr_stock,
+                    "current_stock": cfg["end_stock"],
                     "supplier_lead_time_days": lead_time,
                     "forecast_daily_demand": round(avg_daily, 2),
-                    "days_of_cover": round(days_cover, 2),
+                    "days_of_cover": days_cover,
                     "lost_units": lost_units,
                     "unit_margin_usd": sku_info["unit_margin_usd"],
                     "impact_usd": lost_margin,
@@ -261,7 +266,6 @@ def generate_dataset():
                 })
 
     # 2. Generate Orders and Payment Rail records across 30 days
-    # Platforms: Stripe Gateway, PayPal Wallet, SEPA Wire, DHL/FedEx Courier COD
     rail_dist = [
         ("PAYMENT_GATEWAY", "Stripe"),
         ("DIGITAL_WALLET", "PayPal"),
@@ -276,8 +280,7 @@ def generate_dataset():
 
         for day_idx in range(30):
             day_dt = base_date + timedelta(days=day_idx)
-            # 4 to 8 orders per merchant per day
-            num_orders = random.randint(4, 8)
+            num_orders = random.randint(4, 7)
 
             for _ in range(num_orders):
                 order_seq += 1
@@ -299,7 +302,7 @@ def generate_dataset():
 
                 status = "DELIVERED" if day_idx < 25 else "DISPATCHED"
 
-                order_row = {
+                orders_records.append({
                     "order_id": ord_id,
                     "merchant_id": m_id,
                     "customer_name": cust["name"],
@@ -316,8 +319,7 @@ def generate_dataset():
                     "rail_provider": rail_prov,
                     "order_status": status,
                     "transaction_ref": txn_ref,
-                }
-                orders_records.append(order_row)
+                })
 
                 # Digital rails generate rail_payments
                 if rail_type in ("PAYMENT_GATEWAY", "DIGITAL_WALLET", "BANK_TRANSFER"):
@@ -462,7 +464,6 @@ def generate_dataset():
         })
 
     # 5. Plant Ground-Truth Category C: 18 Fuzzy-Matched True Negatives
-    # Missing transaction_ref in orders, but matched by phone/email + exact amount + timestamp within 18 mins
     for idx in range(18):
         m_id = MERCHANTS[idx % len(MERCHANTS)]["id"]
         order_seq += 1
@@ -474,7 +475,6 @@ def generate_dataset():
         pay_time = ord_time + timedelta(minutes=random.randint(3, 16))
         rail_prov = "Stripe" if idx % 2 == 0 else "PayPal"
 
-        # Order has NO transaction_ref
         orders_records.append({
             "order_id": ord_id,
             "merchant_id": m_id,
@@ -491,10 +491,9 @@ def generate_dataset():
             "payment_rail": "PAYMENT_GATEWAY" if rail_prov == "Stripe" else "DIGITAL_WALLET",
             "rail_provider": rail_prov,
             "order_status": "DELIVERED",
-            "transaction_ref": "",  # Missing ref!
+            "transaction_ref": "",
         })
 
-        # Payment record exists with matching customer, amount, and close timestamp
         rail_payments_records.append({
             "payment_id": f"RP-FUZZY-{payment_seq}",
             "merchant_id": m_id,
@@ -629,7 +628,6 @@ def generate_sample_courier_pdf():
         story.append(Paragraph(f"Merchant: Lumina Smart Home & Audio (MERCH_02) | Statement Date: 2026-10-15 | Currency: USD ($)", sub_style))
         story.append(Spacer(1, 10))
 
-        # Sample settlement table with shortfall rows
         data = [
             ["Consignment ID", "Order ID", "Carrier", "COD Collected ($)", "Fee ($)", "Expected Net ($)", "Actual Settled ($)", "Status"],
             ["CONS-SHORT-9001", "ORD-COD-SHORT-3143", "DHL Express", "$850.00", "$44.00", "$806.00", "$686.00", "PARTIAL SHORTFALL"],
