@@ -1,6 +1,6 @@
 """Deterministic Detectors and Statistical Forecasters for PayLens Solo.
 
-Architecture Rule 1: CODE COMPUTES, MODEL EXPLAINS.
+Architecture Rule 1: CODE COMPUTES, AMD GPU MODEL EXPLAINS.
 All mathematical computations, matching logic, Holt-Winters forecasting,
 and STL anomaly detection are computed deterministically here using DuckDB,
 pandas, statsmodels, and scipy.
@@ -33,11 +33,17 @@ from engine.schema import (
 
 
 def _clean_phone(phone: Optional[str]) -> str:
-    """Standardize phone numbers by stripping non-digits and taking the last 11 digits."""
+    """Standardize phone numbers by stripping non-digits and taking the last 10 digits."""
     if not phone:
         return ""
     digits = re.sub(r"\D", "", str(phone))
-    return digits[-11:] if len(digits) >= 11 else digits
+    return digits[-10:] if len(digits) >= 10 else digits
+
+
+def _clean_email(email: Optional[str]) -> str:
+    if not email:
+        return ""
+    return str(email).strip().lower()
 
 
 def run_stl_anomaly_detector(
@@ -49,11 +55,15 @@ def run_stl_anomaly_detector(
     Decomposes 30-day merchant daily revenue into trend, seasonal (period=7),
     and residual components. Flags days where abs(resid) > sigma_threshold * std(resid).
     """
-    query = """
+    # Detect whether USD or TAKA column exists
+    cols = [c[1] for c in con.execute("PRAGMA table_info('orders')").fetchall()]
+    amt_col = "order_amount_usd" if "order_amount_usd" in cols else "order_amount_taka"
+
+    query = f"""
         SELECT 
             merchant_id,
             CAST(order_timestamp AS DATE) as rev_date,
-            SUM(order_amount_taka) as daily_revenue
+            SUM({amt_col}) as daily_revenue
         FROM orders
         WHERE order_status IN ('DELIVERED', 'DISPATCHED')
         GROUP BY merchant_id, CAST(order_timestamp AS DATE)
@@ -106,24 +116,33 @@ def run_leak_matcher(
     merchant_names: Optional[Dict[str, str]] = None,
     stl_anomalies: Optional[Dict[str, List[Dict[str, Any]]]] = None,
 ) -> Tuple[List[RecommendationCard], Dict[str, Any]]:
-    """2-Pass Deterministic Leak Matcher and Courier COD Shortfall Checker.
+    """2-Pass Deterministic Leak Matcher and Carrier COD Shortfall Checker.
 
     Pass 1: Exact matching on transaction_ref between orders and rail_payments.
-    Pass 2: Fuzzy matching on customer_phone + exact amount + timestamp within 30 minutes.
+    Pass 2: Fuzzy matching on customer_email/phone + exact amount + timestamp within 30 minutes.
     Planted True Negatives are successfully reconciled in Pass 2 and excluded from leaks.
     """
     merchant_names = merchant_names or {}
     stl_anomalies = stl_anomalies or {}
 
+    # Detect currency column
+    order_cols = [c[1] for c in con.execute("PRAGMA table_info('orders')").fetchall()]
+    amt_col = "order_amount_usd" if "order_amount_usd" in order_cols else "order_amount_taka"
+    price_col = "unit_price_usd" if "unit_price_usd" in order_cols else "unit_price_taka"
+    ship_col = "shipping_cost_usd" if "shipping_cost_usd" in order_cols else "shipping_cost_taka"
+
+    pay_cols = [c[1] for c in con.execute("PRAGMA table_info('rail_payments')").fetchall()]
+    pay_amt_col = "amount_usd" if "amount_usd" in pay_cols else "amount_taka"
+
     # Load digital orders that require payment verification
-    orders_df = con.execute("""
+    orders_df = con.execute(f"""
         SELECT * FROM orders 
-        WHERE payment_rail IN ('MOBILE_WALLET_MFS', 'PAYMENT_GATEWAY', 'BANK_TRANSFER')
+        WHERE payment_rail IN ('MOBILE_WALLET_MFS', 'PAYMENT_GATEWAY', 'BANK_TRANSFER', 'DIGITAL_WALLET')
           AND order_status IN ('DISPATCHED', 'DELIVERED')
     """).df()
 
     # Load successful rail payments
-    payments_df = con.execute("""
+    payments_df = con.execute(f"""
         SELECT * FROM rail_payments 
         WHERE status = 'SUCCESS'
     """).df()
@@ -137,6 +156,10 @@ def run_leak_matcher(
 
     # Prepare for Pass 2 (fuzzy)
     payments_df["clean_phone"] = payments_df["customer_phone"].apply(_clean_phone)
+    if "customer_email" in payments_df.columns:
+        payments_df["clean_email"] = payments_df["customer_email"].apply(_clean_email)
+    else:
+        payments_df["clean_email"] = ""
     payments_df["pay_dt"] = pd.to_datetime(payments_df["payment_timestamp"])
 
     unmatched_pass1 = []
@@ -159,22 +182,26 @@ def run_leak_matcher(
             unmatched_pass1.append(ord_row)
 
     # Run Pass 2 on orders that failed Pass 1
-    # Match criteria: same merchant + clean phone + exact amount (diff < 1.0) + within 30 mins
+    # Match criteria: same merchant + clean phone/email + exact amount (diff < 1.0) + within 30 mins
     for ord_row in unmatched_pass1:
         m_id = ord_row["merchant_id"]
-        ord_phone = _clean_phone(ord_row["customer_phone"])
-        ord_amt = float(ord_row["order_amount_taka"])
+        ord_phone = _clean_phone(ord_row.get("customer_phone", ""))
+        ord_email = _clean_email(ord_row.get("customer_email", ""))
+        ord_amt = float(ord_row[amt_col])
         ord_dt = pd.to_datetime(ord_row["order_timestamp"])
 
         # Candidate payments from the same merchant
-        candidates = payments_df[
-            (payments_df["merchant_id"] == m_id) &
-            (payments_df["clean_phone"] == ord_phone)
-        ]
+        candidates = payments_df[payments_df["merchant_id"] == m_id]
+        if ord_phone and ord_email:
+            candidates = candidates[(candidates["clean_phone"] == ord_phone) | (candidates["clean_email"] == ord_email)]
+        elif ord_phone:
+            candidates = candidates[candidates["clean_phone"] == ord_phone]
+        elif ord_email:
+            candidates = candidates[candidates["clean_email"] == ord_email]
 
         fuzzy_match = None
         for _, pay_row in candidates.iterrows():
-            pay_amt = float(pay_row["amount_taka"])
+            pay_amt = float(pay_row[pay_amt_col])
             if abs(pay_amt - ord_amt) < 1.0:
                 time_diff_sec = abs((pay_row["pay_dt"] - ord_dt).total_seconds())
                 if time_diff_sec <= 1800:  # within 30 minutes
@@ -188,9 +215,9 @@ def run_leak_matcher(
             ord_id = ord_row["order_id"]
             m_name = merchant_names.get(m_id, m_id)
             impact = round(ord_amt, 2)
-            unit_price = float(ord_row["unit_price_taka"])
-            qty = float(ord_row["quantity"])
-            shipping = float(ord_row["shipping_cost_taka"])
+            unit_price = float(ord_row[price_col]) if price_col in ord_row else impact
+            qty = float(ord_row.get("quantity", 1))
+            shipping = float(ord_row.get(ship_col, 0.0))
 
             allowed = sorted(list({impact, unit_price, qty, shipping, 1.0}))
             evidence = [
@@ -201,8 +228,9 @@ def run_leak_matcher(
                     raw_data={
                         "order_id": ord_id,
                         "merchant_id": m_id,
-                        "customer_phone": ord_row["customer_phone"],
-                        "order_amount_taka": impact,
+                        "customer_phone": ord_row.get("customer_phone", ""),
+                        "customer_email": ord_row.get("customer_email", ""),
+                        "order_amount_usd": impact,
                         "payment_rail": ord_row["payment_rail"],
                         "rail_provider": ord_row["rail_provider"],
                         "order_status": ord_row["order_status"],
@@ -220,9 +248,9 @@ def run_leak_matcher(
                 leak_sub_type=LeakSubType.DISPATCHED_UNPAID,
                 entity_id=ord_id,
                 title=f"Dispatched Unpaid Order #{ord_id} ({ord_row['rail_provider']})",
-                impact_taka=impact,
+                impact_usd=impact,
                 confidence=0.95,
-                formula_display=f"1 dispatched unpaid order * ৳{impact:,.2f} = ৳{impact:,.2f}",
+                formula_display=f"1 dispatched unpaid order * ${impact:,.2f} = ${impact:,.2f}",
                 allowed_numbers=allowed,
                 evidence_rows=evidence,
                 stl_anomaly_context=(
@@ -233,11 +261,17 @@ def run_leak_matcher(
             leak_cards.append(card)
 
     # -------------------------------------------------------------------------
-    # Courier COD Settlement Shortfall Check
+    # Carrier COD Settlement Shortfall Check
     # -------------------------------------------------------------------------
-    courier_df = con.execute("""
+    courier_cols = [c[1] for c in con.execute("PRAGMA table_info('courier_settlements')").fetchall()]
+    exp_col = "expected_net_payout_usd" if "expected_net_payout_usd" in courier_cols else "expected_net_payout_taka"
+    act_col = "actual_settled_usd" if "actual_settled_usd" in courier_cols else "actual_settled_taka"
+    cod_col = "cod_collected_usd" if "cod_collected_usd" in courier_cols else "cod_collected_taka"
+    fee_col = "courier_fee_usd" if "courier_fee_usd" in courier_cols else "courier_fee_taka"
+
+    courier_df = con.execute(f"""
         SELECT * FROM courier_settlements
-        WHERE (expected_net_payout_taka - actual_settled_taka) > 5.0
+        WHERE ({exp_col} - {act_col}) > 5.0
     """).df()
 
     for _, c_row in courier_df.iterrows():
@@ -247,26 +281,26 @@ def run_leak_matcher(
         order_id = c_row["order_id"]
         courier_name = c_row["courier_name"]
 
-        expected_net = round(float(c_row["expected_net_payout_taka"]), 2)
-        actual_settled = round(float(c_row["actual_settled_taka"]), 2)
+        expected_net = round(float(c_row[exp_col]), 2)
+        actual_settled = round(float(c_row[act_col]), 2)
         shortfall = round(expected_net - actual_settled, 2)
-        cod_collected = round(float(c_row["cod_collected_taka"]), 2)
-        courier_fee = round(float(c_row["courier_fee_taka"]), 2)
+        cod_collected = round(float(c_row[cod_col]), 2)
+        courier_fee = round(float(c_row[fee_col]), 2)
 
         allowed = sorted(list({expected_net, actual_settled, shortfall, cod_collected, courier_fee, 5.0}))
         evidence = [
             EvidenceRow(
                 source_table="courier_settlements",
                 row_id=c_row["settlement_id"],
-                summary=f"Settlement #{c_row['settlement_id']} from {courier_name} undersettled by ৳{shortfall:,.2f}.",
+                summary=f"Settlement #{c_row['settlement_id']} from {courier_name} undersettled by ${shortfall:,.2f}.",
                 raw_data={
                     "settlement_id": c_row["settlement_id"],
                     "consignment_id": consignment_id,
                     "order_id": order_id,
                     "courier_name": courier_name,
-                    "expected_net_payout_taka": expected_net,
-                    "actual_settled_taka": actual_settled,
-                    "shortfall_taka": shortfall,
+                    "expected_net_payout_usd": expected_net,
+                    "actual_settled_usd": actual_settled,
+                    "shortfall_usd": shortfall,
                 },
                 numbers=[expected_net, actual_settled, shortfall],
             )
@@ -279,10 +313,10 @@ def run_leak_matcher(
             rec_type=RecommendationType.PAYMENT_LEAKAGE,
             leak_sub_type=LeakSubType.SETTLEMENT_SHORTFALL,
             entity_id=consignment_id,
-            title=f"Courier COD Shortfall: {consignment_id} ({courier_name})",
-            impact_taka=shortfall,
+            title=f"Carrier COD Shortfall: {consignment_id} ({courier_name})",
+            impact_usd=shortfall,
             confidence=0.98,
-            formula_display=f"৳{expected_net:,.2f} expected - ৳{actual_settled:,.2f} actual = ৳{shortfall:,.2f} shortfall",
+            formula_display=f"${expected_net:,.2f} expected - ${actual_settled:,.2f} actual = ${shortfall:,.2f} shortfall",
             allowed_numbers=allowed,
             evidence_rows=evidence,
             stl_anomaly_context=(
@@ -320,7 +354,10 @@ def run_failed_payment_scanner(
     merchant_names = merchant_names or {}
     stl_anomalies = stl_anomalies or {}
 
-    failed_df = con.execute("""
+    order_cols = [c[1] for c in con.execute("PRAGMA table_info('orders')").fetchall()]
+    amt_col = "order_amount_usd" if "order_amount_usd" in order_cols else "order_amount_taka"
+
+    failed_df = con.execute(f"""
         SELECT * FROM orders
         WHERE order_status = 'FAILED'
     """).df()
@@ -329,12 +366,16 @@ def run_failed_payment_scanner(
         return []
 
     # Successful orders for checking recovery
-    success_df = con.execute("""
-        SELECT merchant_id, customer_phone, order_timestamp
+    has_email = "customer_email" in order_cols
+    sel_fields = "merchant_id, customer_phone, customer_email, order_timestamp" if has_email else "merchant_id, customer_phone, order_timestamp"
+    success_df = con.execute(f"""
+        SELECT {sel_fields}
         FROM orders
         WHERE order_status IN ('DELIVERED', 'DISPATCHED')
     """).df()
     success_df["clean_phone"] = success_df["customer_phone"].apply(_clean_phone)
+    if has_email:
+        success_df["clean_email"] = success_df["customer_email"].apply(_clean_email)
     success_df["ord_dt"] = pd.to_datetime(success_df["order_timestamp"])
 
     cards: List[RecommendationCard] = []
@@ -343,17 +384,23 @@ def run_failed_payment_scanner(
         m_id = row["merchant_id"]
         m_name = merchant_names.get(m_id, m_id)
         ord_id = row["order_id"]
-        phone = _clean_phone(row["customer_phone"])
+        phone = _clean_phone(row.get("customer_phone", ""))
+        email = _clean_email(row.get("customer_email", "")) if has_email else ""
         ord_dt = pd.to_datetime(row["order_timestamp"])
-        basket_amt = round(float(row["order_amount_taka"]), 2)
+        basket_amt = round(float(row[amt_col]), 2)
 
         # Check if customer succeeded subsequently within 24 hours
         subsequent = success_df[
             (success_df["merchant_id"] == m_id) &
-            (success_df["clean_phone"] == phone) &
             (success_df["ord_dt"] > ord_dt) &
             (success_df["ord_dt"] <= ord_dt + timedelta(hours=24))
         ]
+        if phone and email:
+            subsequent = subsequent[(subsequent["clean_phone"] == phone) | (subsequent["clean_email"] == email)]
+        elif phone:
+            subsequent = subsequent[subsequent["clean_phone"] == phone]
+        elif email:
+            subsequent = subsequent[subsequent["clean_email"] == email]
 
         if not subsequent.empty:
             continue  # Naturally recovered
@@ -366,12 +413,13 @@ def run_failed_payment_scanner(
             EvidenceRow(
                 source_table="orders",
                 row_id=ord_id,
-                summary=f"Failed checkout #{ord_id} ({row['rail_provider']}) basket ৳{basket_amt:,.2f} abandoned.",
+                summary=f"Failed checkout #{ord_id} ({row['rail_provider']}) basket ${basket_amt:,.2f} abandoned.",
                 raw_data={
                     "order_id": ord_id,
                     "merchant_id": m_id,
-                    "customer_phone": row["customer_phone"],
-                    "order_amount_taka": basket_amt,
+                    "customer_phone": row.get("customer_phone", ""),
+                    "customer_email": row.get("customer_email", ""),
+                    "order_amount_usd": basket_amt,
                     "rail_provider": row["rail_provider"],
                     "recovery_rate": recovery_rate,
                 },
@@ -387,9 +435,9 @@ def run_failed_payment_scanner(
             leak_sub_type=LeakSubType.NONE,
             entity_id=ord_id,
             title=f"Abandoned Checkout #{ord_id} ({row['rail_provider']})",
-            impact_taka=recoverable_impact,
+            impact_usd=recoverable_impact,
             confidence=0.70,
-            formula_display=f"৳{basket_amt:,.2f} basket * {recovery_rate:.2f} recovery rate = ৳{recoverable_impact:,.2f}",
+            formula_display=f"${basket_amt:,.2f} basket * {recovery_rate:.2f} recovery rate = ${recoverable_impact:,.2f}",
             allowed_numbers=allowed,
             evidence_rows=evidence,
             stl_anomaly_context=(
@@ -411,10 +459,14 @@ def run_stockout_forecaster(
 
     Uses statsmodels ExponentialSmoothing (seasonal_periods=7) to forecast demand
     over each SKU's supplier_lead_time_days. When days_of_cover < lead_time,
-    computes lost margin impact deterministically: lost_units * unit_margin_taka.
+    computes lost margin impact deterministically: lost_units * unit_margin_usd.
     """
     merchant_names = merchant_names or {}
     stl_anomalies = stl_anomalies or {}
+
+    inv_cols = [c[1] for c in con.execute("PRAGMA table_info('inventory_daily')").fetchall()]
+    margin_col = "unit_margin_usd" if "unit_margin_usd" in inv_cols else "unit_margin_taka"
+    retail_col = "unit_retail_price_usd" if "unit_retail_price_usd" in inv_cols else "unit_retail_price_taka"
 
     inv_df = con.execute("""
         SELECT * FROM inventory_daily
@@ -432,8 +484,8 @@ def run_stockout_forecaster(
 
         current_stock = int(latest["current_stock"])
         lead_time = int(latest["supplier_lead_time_days"])
-        unit_margin = round(float(latest["unit_margin_taka"]), 2)
-        unit_retail = round(float(latest["unit_retail_price_taka"]), 2)
+        unit_margin = round(float(latest[margin_col]), 2)
+        unit_retail = round(float(latest[retail_col]), 2)
         item_name = str(latest["item_name"])
         m_name = merchant_names.get(m_id, m_id)
 
@@ -453,81 +505,78 @@ def run_stockout_forecaster(
             forecast = hw_model.forecast(lead_time)
         except Exception:
             try:
-                hw_model = ExponentialSmoothing(
-                    demand_series,
-                    trend="add",
-                    seasonal=None,
-                    initialization_method="estimated",
-                ).fit()
+                hw_model = SimpleExpSmoothing(demand_series).fit(smoothing_level=0.3)
                 forecast = hw_model.forecast(lead_time)
             except Exception:
-                # Fallback to recent rolling average
-                recent_avg = max(1.0, float(np.mean(demand_series[-7:])))
-                forecast = np.array([recent_avg] * lead_time)
+                mean_demand = float(np.mean(demand_series[-7:]))
+                forecast = np.array([mean_demand] * lead_time)
 
-        forecasted_demand = float(np.sum(np.maximum(0.0, forecast)))
-        daily_velocity = forecasted_demand / max(1, lead_time)
-        days_of_cover = round(current_stock / daily_velocity, 2) if daily_velocity > 0 else 999.0
+        forecast = np.maximum(forecast, 0.0)
+        total_lead_demand = float(np.sum(forecast))
+        daily_forecast_rate = total_lead_demand / max(1, lead_time)
 
-        # Stockout condition: stock cannot cover demand through supplier lead time
-        if current_stock < forecasted_demand:
-            lost_units = max(0, int(math.ceil(forecasted_demand - current_stock)))
-            if lost_units > 0:
-                impact = round(lost_units * unit_margin, 2)
-                forecast_rounded = round(forecasted_demand, 1)
+        # Days of cover calculation
+        if daily_forecast_rate > 0.01:
+            days_of_cover = current_stock / daily_forecast_rate
+        else:
+            days_of_cover = 999.0
 
+        # Stockout condition: days_of_cover < supplier_lead_time_days
+        if days_of_cover < lead_time:
+            lost_units = round(max(0.0, total_lead_demand - current_stock), 1)
+            lost_margin = round(lost_units * unit_margin, 2)
+
+            if lost_margin > 0:
                 allowed = sorted(list({
-                    float(lost_units),
-                    float(unit_margin),
-                    float(impact),
                     float(current_stock),
                     float(lead_time),
-                    float(unit_retail),
-                    forecast_rounded,
-                    days_of_cover,
+                    round(days_of_cover, 1),
+                    round(daily_forecast_rate, 1),
+                    lost_units,
+                    unit_margin,
+                    unit_retail,
+                    lost_margin,
                 }))
 
                 evidence = [
                     EvidenceRow(
                         source_table="inventory_daily",
-                        row_id=f"{m_id}:{sku}:{latest['snapshot_date']}",
-                        summary=(
-                            f"SKU {sku} ({item_name}) has {current_stock} units left. "
-                            f"Holt-Winters forecasts {forecast_rounded} units demand over {lead_time} days lead time "
-                            f"({days_of_cover} days cover). Lost demand: {lost_units} units."
-                        ),
+                        row_id=f"{m_id}:{sku}",
+                        summary=f"SKU {sku} ({item_name}) stock {current_stock} pcs covers only {days_of_cover:.1f} days vs supplier lead time of {lead_time} days.",
                         raw_data={
                             "merchant_id": m_id,
                             "sku": sku,
                             "item_name": item_name,
                             "current_stock": current_stock,
                             "supplier_lead_time_days": lead_time,
-                            "unit_margin_taka": unit_margin,
-                            "forecasted_demand_lead_time": forecast_rounded,
-                            "days_of_cover": days_of_cover,
+                            "daily_forecast_demand": round(daily_forecast_rate, 2),
+                            "days_of_cover": round(days_of_cover, 1),
                             "lost_units": lost_units,
+                            "unit_margin_usd": unit_margin,
+                            "lost_margin_usd": lost_margin,
+                            "is_hero": bool(latest.get("is_hero", False)),
                         },
-                        numbers=[float(current_stock), float(lead_time), float(lost_units), unit_margin, impact],
+                        numbers=[lost_margin, lost_units, unit_margin, float(current_stock), float(lead_time)],
                     )
                 ]
 
                 card = RecommendationCard(
-                    card_id=f"CARD-STOCKOUT-{m_id}-{sku}",
+                    card_id=f"CARD-STOCK-{m_id}-{sku}",
                     merchant_id=m_id,
                     merchant_name=m_name,
                     rec_type=RecommendationType.STOCKOUT_RISK,
                     leak_sub_type=LeakSubType.NONE,
                     entity_id=sku,
-                    title=f"Stockout Surge Risk: {item_name} ({sku})",
-                    impact_taka=impact,
-                    confidence=0.85,
-                    formula_display=f"{lost_units} lost units * ৳{unit_margin:,.2f} margin = ৳{impact:,.2f}",
+                    title=f"Stockout Risk: {item_name} ({sku})",
+                    impact_usd=lost_margin,
+                    confidence=0.88,
+                    formula_display=f"{lost_units} lost units * ${unit_margin:,.2f} margin = ${lost_margin:,.2f}",
                     allowed_numbers=allowed,
                     evidence_rows=evidence,
                     stl_anomaly_context=(
                         stl_anomalies.get(m_id)[0] if stl_anomalies.get(m_id) else None
                     ),
-                    action_type="PURCHASE_ORDER",
+                    action_type="REORDER_INVENTORY",
                 )
                 cards.append(card)
 

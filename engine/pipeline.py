@@ -1,6 +1,6 @@
 """Deterministic End-to-End Pipeline for PayLens Solo.
 
-Architecture Rule 1: CODE COMPUTES, MODEL EXPLAINS.
+Architecture Rule 1: CODE COMPUTES, AMD GPU MODEL EXPLAINS.
 Coordinates data ingestion, anomaly detection, statistical forecasting,
 ground-truth evaluation, and multi-objective ranking.
 """
@@ -33,28 +33,27 @@ load_dotenv()
 
 def get_merchant_names(con: duckdb.DuckDBPyConnection) -> Dict[str, str]:
     """Retrieve mapping of merchant IDs to human-readable business names."""
-    # Canonical names for primary merchants
     name_map = {
-        "MERCH_01": "Dhaka Threads & Lifestyle",
-        "MERCH_02": "Chattogram Artisans & Home",
-        "MERCH_03": "Sylhet Tea & Organic Pantry",
-        "MERCH_04": "Rajshahi Silk Heritage",
-        "MERCH_05": "Khulna Marine & Leathercraft",
-        "MERCH_06": "Barishal Agro Essentials",
-        "MERCH_07": "Rangpur Loom & Crafts",
-        "MERCH_08": "Mymensingh Dairy & Provisions",
-        "MERCH_09": "Comilla Khadi Collection",
-        "MERCH_10": "Bogura Sweets & Delicacies",
-        "MERCH_11": "Cox's Pearl & Coastwear",
-        "MERCH_12": "Narayanganj Knitwear Express",
-        "MERCH_13": "Gazipur Electronics Depot",
-        "MERCH_14": "Tangail Saree Emporium",
-        "MERCH_15": "Kushtia Musical & Arts",
-        "MERCH_16": "Dinajpur Aromatic Grains",
-        "MERCH_17": "Pabna Handloom Weaves",
-        "MERCH_18": "Faridpur Jute Innovations",
-        "MERCH_19": "Feni Tech Accessories",
-        "MERCH_20": "Jessore Floral & Natural Cosmetics",
+        "MERCH_01": "Apex Global Apparel",
+        "MERCH_02": "Lumina Smart Home & Audio",
+        "MERCH_03": "Horizon Outdoors & Gear",
+        "MERCH_04": "Velvet & Vine Cosmetics",
+        "MERCH_05": "Titan Precision Tools",
+        "MERCH_06": "PureArtisan Gourmet Foods",
+        "MERCH_07": "Nordic Living Studio",
+        "MERCH_08": "Optima Health & Nutrition",
+        "MERCH_09": "Kroma Mechanical Keyboards",
+        "MERCH_10": "Heritage Leather Co.",
+        "MERCH_11": "Solara Activewear",
+        "MERCH_12": "Vanguard Optical & Eyewear",
+        "MERCH_13": "Zenith Espresso Equipment",
+        "MERCH_14": "Aura Gemstones & Fine Jewelry",
+        "MERCH_15": "Terra Pet Botanicals",
+        "MERCH_16": "Cortex Robotics & STEM Kits",
+        "MERCH_17": "Equinox Cycling Components",
+        "MERCH_18": "Verdant Urban Nursery",
+        "MERCH_19": "Pulse Wearable Fitness",
+        "MERCH_20": "Monochrome Minimalist Watches",
     }
     return name_map
 
@@ -81,7 +80,7 @@ def run_pipeline(
     stl_sigma = float(os.getenv("STL_SIGMA_THRESHOLD", "2.2"))
     stl_anomalies = run_stl_anomaly_detector(con, sigma_threshold=stl_sigma)
 
-    # 2. Run 2-Pass Leak Matcher and Courier Shortfall Checker
+    # 2. Run 2-Pass Leak Matcher and Carrier Shortfall Checker
     leak_cards, leak_telemetry = run_leak_matcher(con, merchant_names, stl_anomalies)
 
     # 3. Run Failed-Payment Recovery Scanner
@@ -110,12 +109,13 @@ def run_pipeline(
     if ground_truth_path and os.path.exists(ground_truth_path):
         evaluation_results = evaluate_recommendations(all_cards, ground_truth_path)
 
-    total_impact = round(sum(c.impact_taka for c in ranked_cards), 2)
+    total_impact = round(sum(c.impact_usd for c in ranked_cards), 2)
 
     return {
         "cards": ranked_cards,
         "goal_weights": goal_weights.model_dump(),
         "total_cards": len(ranked_cards),
+        "total_impact_usd": total_impact,
         "total_impact_taka": total_impact,
         "leak_telemetry": leak_telemetry,
         "stl_anomalies_detected": len(stl_anomalies),
@@ -126,7 +126,7 @@ def run_pipeline(
 def main():
     """CLI verification runner for the deterministic pipeline."""
     print("=" * 70)
-    print("PAYLENS DETERMINISTIC PIPELINE VERIFICATION")
+    print("PAYLENS DETERMINISTIC PIPELINE VERIFICATION (GLOBAL USD)")
     print("=" * 70)
 
     # Test Scenario 1: Cash Recovery Priority
@@ -145,7 +145,7 @@ def main():
         print(f"Overall Recall    : {eval_res['overall']['recall'] * 100:.1f}%")
         print(f"Overall F1 Score  : {eval_res['overall']['f1_score'] * 100:.1f}%")
         print(f"Dispatched Unpaid : Precision {eval_res['dispatched_unpaid']['precision']*100:.1f}%, Recall {eval_res['dispatched_unpaid']['recall']*100:.1f}%")
-        print(f"Courier Shortfalls: Precision {eval_res['courier_shortfalls']['precision']*100:.1f}%, Recall {eval_res['courier_shortfalls']['recall']*100:.1f}%")
+        print(f"Carrier Shortfalls: Precision {eval_res['courier_shortfalls']['precision']*100:.1f}%, Recall {eval_res['courier_shortfalls']['recall']*100:.1f}%")
         print(f"Failed Recovery   : Precision {eval_res['failed_payment_recovery']['precision']*100:.1f}%, Recall {eval_res['failed_payment_recovery']['recall']*100:.1f}%")
         print(f"Stockout Risk     : Precision {eval_res['stockout_risk']['precision']*100:.1f}%, Recall {eval_res['stockout_risk']['recall']*100:.1f}%")
         print(f"Fuzzy True Negatives: {eval_res['fuzzy_true_negatives']['correctly_excluded']} / {eval_res['fuzzy_true_negatives']['total_planted_tns']} "
@@ -153,30 +153,30 @@ def main():
 
     print("\n--- TOP CARDS UNDER CASH PRIORITY (cash_now=0.8) ---")
     for i, card in enumerate(result_cash["cards"][:3], 1):
-        print(f"#{i} [{card.rec_type.value}] {card.title} | Merchant: {card.merchant_name} | Impact: ৳{card.impact_taka:,.2f} | Score: {card.ranking_score}")
+        print(f"#{i} [{card.rec_type.value}] {card.title} | Merchant: {card.merchant_name} | Impact: ${card.impact_usd:,.2f} | Score: {card.ranking_score}")
 
     # Test Scenario 2: Margin & Stock Availability Priority
     margin_stock_weights = GoalWeights(
         cash_now_weight=0.1,
         margin_protection_weight=0.45,
         stock_availability_weight=0.45,
-        rationale="Pre-Eid Margin & Inventory Protection Priority",
+        rationale="Margin & Inventory Protection Priority",
     )
     result_margin = run_pipeline(goal_weights=margin_stock_weights)
 
     print("\n--- TOP CARDS UNDER MARGIN & STOCK PRIORITY (margin=0.45, stock=0.45) ---")
     for i, card in enumerate(result_margin["cards"][:3], 1):
-        print(f"#{i} [{card.rec_type.value}] {card.title} | Merchant: {card.merchant_name} | Impact: ৳{card.impact_taka:,.2f} | Score: {card.ranking_score}")
+        print(f"#{i} [{card.rec_type.value}] {card.title} | Merchant: {card.merchant_name} | Impact: ${card.impact_usd:,.2f} | Score: {card.ranking_score}")
 
     top_cash_id = result_cash["cards"][0].card_id
     top_margin_id = result_margin["cards"][0].card_id
-    hero_card = next((c for c in result_margin["cards"] if "SKU-CAH-HERO-01" in c.card_id), None)
+    hero_card = next((c for c in result_margin["cards"] if "SKU-LUM-HERO-01" in c.card_id), None)
 
     print("\n--- REORDERING VERIFICATION ---")
     print(f"Top card under Cash Priority        : {top_cash_id} (Score: {result_cash['cards'][0].ranking_score})")
     print(f"Top card under Margin/Stock Priority: {top_margin_id} (Score: {result_margin['cards'][0].ranking_score})")
     if hero_card:
-        print(f"Hero SKU (SKU-CAH-HERO-01) on MERCH_02: Impact ৳{hero_card.impact_taka:,.2f}, Score: {hero_card.ranking_score}")
+        print(f"Hero SKU (SKU-LUM-HERO-01) on MERCH_02: Impact ${hero_card.impact_usd:,.2f}, Score: {hero_card.ranking_score}")
         print(f"Is Hero SKU #1 under Margin/Stock Priority? {result_margin['cards'][0].card_id == hero_card.card_id}")
 
 

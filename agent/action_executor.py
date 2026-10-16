@@ -31,7 +31,7 @@ MERCHANT_WEBHOOK_URL = os.getenv("MERCHANT_WEBHOOK_URL", "")
 
 def execute_approved_action(
     card: RecommendationCard,
-    tone: str = "Polite Reminder",
+    tone: str = "Polite Payment Reminder",
     edited_message_en: str = "",
     edited_message_bn: str = "",
 ) -> Dict[str, Any]:
@@ -48,13 +48,13 @@ def execute_approved_action(
     # 2. Channel Identification
     if card.rec_type == RecommendationType.PAYMENT_LEAKAGE:
         if card.leak_sub_type == LeakSubType.DISPATCHED_UNPAID:
-            channel = "bKash / Nagad MFS Reconciliation Gateway"
+            channel = "Stripe / PayPal Payment Reconnection & Secure Checkout Link"
         else:
-            channel = "Steadfast Courier COD Dispute Portal + Evolus Workflow"
+            channel = "DHL Express / FedEx Commercial Dispute Portal + Evolus Workflow"
     elif card.rec_type == RecommendationType.FAILED_PAYMENT_RECOVERY:
-        channel = "WhatsApp Business API Automated Recovery Link"
+        channel = "Automated Cart Recovery Email & SMS (Shopify Flow)"
     else:
-        channel = "ERP Automated Purchase Order Requisition"
+        channel = "ERP Automated Expedited Purchase Order Requisition"
 
     # 3. Optional Merchant Webhook Dispatch (e.g. Discord / Slack / webhook.site)
     webhook_sent = False
@@ -63,7 +63,7 @@ def execute_approved_action(
             webhook_payload = {
                 "text": f"🚨 [PayLens Action Approved] {card.merchant_name} — {card.title}",
                 "card_id": card.card_id,
-                "impact_taka": card.impact_taka,
+                "impact_usd": card.impact_usd,
                 "formula": card.formula_display,
                 "channel": channel,
                 "message": edited_message_en or card.action_draft_en,
@@ -76,7 +76,7 @@ def execute_approved_action(
             webhook_sent = False
 
     # 4. Generate Cryptographic Audit Receipt
-    audit_str = f"{card.card_id}:{card.impact_taka}:{channel}:{timestamp_str}"
+    audit_str = f"{card.card_id}:{card.impact_usd}:{channel}:{timestamp_str}"
     audit_hash = hashlib.sha256(audit_str.encode()).hexdigest()[:12].upper()
     receipt_id = f"PAYLENS-TX-{audit_hash}"
 
@@ -89,8 +89,10 @@ def execute_approved_action(
         "channel": channel,
         "merchant_name": card.merchant_name,
         "entity_id": card.entity_id,
-        "impact_taka": card.impact_taka,
-        "recovered_taka_credited": card.impact_taka,
+        "impact_usd": card.impact_usd,
+        "impact_taka": card.impact_usd,
+        "recovered_usd_credited": card.impact_usd,
+        "recovered_taka_credited": card.impact_usd,
         "timestamp": timestamp_str,
         "new_status": "APPROVED & DISPATCHED",
         "webhook_dispatched": webhook_sent,

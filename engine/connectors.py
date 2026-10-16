@@ -1,8 +1,8 @@
 """Pluggable Global Payment-Rail Connectors for PayLens Solo.
 
-Decouples fragmented local payment rails from the core accounting & reconciliation engine.
-Maps raw export rows from Bangladesh MFS, Brazil Pix, India UPI, and Kenya M-Pesa
-into PayLens's canonical DuckDB schema.
+Decouples fragmented regional and global payment rails from the core accounting & reconciliation engine.
+Maps raw export rows from Stripe, PayPal, DHL/FedEx COD, Brazil Pix, India UPI, Kenya M-Pesa,
+and Bangladesh MFS into PayLens's canonical DuckDB schema.
 """
 
 from abc import ABC, abstractmethod
@@ -39,100 +39,104 @@ class PaymentRailConnector(ABC):
         pass
 
 
-class MFSWalletConnector(PaymentRailConnector):
-    rail_name = "bKash / Nagad MFS"
-    country = "🇧🇩 Bangladesh"
-    rail_type = "MOBILE_WALLET_MFS"
-
-    def normalize(self, raw_data: List[Dict[str, Any]]) -> pd.DataFrame:
-        normalized = []
-        for i, row in enumerate(raw_data):
-            amt = float(row.get("amount", 0.0))
-            fee = round(amt * 0.015, 2)
-            normalized.append({
-                "rail_payment_id": f"RP-MFS-{row.get('trxID', i)}",
-                "merchant_id": row.get("merchantId", "MERCH_01"),
-                "rail_type": "MOBILE_WALLET_MFS",
-                "provider": row.get("walletProvider", "bKash"),
-                "transaction_ref": row.get("trxID", ""),
-                "customer_phone": row.get("senderNumber", "")[-11:],
-                "amount_taka": amt,
-                "fee_taka": fee,
-                "net_amount_taka": round(amt - fee, 2),
-                "payment_timestamp": row.get("dateTime", "2026-10-15T12:00:00"),
-                "status": "SUCCESS" if row.get("status") in ("COMPLETED", "SUCCESS") else "FAILED",
-            })
-        return pd.DataFrame(normalized)
-
-    def get_sample_raw_payload(self) -> List[Dict[str, Any]]:
-        return [
-            {"trxID": "BKASH9928374", "walletProvider": "bKash", "senderNumber": "01711223344", "merchantId": "MERCH_01", "amount": 12500.0, "status": "COMPLETED", "dateTime": "2026-10-15T14:32:00"},
-            {"trxID": "NAGAD1182736", "walletProvider": "Nagad", "senderNumber": "01822334455", "merchantId": "MERCH_01", "amount": 4200.0, "status": "COMPLETED", "dateTime": "2026-10-15T15:10:00"},
-        ]
-
-
-class PaymentGatewayConnector(PaymentRailConnector):
-    rail_name = "SSLCommerz / Card Gateway"
-    country = "🇧🇩 Bangladesh"
+class StripeGatewayConnector(PaymentRailConnector):
+    rail_name = "Stripe Gateway (Global)"
+    country = "🌐 Global / US / EU"
     rail_type = "PAYMENT_GATEWAY"
 
     def normalize(self, raw_data: List[Dict[str, Any]]) -> pd.DataFrame:
         normalized = []
         for i, row in enumerate(raw_data):
-            amt = float(row.get("total_amount", 0.0))
-            fee = round(amt * 0.025, 2)
+            amt = float(row.get("amount", 0.0)) / 100.0 if row.get("amount", 0) > 1000 else float(row.get("amount", 0.0))
+            fee = round(amt * 0.029 + 0.30, 2)
             normalized.append({
-                "rail_payment_id": f"RP-GW-{row.get('bank_tran_id', i)}",
-                "merchant_id": row.get("store_id", "MERCH_01"),
+                "rail_payment_id": f"RP-STRIPE-{row.get('id', i)[-8:]}",
+                "merchant_id": row.get("metadata", {}).get("merchant_id", "MERCH_01"),
                 "rail_type": "PAYMENT_GATEWAY",
-                "provider": "SSLCommerz",
-                "transaction_ref": row.get("tran_id", ""),
-                "customer_phone": row.get("cus_phone", "")[-11:],
+                "provider": "Stripe",
+                "transaction_ref": row.get("id", ""),
+                "customer_email": row.get("billing_details", {}).get("email", row.get("customer_email", "")),
+                "customer_phone": row.get("billing_details", {}).get("phone", row.get("customer_phone", "")),
+                "amount_usd": amt,
                 "amount_taka": amt,
-                "fee_taka": fee,
-                "net_amount_taka": round(amt - fee, 2),
-                "payment_timestamp": row.get("tran_date", "2026-10-15T12:00:00"),
-                "status": "SUCCESS" if row.get("status") == "VALID" else "FAILED",
+                "fee_usd": fee,
+                "net_amount_usd": round(amt - fee, 2),
+                "payment_timestamp": row.get("created_at", "2026-10-15T12:00:00Z"),
+                "status": "SUCCESS" if row.get("status") == "succeeded" else "FAILED",
             })
         return pd.DataFrame(normalized)
 
     def get_sample_raw_payload(self) -> List[Dict[str, Any]]:
         return [
-            {"tran_id": "SSL-TXN-88291", "bank_tran_id": "BT-99201", "store_id": "MERCH_01", "total_amount": 7600.0, "status": "VALID", "cus_phone": "01933445566", "tran_date": "2026-10-15T11:20:00"},
+            {"id": "ch_3Nabc123XYZ", "amount": 27500, "currency": "usd", "status": "succeeded", "customer_email": "sophia.chen@gmail.com", "customer_phone": "+1-415-555-0182", "created_at": "2026-10-15T14:22:00Z", "metadata": {"merchant_id": "MERCH_01"}},
+            {"id": "ch_3Ndef456UVW", "amount": 9500, "currency": "usd", "status": "succeeded", "customer_email": "lucas.muller@outlook.com", "customer_phone": "+1-212-555-0199", "created_at": "2026-10-15T15:10:00Z", "metadata": {"merchant_id": "MERCH_01"}},
         ]
 
 
-class CourierCODConnector(PaymentRailConnector):
-    rail_name = "Steadfast / RedX COD Courier"
-    country = "🇧🇩 Bangladesh"
+class PayPalWalletConnector(PaymentRailConnector):
+    rail_name = "PayPal Commerce Platform"
+    country = "🌐 Global / US / EU"
+    rail_type = "DIGITAL_WALLET"
+
+    def normalize(self, raw_data: List[Dict[str, Any]]) -> pd.DataFrame:
+        normalized = []
+        for i, row in enumerate(raw_data):
+            amt = float(row.get("amount", {}).get("value", row.get("amount_value", 0.0)))
+            fee = round(amt * 0.0349 + 0.49, 2)
+            normalized.append({
+                "rail_payment_id": f"RP-PP-{row.get('id', i)[-8:]}",
+                "merchant_id": row.get("custom_id", "MERCH_02"),
+                "rail_type": "DIGITAL_WALLET",
+                "provider": "PayPal",
+                "transaction_ref": row.get("id", ""),
+                "customer_email": row.get("payer", {}).get("email_address", row.get("payer_email", "")),
+                "customer_phone": row.get("payer", {}).get("phone", row.get("payer_phone", "")),
+                "amount_usd": amt,
+                "amount_taka": amt,
+                "fee_usd": fee,
+                "net_amount_usd": round(amt - fee, 2),
+                "payment_timestamp": row.get("create_time", "2026-10-15T12:00:00Z"),
+                "status": "SUCCESS" if row.get("status") == "COMPLETED" else "FAILED",
+            })
+        return pd.DataFrame(normalized)
+
+    def get_sample_raw_payload(self) -> List[Dict[str, Any]]:
+        return [
+            {"id": "PAYPAL-99201928", "status": "COMPLETED", "amount_value": 480.0, "currency": "USD", "payer_email": "alex.vance@gmail.com", "custom_id": "MERCH_02", "create_time": "2026-10-15T16:45:00Z"},
+        ]
+
+
+class DHLCourierCODConnector(PaymentRailConnector):
+    rail_name = "DHL Express Commercial COD"
+    country = "🌐 Global / International"
     rail_type = "COURIER_COD"
 
     def normalize(self, raw_data: List[Dict[str, Any]]) -> pd.DataFrame:
         normalized = []
         for i, row in enumerate(raw_data):
-            cod = float(row.get("cod_collected", 0.0))
-            fee = float(row.get("delivery_charge", 120.0))
+            cod = float(row.get("cod_amount_collected", 0.0))
+            fee = float(row.get("dhl_handling_fee", 24.0))
             expected = round(cod - fee, 2)
-            actual = float(row.get("settled_amount", expected))
+            actual = float(row.get("net_remittance", expected))
             normalized.append({
-                "settlement_id": f"SETTLE-{row.get('consignment_id', i)}",
-                "merchant_id": row.get("merchant_id", "MERCH_01"),
-                "courier_name": row.get("courier", "Steadfast Courier"),
-                "consignment_id": row.get("consignment_id", ""),
-                "order_id": row.get("invoice_order_id", ""),
-                "cod_collected_taka": cod,
-                "courier_fee_taka": fee,
-                "return_fee_taka": 0.0,
-                "expected_net_payout_taka": expected,
-                "actual_settled_taka": actual,
-                "settlement_date": row.get("payout_date", "2026-10-15"),
+                "settlement_id": f"SETTLE-DHL-{row.get('waybill_number', i)[-6:]}",
+                "merchant_id": row.get("merchant_account", "MERCH_02"),
+                "courier_name": "DHL Express",
+                "consignment_id": row.get("waybill_number", ""),
+                "order_id": row.get("customer_reference", ""),
+                "cod_collected_usd": cod,
+                "courier_fee_usd": fee,
+                "expected_net_payout_usd": expected,
+                "actual_settled_usd": actual,
+                "shortfall_usd": round(max(0.0, expected - actual), 2),
+                "settlement_date": row.get("remittance_date", "2026-10-15"),
                 "dispute_status": "DISPUTED" if (expected - actual) > 5.0 else "SETTLED",
             })
         return pd.DataFrame(normalized)
 
     def get_sample_raw_payload(self) -> List[Dict[str, Any]]:
         return [
-            {"consignment_id": "CONS-8001", "courier": "Steadfast Courier", "invoice_order_id": "ORD-COD-SHORT-1001", "merchant_id": "MERCH_01", "cod_collected": 7200.0, "delivery_charge": 130.0, "settled_amount": 5820.0, "payout_date": "2026-10-15"},
+            {"waybill_number": "DHL-AWB-8839201", "customer_reference": "ORD-COD-SHORT-3143", "merchant_account": "MERCH_02", "cod_amount_collected": 850.0, "dhl_handling_fee": 44.0, "net_remittance": 686.0, "remittance_date": "2026-10-15"},
         ]
 
 
@@ -145,8 +149,7 @@ class BrazilPixConnector(PaymentRailConnector):
         normalized = []
         for i, row in enumerate(raw_data):
             val_brl = float(row.get("valor", 0.0))
-            # Exchange rate to Taka for canonical comparison (1 BRL ~ 23 BDT)
-            amt_taka = round(val_brl * 23.0, 2)
+            amt_usd = round(val_brl * 0.18, 2)  # 1 BRL ~ 0.18 USD
             normalized.append({
                 "rail_payment_id": f"RP-PIX-{row.get('endToEndId', i)[:12]}",
                 "merchant_id": row.get("merchant_id", "MERCH_GLOBAL_BR"),
@@ -154,9 +157,10 @@ class BrazilPixConnector(PaymentRailConnector):
                 "provider": "Banco Central Pix",
                 "transaction_ref": row.get("endToEndId", ""),
                 "customer_phone": row.get("chavePix", ""),
-                "amount_taka": amt_taka,
-                "fee_taka": 0.0,
-                "net_amount_taka": amt_taka,
+                "amount_usd": amt_usd,
+                "amount_taka": amt_usd,
+                "fee_usd": 0.0,
+                "net_amount_usd": amt_usd,
                 "payment_timestamp": row.get("horario", "2026-10-15T12:00:00Z"),
                 "status": "SUCCESS" if row.get("status", "CONCLUIDA") == "CONCLUIDA" else "FAILED",
             })
@@ -178,7 +182,7 @@ class IndiaUPIConnector(PaymentRailConnector):
         normalized = []
         for i, row in enumerate(raw_data):
             val_inr = float(row.get("txnAmount", 0.0))
-            amt_taka = round(val_inr * 1.45, 2)  # 1 INR ~ 1.45 BDT
+            amt_usd = round(val_inr * 0.012, 2)  # 1 INR ~ 0.012 USD
             normalized.append({
                 "rail_payment_id": f"RP-UPI-{row.get('npciTxnId', i)}",
                 "merchant_id": row.get("merchant_id", "MERCH_GLOBAL_IN"),
@@ -186,9 +190,10 @@ class IndiaUPIConnector(PaymentRailConnector):
                 "provider": "NPCI UPI Gateway",
                 "transaction_ref": row.get("npciTxnId", ""),
                 "customer_phone": row.get("payerVpa", ""),
-                "amount_taka": amt_taka,
-                "fee_taka": 0.0,
-                "net_amount_taka": amt_taka,
+                "amount_usd": amt_usd,
+                "amount_taka": amt_usd,
+                "fee_usd": 0.0,
+                "net_amount_usd": amt_usd,
                 "payment_timestamp": row.get("txnDate", "2026-10-15T12:00:00"),
                 "status": "SUCCESS" if row.get("status") == "SUCCESS" else "FAILED",
             })
@@ -209,7 +214,7 @@ class KenyaMPesaConnector(PaymentRailConnector):
         normalized = []
         for i, row in enumerate(raw_data):
             val_kes = float(row.get("Amount", 0.0))
-            amt_taka = round(val_kes * 0.95, 2)  # 1 KES ~ 0.95 BDT
+            amt_usd = round(val_kes * 0.0078, 2)  # 1 KES ~ 0.0078 USD
             normalized.append({
                 "rail_payment_id": f"RP-MPESA-{row.get('MpesaReceiptNumber', i)}",
                 "merchant_id": row.get("merchant_id", "MERCH_GLOBAL_KE"),
@@ -217,9 +222,10 @@ class KenyaMPesaConnector(PaymentRailConnector):
                 "provider": "Safaricom M-Pesa",
                 "transaction_ref": row.get("MpesaReceiptNumber", ""),
                 "customer_phone": str(row.get("PhoneNumber", ""))[-9:],
-                "amount_taka": amt_taka,
-                "fee_taka": round(amt_taka * 0.012, 2),
-                "net_amount_taka": round(amt_taka * 0.988, 2),
+                "amount_usd": amt_usd,
+                "amount_taka": amt_usd,
+                "fee_usd": round(amt_usd * 0.012, 2),
+                "net_amount_usd": round(amt_usd * 0.988, 2),
                 "payment_timestamp": "2026-10-15T14:30:00",
                 "status": "SUCCESS",
             })
@@ -231,11 +237,45 @@ class KenyaMPesaConnector(PaymentRailConnector):
         ]
 
 
+class MFSWalletConnector(PaymentRailConnector):
+    rail_name = "bKash / Nagad MFS (Bangladesh)"
+    country = "🇧🇩 Bangladesh"
+    rail_type = "MOBILE_WALLET_MFS"
+
+    def normalize(self, raw_data: List[Dict[str, Any]]) -> pd.DataFrame:
+        normalized = []
+        for i, row in enumerate(raw_data):
+            amt_bdt = float(row.get("amount", 0.0))
+            amt_usd = round(amt_bdt / 120.0, 2)
+            fee_usd = round(amt_usd * 0.015, 2)
+            normalized.append({
+                "rail_payment_id": f"RP-MFS-{row.get('trxID', i)}",
+                "merchant_id": row.get("merchantId", "MERCH_01"),
+                "rail_type": "MOBILE_WALLET_MFS",
+                "provider": row.get("walletProvider", "bKash"),
+                "transaction_ref": row.get("trxID", ""),
+                "customer_phone": row.get("senderNumber", "")[-11:],
+                "amount_usd": amt_usd,
+                "amount_taka": amt_bdt,
+                "fee_usd": fee_usd,
+                "net_amount_usd": round(amt_usd - fee_usd, 2),
+                "payment_timestamp": row.get("dateTime", "2026-10-15T12:00:00"),
+                "status": "SUCCESS" if row.get("status") in ("COMPLETED", "SUCCESS") else "FAILED",
+            })
+        return pd.DataFrame(normalized)
+
+    def get_sample_raw_payload(self) -> List[Dict[str, Any]]:
+        return [
+            {"trxID": "BKASH9928374", "walletProvider": "bKash", "senderNumber": "01711223344", "merchantId": "MERCH_01", "amount": 12500.0, "status": "COMPLETED", "dateTime": "2026-10-15T14:32:00"},
+        ]
+
+
 CONNECTOR_REGISTRY: Dict[str, PaymentRailConnector] = {
-    "bd_mfs": MFSWalletConnector(),
-    "bd_gateway": PaymentGatewayConnector(),
-    "bd_courier_cod": CourierCODConnector(),
+    "stripe_gateway": StripeGatewayConnector(),
+    "paypal_wallet": PayPalWalletConnector(),
+    "dhl_fedex_cod": DHLCourierCODConnector(),
     "brazil_pix": BrazilPixConnector(),
     "india_upi": IndiaUPIConnector(),
     "kenya_mpesa": KenyaMPesaConnector(),
+    "bd_mfs": MFSWalletConnector(),
 }

@@ -1,4 +1,9 @@
-"""Pydantic v2 schemas for PayLens Solo."""
+"""Pydantic v2 schemas for PayLens Solo.
+
+Architecture Rule 1: CODE COMPUTES, AMD GPU MODEL EXPLAINS.
+All mathematical computations, matching logic, and forecasts are strictly deterministic.
+The LLM only explains and drafts actions, verified by 100% numeric regex grounding.
+"""
 
 from enum import Enum
 from typing import Any, Dict, List, Optional
@@ -59,7 +64,7 @@ class RecommendationCard(BaseModel):
     leak_sub_type: LeakSubType = LeakSubType.NONE
     entity_id: str
     title: str = ""
-    impact_taka: float
+    impact_usd: float = Field(default=0.0)
     confidence: float
     formula_display: str
     allowed_numbers: List[float] = Field(default_factory=list)
@@ -67,15 +72,26 @@ class RecommendationCard(BaseModel):
     stl_anomaly_context: Optional[Dict[str, Any]] = None
     ranking_score: float = 0.0
 
-    # Explanation & Action (populated deterministically or by LLM with strict grounding)
+    # Explanation & Action (populated deterministically or by AMD Gemma LLM with strict grounding)
     explanation_en: Optional[str] = ""
-    explanation_bn: Optional[str] = ""
     action_draft_en: Optional[str] = ""
-    action_draft_bn: Optional[str] = ""
     action_type: str = ""
+
+    # Legacy/multi-lingual compatibility properties
+    explanation_bn: Optional[str] = ""
+    action_draft_bn: Optional[str] = ""
 
     # Grounding telemetry
     grounding_passed: bool = False
     grounding_retries: int = 0
     status: str = "PENDING"
     execution_receipt_id: Optional[str] = None
+
+    @property
+    def impact_taka(self) -> float:
+        """Alias for backward-compatibility with existing scripts."""
+        return self.impact_usd
+
+    @impact_taka.setter
+    def impact_taka(self, val: float):
+        self.impact_usd = val

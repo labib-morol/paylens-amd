@@ -1,11 +1,13 @@
 """Synthetic Data Generator for PayLens Solo.
 
-Generates 30 days of realistic multi-rail commerce data for 20 Bangladeshi online merchants:
-- Orders across MFS, Card Gateways, Bank Transfers, and Courier COD
-- Disconnected payment rail logs (bKash, Nagad, SSLCommerz, Bank statements)
-- Courier COD settlements (Steadfast, RedX, Pathao) with planted shortfalls
-- Daily inventory snapshots with Pre-Eid demand surges and stockout risks
-- Exact ground truth JSON with planted leaks, shortfalls, fuzzy True Negatives, and hero stockout SKUs.
+Generates 30 days of realistic multi-rail global commerce data for 20 international merchants:
+- E-commerce platforms: Shopify, WooCommerce, Magento
+- Payment Rails: Stripe Gateway, PayPal Digital Wallet, SEPA/Wire Bank Transfers, and DHL/FedEx Courier COD
+- Disconnected payment rail logs with reconciliation gaps
+- Carrier COD settlements with planted shortfalls
+- Daily inventory snapshots with seasonal demand surges and stockout risks
+- Exact ground truth JSON with planted leaks, shortfalls, fuzzy True Negatives, and hero stockout SKUs
+- Generates sample carrier settlement PDF for Evolus AI Document Extractor intake
 """
 
 import os
@@ -21,78 +23,92 @@ random.seed(SEED)
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "generated")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# 20 Bangladeshi Merchants
+# 20 Global Merchants across modern commerce verticals
 MERCHANTS = [
-    {"id": "MERCH_01", "name": "Dhaka Threads & Lifestyle", "category": "Apparel & Fashion"},
-    {"id": "MERCH_02", "name": "Chattogram Artisans & Home", "category": "Home Decor & Crafts"},
-    {"id": "MERCH_03", "name": "Sylhet Tea & Organic Pantry", "category": "Food & Beverage"},
-    {"id": "MERCH_04", "name": "Rajshahi Silk Heritage", "category": "Traditional Fashion"},
-    {"id": "MERCH_05", "name": "Khulna Marine & Leathercraft", "category": "Leather Goods"},
-    {"id": "MERCH_06", "name": "Barishal Agro Essentials", "category": "Agro & Groceries"},
-    {"id": "MERCH_07", "name": "Rangpur Loom & Crafts", "category": "Home Textiles"},
-    {"id": "MERCH_08", "name": "Mymensingh Dairy & Provisions", "category": "Dairy & Pantry"},
-    {"id": "MERCH_09", "name": "Comilla Khadi Collection", "category": "Handloom Fashion"},
-    {"id": "MERCH_10", "name": "Bogura Sweets & Delicacies", "category": "Specialty Food"},
-    {"id": "MERCH_11", "name": "Cox's Pearl & Coastwear", "category": "Jewelry & Resortwear"},
-    {"id": "MERCH_12", "name": "Narayanganj Knitwear Express", "category": "Apparel Manufacturing"},
-    {"id": "MERCH_13", "name": "Gazipur Electronics Depot", "category": "Consumer Gadgets"},
-    {"id": "MERCH_14", "name": "Tangail Saree Emporium", "category": "Traditional Sarees"},
-    {"id": "MERCH_15", "name": "Kushtia Musical & Arts", "category": "Musical & Cultural"},
-    {"id": "MERCH_16", "name": "Dinajpur Aromatic Grains", "category": "Premium Rice & Agro"},
-    {"id": "MERCH_17", "name": "Pabna Handloom Weaves", "category": "Loom Fabrics"},
-    {"id": "MERCH_18", "name": "Faridpur Jute Innovations", "category": "Eco & Jute Lifestyle"},
-    {"id": "MERCH_19", "name": "Feni Tech Accessories", "category": "Mobile & PC Parts"},
-    {"id": "MERCH_20", "name": "Jessore Floral & Natural Cosmetics", "category": "Herbal Care"},
+    {"id": "MERCH_01", "name": "Apex Global Apparel", "platform": "Shopify", "category": "Fashion & Lifestyle"},
+    {"id": "MERCH_02", "name": "Lumina Smart Home & Audio", "platform": "WooCommerce", "category": "Consumer Electronics"},
+    {"id": "MERCH_03", "name": "Horizon Outdoors & Gear", "platform": "Shopify", "category": "Outdoor & Sporting Goods"},
+    {"id": "MERCH_04", "name": "Velvet & Vine Cosmetics", "platform": "Shopify", "category": "Beauty & Personal Care"},
+    {"id": "MERCH_05", "name": "Titan Precision Tools", "platform": "Magento", "category": "Hardware & Equipment"},
+    {"id": "MERCH_06", "name": "PureArtisan Gourmet Foods", "platform": "WooCommerce", "category": "Food & Beverage"},
+    {"id": "MERCH_07", "name": "Nordic Living Studio", "platform": "Shopify", "category": "Furniture & Interior"},
+    {"id": "MERCH_08", "name": "Optima Health & Nutrition", "platform": "Shopify", "category": "Supplements & Wellness"},
+    {"id": "MERCH_09", "name": "Kroma Mechanical Keyboards", "platform": "WooCommerce", "category": "Computer Peripherals"},
+    {"id": "MERCH_10", "name": "Heritage Leather Co.", "platform": "Shopify", "category": "Luxury Leather Goods"},
+    {"id": "MERCH_11", "name": "Solara Activewear", "platform": "Shopify", "category": "Athletic Wear"},
+    {"id": "MERCH_12", "name": "Vanguard Optical & Eyewear", "platform": "Shopify", "category": "Eyewear"},
+    {"id": "MERCH_13", "name": "Zenith Espresso Equipment", "platform": "WooCommerce", "category": "Coffee Machines"},
+    {"id": "MERCH_14", "name": "Aura Gemstones & Fine Jewelry", "platform": "Shopify", "category": "Jewelry"},
+    {"id": "MERCH_15", "name": "Terra Pet Botanicals", "platform": "Shopify", "category": "Pet Care"},
+    {"id": "MERCH_16", "name": "Cortex Robotics & STEM Kits", "platform": "WooCommerce", "category": "Educational Toys"},
+    {"id": "MERCH_17", "name": "Equinox Cycling Components", "platform": "Shopify", "category": "Cycling & Bicycles"},
+    {"id": "MERCH_18", "name": "Verdant Urban Nursery", "platform": "Shopify", "category": "Plants & Home Gardening"},
+    {"id": "MERCH_19", "name": "Pulse Wearable Fitness", "platform": "Shopify", "category": "Wearables & Tech"},
+    {"id": "MERCH_20", "name": "Monochrome Minimalist Watches", "platform": "Shopify", "category": "Horology & Accessories"},
 ]
 
-BANGLA_NAMES = [
-    "Tanvir Ahmed", "Rahim Uddin", "Farhana Yasmin", "Nusrat Jahan", "Kamal Hossain",
-    "Sadia Afrin", "Mahmudul Hasan", "Anika Tabassum", "Zubair Rahman", "Mehedi Hasan",
-    "Sultana Razia", "Tariqul Islam", "Rokeya Begum", "Arifur Rahman", "Shakil Khan",
-    "Tasnim Ferdous", "Nahid Parvez", "Shirin Akhter", "Kazi Nazrul", "Moniruzzaman",
+GLOBAL_FIRST_NAMES = [
+    "Alexander", "Sophia", "Lucas", "Emma", "Liam", "Olivia", "Noah", "Ava",
+    "Ethan", "Mia", "Oliver", "Isabella", "Mateo", "Charlotte", "Daniel", "Amelia",
+    "Marcus", "Elena", "Julian", "Chloe", "David", "Harper", "Sebastian", "Evelyn",
 ]
 
-PHONE_PREFIXES = ["017", "018", "019", "016", "013", "014", "015"]
+GLOBAL_LAST_NAMES = [
+    "Vance", "Chen", "Müller", "Dubois", "Smith", "Silva", "Taylor", "Kowalski",
+    "Nakamura", "Johansson", "Rossi", "Patel", "Garcia", "Kim", "Anderson", "Martin",
+    "O'Connor", "Santos", "Novak", "Lefebvre", "Schneider", "Brown", "Williams", "Davies",
+]
 
-def generate_bangla_phone() -> str:
-    prefix = random.choice(PHONE_PREFIXES)
-    suffix = "".join([str(random.randint(0, 9)) for _ in range(8)])
-    return f"{prefix}{suffix}"
+EMAIL_DOMAINS = ["gmail.com", "outlook.com", "icloud.com", "yahoo.com", "proton.me", "fastmail.com"]
 
-# SKUs catalogue for each merchant
+
+def generate_customer() -> dict:
+    first = random.choice(GLOBAL_FIRST_NAMES)
+    last = random.choice(GLOBAL_LAST_NAMES)
+    name = f"{first} {last}"
+    clean_name = f"{first.lower()}.{last.lower()}{random.randint(10, 99)}"
+    domain = random.choice(EMAIL_DOMAINS)
+    email = f"{clean_name}@{domain}"
+    area_code = random.randint(201, 917)
+    exchange = random.randint(200, 899)
+    line = random.randint(1000, 9999)
+    phone = f"+1-{area_code}-{exchange:03d}-{line:04d}"
+    return {"name": name, "email": email, "phone": phone}
+
+
 def build_sku_catalog():
     catalog = {}
     for m in MERCHANTS:
         m_id = m["id"]
         if m_id == "MERCH_02":
-            # Chattogram Artisans & Home: include Hero SKU
+            # Lumina Smart Home & Audio: includes Hero high-margin SKU
             catalog[m_id] = [
                 {
-                    "sku": "SKU-CAH-HERO-01",
-                    "item_name": "Handcrafted Chittagong Brass Chandelier",
-                    "unit_cost_taka": 7900.0,
-                    "unit_retail_price_taka": 12550.0,
-                    "unit_margin_taka": 4650.0,
+                    "sku": "SKU-LUM-HERO-01",
+                    "item_name": "Aura Wireless Hi-Fi Studio Monitor (Pair)",
+                    "unit_cost_usd": 790.0,
+                    "unit_retail_price_usd": 1255.0,
+                    "unit_margin_usd": 465.0,
                     "supplier_lead_time_days": 7,
                     "initial_stock": 75,
                     "is_hero": True,
                 },
                 {
-                    "sku": "SKU-CAH-02",
-                    "item_name": "Teak Wood Nakshi Carved Tray",
-                    "unit_cost_taka": 1200.0,
-                    "unit_retail_price_taka": 2400.0,
-                    "unit_margin_taka": 1200.0,
+                    "sku": "SKU-LUM-02",
+                    "item_name": "Lumina Smart Beam Ambient Projector",
+                    "unit_cost_usd": 240.0,
+                    "unit_retail_price_usd": 480.0,
+                    "unit_margin_usd": 240.0,
                     "supplier_lead_time_days": 5,
                     "initial_stock": 120,
                     "is_hero": False,
                 },
                 {
-                    "sku": "SKU-CAH-03",
-                    "item_name": "Natural Cane Lounge Chair",
-                    "unit_cost_taka": 3500.0,
-                    "unit_retail_price_taka": 5800.0,
-                    "unit_margin_taka": 2300.0,
+                    "sku": "SKU-LUM-03",
+                    "item_name": "Acoustic Noise-Cancelling Soundbar",
+                    "unit_cost_usd": 350.0,
+                    "unit_retail_price_usd": 580.0,
+                    "unit_margin_usd": 230.0,
                     "supplier_lead_time_days": 10,
                     "initial_stock": 50,
                     "is_hero": False,
@@ -101,23 +117,33 @@ def build_sku_catalog():
         elif m_id == "MERCH_01":
             catalog[m_id] = [
                 {
-                    "sku": "SKU-DTL-01",
-                    "item_name": "Jamdani Embroidered Panjabi",
-                    "unit_cost_taka": 1800.0,
-                    "unit_retail_price_taka": 3800.0,
-                    "unit_margin_taka": 2000.0,
+                    "sku": "SKU-APX-01",
+                    "item_name": "Merino Wool Performance Blazer",
+                    "unit_cost_usd": 110.0,
+                    "unit_retail_price_usd": 275.0,
+                    "unit_margin_usd": 165.0,
                     "supplier_lead_time_days": 6,
-                    "initial_stock": 140,
+                    "initial_stock": 150,
                     "is_hero": False,
                 },
                 {
-                    "sku": "SKU-DTL-02",
-                    "item_name": "Cotton Formal Trousers",
-                    "unit_cost_taka": 850.0,
-                    "unit_retail_price_taka": 1650.0,
-                    "unit_margin_taka": 800.0,
+                    "sku": "SKU-APX-02",
+                    "item_name": "Tailored Oxford Tech Shirt",
+                    "unit_cost_usd": 35.0,
+                    "unit_retail_price_usd": 95.0,
+                    "unit_margin_usd": 60.0,
                     "supplier_lead_time_days": 4,
                     "initial_stock": 200,
+                    "is_hero": False,
+                },
+                {
+                    "sku": "SKU-APX-03",
+                    "item_name": "Water-Repellent Commuter Mac Coat",
+                    "unit_cost_usd": 140.0,
+                    "unit_retail_price_usd": 320.0,
+                    "unit_margin_usd": 180.0,
+                    "supplier_lead_time_days": 8,
+                    "initial_stock": 80,
                     "is_hero": False,
                 },
             ]
@@ -125,39 +151,39 @@ def build_sku_catalog():
             cat_name = m["category"].split()[0]
             catalog[m_id] = [
                 {
-                    "sku": f"SKU-{m_id}-A",
-                    "item_name": f"{cat_name} Signature Product A",
-                    "unit_cost_taka": 1000.0 + (int(m_id.split('_')[1]) * 50),
-                    "unit_retail_price_taka": 2200.0 + (int(m_id.split('_')[1]) * 100),
-                    "unit_margin_taka": 1200.0 + (int(m_id.split('_')[1]) * 50),
-                    "supplier_lead_time_days": 5,
-                    "initial_stock": 100,
+                    "sku": f"SKU-{m_id[6:]}-A",
+                    "item_name": f"Premium {cat_name} Edition A",
+                    "unit_cost_usd": float(random.randint(40, 150)),
+                    "unit_retail_price_usd": float(random.randint(160, 350)),
+                    "supplier_lead_time_days": random.randint(4, 9),
+                    "initial_stock": random.randint(80, 200),
                     "is_hero": False,
                 },
                 {
-                    "sku": f"SKU-{m_id}-B",
-                    "item_name": f"{cat_name} Value Line B",
-                    "unit_cost_taka": 450.0,
-                    "unit_retail_price_taka": 950.0,
-                    "unit_margin_taka": 500.0,
-                    "supplier_lead_time_days": 4,
-                    "initial_stock": 180,
+                    "sku": f"SKU-{m_id[6:]}-B",
+                    "item_name": f"Standard {cat_name} Everyday B",
+                    "unit_cost_usd": float(random.randint(20, 60)),
+                    "unit_retail_price_usd": float(random.randint(70, 150)),
+                    "supplier_lead_time_days": random.randint(3, 7),
+                    "initial_stock": random.randint(100, 250),
                     "is_hero": False,
                 },
             ]
+            for it in catalog[m_id]:
+                it["unit_margin_usd"] = it["unit_retail_price_usd"] - it["unit_cost_usd"]
     return catalog
 
 
-def main():
-    start_date = datetime(2026, 9, 16, 9, 0, 0)
-    days_count = 30
+def generate_dataset():
     catalog = build_sku_catalog()
+    base_date = datetime.now() - timedelta(days=30)
 
-    orders = []
-    rail_payments = []
-    courier_settlements = []
+    orders_records = []
+    rail_payments_records = []
+    courier_settlements_records = []
+    inventory_records = []
 
-    # Ground truth tracking structures
+    # Ground truth containers
     ground_truth = {
         "dispatched_unpaid": [],
         "courier_shortfalls": [],
@@ -167,588 +193,473 @@ def main():
     }
 
     order_seq = 1000
-    rail_seq = 5000
-    settle_seq = 8000
+    payment_seq = 5000
+    settle_seq = 7000
+    consignment_seq = 9000
 
-    # Tracking for daily SKU sales to populate inventory_daily
-    daily_sku_sales = {}  # (m_id, sku, day_idx) -> units_sold
+    # 1. Generate 30 days of inventory & daily sales
+    for m in MERCHANTS:
+        m_id = m["id"]
+        skus = catalog[m_id]
+
+        for sku_info in skus:
+            curr_stock = sku_info["initial_stock"]
+            lead_time = sku_info["supplier_lead_time_days"]
+            is_hero = sku_info.get("is_hero", False)
+
+            for day_idx in range(30):
+                snapshot_dt = (base_date + timedelta(days=day_idx)).date()
+
+                # Surge on day 22-30 for hero SKU and pre-holiday demand
+                if is_hero and day_idx >= 22:
+                    units_sold = random.randint(14, 22)  # Rapid depletion
+                elif day_idx >= 24:
+                    units_sold = random.randint(8, 16)
+                else:
+                    units_sold = random.randint(2, 6)
+
+                curr_stock = max(0, curr_stock - units_sold)
+
+                # Restock event on day 15 for normal SKUs
+                if day_idx == 15 and not is_hero:
+                    curr_stock += random.randint(40, 80)
+
+                inventory_records.append({
+                    "snapshot_date": str(snapshot_dt),
+                    "merchant_id": m_id,
+                    "sku": sku_info["sku"],
+                    "item_name": sku_info["item_name"],
+                    "current_stock": curr_stock,
+                    "units_sold_today": units_sold,
+                    "unit_cost_usd": sku_info["unit_cost_usd"],
+                    "unit_retail_price_usd": sku_info["unit_retail_price_usd"],
+                    "unit_margin_usd": sku_info["unit_margin_usd"],
+                    "supplier_lead_time_days": lead_time,
+                    "is_hero": is_hero,
+                })
+
+            # Ground truth stockout check on latest day
+            # If current_stock / avg_sales < lead_time
+            recent_sales = [r["units_sold_today"] for r in inventory_records if r["merchant_id"] == m_id and r["sku"] == sku_info["sku"]][-7:]
+            avg_daily = sum(recent_sales) / max(1, len(recent_sales))
+            days_cover = curr_stock / max(0.1, avg_daily)
+            if days_cover < lead_time:
+                lost_units = max(0, round((lead_time - days_cover) * avg_daily, 1))
+                lost_margin = round(lost_units * sku_info["unit_margin_usd"], 2)
+                ground_truth["stockout_skus"].append({
+                    "merchant_id": m_id,
+                    "sku": sku_info["sku"],
+                    "item_name": sku_info["item_name"],
+                    "current_stock": curr_stock,
+                    "supplier_lead_time_days": lead_time,
+                    "forecast_daily_demand": round(avg_daily, 2),
+                    "days_of_cover": round(days_cover, 2),
+                    "lost_units": lost_units,
+                    "unit_margin_usd": sku_info["unit_margin_usd"],
+                    "impact_usd": lost_margin,
+                    "is_hero": is_hero,
+                })
+
+    # 2. Generate Orders and Payment Rail records across 30 days
+    # Platforms: Stripe Gateway, PayPal Wallet, SEPA Wire, DHL/FedEx Courier COD
+    rail_dist = [
+        ("PAYMENT_GATEWAY", "Stripe"),
+        ("DIGITAL_WALLET", "PayPal"),
+        ("BANK_TRANSFER", "SEPA Wire"),
+        ("COURIER_COD", "DHL Express"),
+        ("COURIER_COD", "FedEx Ground"),
+    ]
 
     for m in MERCHANTS:
         m_id = m["id"]
         skus = catalog[m_id]
-        for s in skus:
-            for d in range(days_count):
-                daily_sku_sales[(m_id, s["sku"], d)] = 0
 
-    # 1. Generate normal regular orders across the 30 days
-    for day_idx in range(days_count):
-        current_day = start_date + timedelta(days=day_idx)
-        # Pre-Eid surge applies to the last 8 days (day_idx >= 22)
-        is_pre_eid = (day_idx >= 22)
+        for day_idx in range(30):
+            day_dt = base_date + timedelta(days=day_idx)
+            # 4 to 8 orders per merchant per day
+            num_orders = random.randint(4, 8)
 
-        for m in MERCHANTS:
-            m_id = m["id"]
-            skus = catalog[m_id]
-
-            # Determine number of regular orders today
-            base_orders = random.randint(2, 4)
-            if is_pre_eid:
-                base_orders += random.randint(1, 3)
-
-            for _ in range(base_orders):
+            for _ in range(num_orders):
                 order_seq += 1
                 ord_id = f"ORD-{order_seq}"
-                sku_info = random.choice(skus)
-                qty = random.randint(1, 3)
+                cust = generate_customer()
+                sku_choice = random.choice(skus)
+                qty = random.randint(1, 2)
+                unit_price = sku_choice["unit_retail_price_usd"]
+                shipping = random.choice([0.0, 15.0, 25.0])
+                total_amt = round(qty * unit_price + shipping, 2)
+                ord_time = day_dt + timedelta(hours=random.randint(8, 22), minutes=random.randint(0, 59))
 
-                # Surge demand for Hero SKU on MERCH_02 during Pre-Eid
-                if sku_info.get("is_hero") and is_pre_eid:
-                    qty = random.randint(3, 5)
-
-                daily_sku_sales[(m_id, sku_info["sku"], day_idx)] += qty
-
-                order_amt = round(qty * sku_info["unit_retail_price_taka"], 2)
-                shipping_cost = 100.0 if random.random() < 0.7 else 150.0
-                cust_phone = generate_bangla_phone()
-                cust_name = random.choice(BANGLA_NAMES)
-
-                # Order timestamp during business hours
-                sec_offset = random.randint(0, 3600 * 12)
-                ord_time = current_day + timedelta(seconds=sec_offset)
-
-                rail_choice = random.choices(
-                    ["COURIER_COD", "MOBILE_WALLET_MFS", "PAYMENT_GATEWAY", "BANK_TRANSFER"],
-                    weights=[0.45, 0.35, 0.12, 0.08]
-                )[0]
-
-                if rail_choice == "COURIER_COD":
-                    courier_name = random.choice(["Steadfast Courier", "RedX Logistics", "Pathao Courier", "Paperfly"])
-                    order_status = "DELIVERED" if day_idx < 27 else "DISPATCHED"
-                    orders.append({
-                        "order_id": ord_id,
-                        "merchant_id": m_id,
-                        "customer_name": cust_name,
-                        "customer_phone": cust_phone,
-                        "order_timestamp": ord_time.isoformat(),
-                        "payment_rail": "COURIER_COD",
-                        "rail_provider": courier_name,
-                        "order_status": order_status,
-                        "transaction_ref": "",
-                        "order_amount_taka": order_amt,
-                        "shipping_cost_taka": shipping_cost,
-                        "sku": sku_info["sku"],
-                        "item_name": sku_info["item_name"],
-                        "quantity": qty,
-                        "unit_price_taka": sku_info["unit_retail_price_taka"],
-                        "unit_cost_taka": sku_info["unit_cost_taka"],
-                    })
-
-                    # If delivered, generate courier settlement
-                    if order_status == "DELIVERED":
-                        settle_seq += 1
-                        consignment_id = f"CONS-{settle_seq}"
-                        cod_fee = round(order_amt * 0.01 + 60.0, 2)
-                        expected_net = round(order_amt - cod_fee, 2)
-                        actual_settled = expected_net  # normal clean settlement
-
-                        courier_settlements.append({
-                            "settlement_id": f"SETTLE-{settle_seq}",
-                            "merchant_id": m_id,
-                            "courier_name": courier_name,
-                            "consignment_id": consignment_id,
-                            "order_id": ord_id,
-                            "cod_collected_taka": order_amt,
-                            "courier_fee_taka": cod_fee,
-                            "return_fee_taka": 0.0,
-                            "expected_net_payout_taka": expected_net,
-                            "actual_settled_taka": actual_settled,
-                            "settlement_date": (ord_time + timedelta(days=2)).date().isoformat(),
-                            "dispute_status": "SETTLED",
-                        })
-
-                else:
-                    # Digital Rail (MFS, Gateway, Bank)
-                    provider = (
-                        random.choice(["bKash", "Nagad"]) if rail_choice == "MOBILE_WALLET_MFS"
-                        else ("SSLCommerz" if rail_choice == "PAYMENT_GATEWAY" else "City Bank")
+                rail_type, rail_prov = random.choice(rail_dist)
+                txn_ref = f"TXN-STRIPE-{random.randint(100000, 999999)}" if "Stripe" in rail_prov else (
+                    f"PAYPAL-PP-{random.randint(100000, 999999)}" if "PayPal" in rail_prov else (
+                        f"WIRE-REF-{random.randint(100000, 999999)}" if "SEPA" in rail_prov else ""
                     )
-                    txn_ref = f"TXN-{random.randint(10000000, 99999999)}"
-                    order_status = "DELIVERED" if day_idx < 26 else "DISPATCHED"
+                )
 
-                    orders.append({
-                        "order_id": ord_id,
-                        "merchant_id": m_id,
-                        "customer_name": cust_name,
-                        "customer_phone": cust_phone,
-                        "order_timestamp": ord_time.isoformat(),
-                        "payment_rail": rail_choice,
-                        "rail_provider": provider,
-                        "order_status": order_status,
-                        "transaction_ref": txn_ref,
-                        "order_amount_taka": order_amt,
-                        "shipping_cost_taka": shipping_cost,
-                        "sku": sku_info["sku"],
-                        "item_name": sku_info["item_name"],
-                        "quantity": qty,
-                        "unit_price_taka": sku_info["unit_retail_price_taka"],
-                        "unit_cost_taka": sku_info["unit_cost_taka"],
-                    })
+                status = "DELIVERED" if day_idx < 25 else "DISPATCHED"
 
-                    # Corresponding clean rail payment
-                    rail_seq += 1
-                    pay_time = ord_time + timedelta(minutes=random.randint(1, 10))
-                    rail_payments.append({
-                        "rail_payment_id": f"RP-{rail_seq}",
+                order_row = {
+                    "order_id": ord_id,
+                    "merchant_id": m_id,
+                    "customer_name": cust["name"],
+                    "customer_email": cust["email"],
+                    "customer_phone": cust["phone"],
+                    "order_timestamp": ord_time.isoformat(),
+                    "order_amount_usd": total_amt,
+                    "currency": "USD",
+                    "quantity": qty,
+                    "unit_price_usd": unit_price,
+                    "shipping_cost_usd": shipping,
+                    "sku": sku_choice["sku"],
+                    "payment_rail": rail_type,
+                    "rail_provider": rail_prov,
+                    "order_status": status,
+                    "transaction_ref": txn_ref,
+                }
+                orders_records.append(order_row)
+
+                # Digital rails generate rail_payments
+                if rail_type in ("PAYMENT_GATEWAY", "DIGITAL_WALLET", "BANK_TRANSFER"):
+                    payment_seq += 1
+                    pay_time = ord_time + timedelta(minutes=random.randint(2, 12))
+                    rail_payments_records.append({
+                        "payment_id": f"RP-{payment_seq}",
                         "merchant_id": m_id,
-                        "rail_type": rail_choice,
-                        "provider": provider,
+                        "rail_provider": rail_prov,
                         "transaction_ref": txn_ref,
-                        "customer_phone": cust_phone,
-                        "amount_taka": order_amt,
-                        "fee_taka": round(order_amt * 0.015, 2),
-                        "net_amount_taka": round(order_amt * 0.985, 2),
+                        "amount_usd": total_amt,
+                        "currency": "USD",
                         "payment_timestamp": pay_time.isoformat(),
+                        "customer_phone": cust["phone"],
+                        "customer_email": cust["email"],
                         "status": "SUCCESS",
                     })
 
-    # =========================================================================
-    # 2. Plant Ground Truth: Dispatched-Unpaid Orders (Planted Leaks)
-    # =========================================================================
-    # 12 specific orders marked DISPATCHED/DELIVERED on digital rails with NO payment in rail_payments
-    planted_leak_merchants = ["MERCH_01", "MERCH_02", "MERCH_03", "MERCH_05", "MERCH_07", "MERCH_10", "MERCH_13", "MERCH_14"]
-    for i, m_id in enumerate(planted_leak_merchants):
+                # Courier COD rails generate courier_settlements
+                elif rail_type == "COURIER_COD":
+                    settle_seq += 1
+                    consignment_seq += 1
+                    cod_fee = round(total_amt * 0.035 + 8.50, 2)
+                    net_expected = round(total_amt - cod_fee, 2)
+                    actual_settled = net_expected  # Default clean
+
+                    courier_settlements_records.append({
+                        "settlement_id": f"SETTLE-{settle_seq}",
+                        "merchant_id": m_id,
+                        "consignment_id": f"CONS-{consignment_seq}",
+                        "order_id": ord_id,
+                        "courier_name": rail_prov,
+                        "statement_date": (ord_time + timedelta(days=3)).strftime("%Y-%m-%d"),
+                        "cod_collected_usd": total_amt,
+                        "courier_fee_usd": cod_fee,
+                        "expected_net_payout_usd": net_expected,
+                        "actual_settled_usd": actual_settled,
+                        "payout_status": "SETTLED",
+                    })
+
+    # 3. Plant Ground-Truth Category A: Dispatched-Unpaid Orders (8 planted leaks)
+    leak_merchants = ["MERCH_01", "MERCH_02", "MERCH_03", "MERCH_05", "MERCH_07", "MERCH_10", "MERCH_13", "MERCH_14"]
+    for idx, m_id in enumerate(leak_merchants):
         order_seq += 1
         ord_id = f"ORD-LEAK-{order_seq}"
-        sku_info = catalog[m_id][0]
-        qty = 2
-        order_amt = round(qty * sku_info["unit_retail_price_taka"], 2)
-        cust_phone = generate_bangla_phone()
-        cust_name = random.choice(BANGLA_NAMES)
-        ord_time = start_date + timedelta(days=15 + i, hours=11, minutes=20)
-        rail_choice = random.choice(["MOBILE_WALLET_MFS", "BANK_TRANSFER", "PAYMENT_GATEWAY"])
-        provider = "bKash" if rail_choice == "MOBILE_WALLET_MFS" else ("BRAC Bank" if rail_choice == "BANK_TRANSFER" else "SSLCommerz")
-        fake_orphan_ref = f"REF-UNPAID-{order_seq}"
+        cust = generate_customer()
+        skus = catalog[m_id]
+        sku = skus[0]
+        amt = round(float(random.choice([480.0, 750.0, 1255.0, 950.0, 620.0])), 2)
+        ord_time = base_date + timedelta(days=26, hours=10 + idx)
+        rail = "PAYMENT_GATEWAY" if idx % 2 == 0 else "DIGITAL_WALLET"
+        prov = "Stripe" if rail == "PAYMENT_GATEWAY" else "PayPal"
+        unmatched_ref = f"TXN-ORPHAN-{random.randint(10000, 99999)}"
 
-        orders.append({
+        orders_records.append({
             "order_id": ord_id,
             "merchant_id": m_id,
-            "customer_name": cust_name,
-            "customer_phone": cust_phone,
+            "customer_name": cust["name"],
+            "customer_email": cust["email"],
+            "customer_phone": cust["phone"],
             "order_timestamp": ord_time.isoformat(),
-            "payment_rail": rail_choice,
-            "rail_provider": provider,
+            "order_amount_usd": amt,
+            "currency": "USD",
+            "quantity": 1,
+            "unit_price_usd": amt,
+            "shipping_cost_usd": 0.0,
+            "sku": sku["sku"],
+            "payment_rail": rail,
+            "rail_provider": prov,
             "order_status": "DISPATCHED",
-            "transaction_ref": fake_orphan_ref,  # This ref does NOT exist in rail_payments!
-            "order_amount_taka": order_amt,
-            "shipping_cost_taka": 120.0,
-            "sku": sku_info["sku"],
-            "item_name": sku_info["item_name"],
-            "quantity": qty,
-            "unit_price_taka": sku_info["unit_retail_price_taka"],
-            "unit_cost_taka": sku_info["unit_cost_taka"],
+            "transaction_ref": unmatched_ref,
         })
 
         ground_truth["dispatched_unpaid"].append({
             "order_id": ord_id,
             "merchant_id": m_id,
-            "amount_taka": order_amt,
-            "rail": rail_choice,
-            "provider": provider,
+            "amount_usd": amt,
+            "amount_taka": amt,
+            "rail": rail,
+            "provider": prov,
         })
 
-    # =========================================================================
-    # 3. Plant Ground Truth: Courier COD Settlement Shortfalls
-    # =========================================================================
-    # 10 consignments where expected_net_payout_taka - actual_settled_taka > 5.0
-    cod_shortfall_merchants = ["MERCH_01", "MERCH_02", "MERCH_04", "MERCH_06", "MERCH_08", "MERCH_11", "MERCH_12", "MERCH_16"]
-    for i, m_id in enumerate(cod_shortfall_merchants):
-        settle_seq += 1
+    # 4. Plant Ground-Truth Category B: Carrier COD Settlement Shortfalls (6 planted shortfalls)
+    shortfall_merchants = ["MERCH_01", "MERCH_02", "MERCH_04", "MERCH_08", "MERCH_11", "MERCH_17"]
+    for idx, m_id in enumerate(shortfall_merchants):
         order_seq += 1
+        settle_seq += 1
+        consignment_seq += 1
         ord_id = f"ORD-COD-SHORT-{order_seq}"
-        consignment_id = f"CONS-SHORT-{settle_seq}"
-        courier_name = "Steadfast Courier" if i % 2 == 0 else "RedX Logistics"
+        cons_id = f"CONS-SHORT-{consignment_seq}"
+        cust = generate_customer()
+        cod_amt = float(random.choice([380.0, 620.0, 850.0, 1100.0, 1450.0]))
+        courier_name = "DHL Express" if idx % 2 == 0 else "FedEx Ground"
+        courier_fee = round(cod_amt * 0.04 + 10.0, 2)
+        expected_net = round(cod_amt - courier_fee, 2)
+        planted_shortfall = round(float(random.choice([45.0, 85.0, 120.0, 175.0, 240.0])), 2)
+        actual_settled = round(expected_net - planted_shortfall, 2)
+        ord_time = base_date + timedelta(days=24 + (idx % 4), hours=14)
 
-        cod_collected = round(random.choice([4800.0, 7200.0, 11500.0, 15800.0, 22000.0]), 2)
-        courier_fee = 130.0
-        return_fee = 0.0
-        expected_net = round(cod_collected - courier_fee - return_fee, 2)
-        # Undersettlement amount between ৳500 and ৳3,800
-        shortfall = round(random.choice([650.0, 1250.0, 2400.0, 3100.0, 1850.0]), 2)
-        actual_settled = round(expected_net - shortfall, 2)
-
-        # Record corresponding delivered order
-        orders.append({
+        orders_records.append({
             "order_id": ord_id,
             "merchant_id": m_id,
-            "customer_name": random.choice(BANGLA_NAMES),
-            "customer_phone": generate_bangla_phone(),
-            "order_timestamp": (start_date + timedelta(days=10 + i, hours=14)).isoformat(),
+            "customer_name": cust["name"],
+            "customer_email": cust["email"],
+            "customer_phone": cust["phone"],
+            "order_timestamp": ord_time.isoformat(),
+            "order_amount_usd": cod_amt,
+            "currency": "USD",
+            "quantity": 1,
+            "unit_price_usd": cod_amt,
+            "shipping_cost_usd": 0.0,
+            "sku": catalog[m_id][0]["sku"],
             "payment_rail": "COURIER_COD",
             "rail_provider": courier_name,
             "order_status": "DELIVERED",
             "transaction_ref": "",
-            "order_amount_taka": cod_collected,
-            "shipping_cost_taka": 130.0,
-            "sku": catalog[m_id][0]["sku"],
-            "item_name": catalog[m_id][0]["item_name"],
-            "quantity": 2,
-            "unit_price_taka": catalog[m_id][0]["unit_retail_price_taka"],
-            "unit_cost_taka": catalog[m_id][0]["unit_cost_taka"],
         })
 
-        courier_settlements.append({
-            "settlement_id": f"SETTLE-{settle_seq}",
+        courier_settlements_records.append({
+            "settlement_id": f"SETTLE-SHORT-{settle_seq}",
             "merchant_id": m_id,
-            "courier_name": courier_name,
-            "consignment_id": consignment_id,
+            "consignment_id": cons_id,
             "order_id": ord_id,
-            "cod_collected_taka": cod_collected,
-            "courier_fee_taka": courier_fee,
-            "return_fee_taka": return_fee,
-            "expected_net_payout_taka": expected_net,
-            "actual_settled_taka": actual_settled,
-            "settlement_date": (start_date + timedelta(days=12 + i)).date().isoformat(),
-            "dispute_status": "DISPUTED",
+            "courier_name": courier_name,
+            "statement_date": (ord_time + timedelta(days=2)).strftime("%Y-%m-%d"),
+            "cod_collected_usd": cod_amt,
+            "courier_fee_usd": courier_fee,
+            "expected_net_payout_usd": expected_net,
+            "actual_settled_usd": actual_settled,
+            "payout_status": "PARTIAL",
         })
 
         ground_truth["courier_shortfalls"].append({
-            "consignment_id": consignment_id,
+            "consignment_id": cons_id,
             "order_id": ord_id,
             "merchant_id": m_id,
             "courier_name": courier_name,
-            "expected_net": expected_net,
-            "actual_settled": actual_settled,
-            "shortfall_taka": shortfall,
+            "expected_net_usd": expected_net,
+            "actual_settled_usd": actual_settled,
+            "shortfall_usd": planted_shortfall,
+            "shortfall_taka": planted_shortfall,
         })
 
-    # =========================================================================
-    # 4. Plant Ground Truth: At Least 15 Fuzzy-Matched True Negatives
-    # =========================================================================
-    # Orders missing transaction_ref in orders.csv, BUT matched by phone + amount + timestamp within 18 mins in rail_payments
-    # These MUST NOT be flagged as leaks (Exclusion Rate = 100%)
-    for i in range(18):
+    # 5. Plant Ground-Truth Category C: 18 Fuzzy-Matched True Negatives
+    # Missing transaction_ref in orders, but matched by phone/email + exact amount + timestamp within 18 mins
+    for idx in range(18):
+        m_id = MERCHANTS[idx % len(MERCHANTS)]["id"]
         order_seq += 1
-        rail_seq += 1
-        m = MERCHANTS[i % len(MERCHANTS)]
-        m_id = m["id"]
+        payment_seq += 1
         ord_id = f"ORD-FUZZY-TN-{order_seq}"
-        sku_info = catalog[m_id][0]
-        qty = 1
-        order_amt = round(float(sku_info["unit_retail_price_taka"]), 2)
-        cust_phone = generate_bangla_phone()
-        cust_name = random.choice(BANGLA_NAMES)
+        cust = generate_customer()
+        amt = round(float(random.choice([145.0, 220.0, 310.0, 480.0, 560.0])), 2)
+        ord_time = base_date + timedelta(days=10 + idx, hours=11, minutes=15)
+        pay_time = ord_time + timedelta(minutes=random.randint(3, 16))
+        rail_prov = "Stripe" if idx % 2 == 0 else "PayPal"
 
-        day_num = 5 + i
-        ord_time = start_date + timedelta(days=day_num, hours=10 + (i % 8), minutes=12)
-        # Payment occurs 7 to 14 minutes after order placement (<= 18 minutes!)
-        delay_minutes = 7 + (i % 8)
-        pay_time = ord_time + timedelta(minutes=delay_minutes)
-
-        rail_provider = "bKash" if i % 2 == 0 else "Nagad"
-        real_txn_ref = f"BKASH-RECON-{random.randint(10000000, 99999999)}"
-
-        # Order has NO transaction ref!
-        orders.append({
+        # Order has NO transaction_ref
+        orders_records.append({
             "order_id": ord_id,
             "merchant_id": m_id,
-            "customer_name": cust_name,
-            "customer_phone": cust_phone,
+            "customer_name": cust["name"],
+            "customer_email": cust["email"],
+            "customer_phone": cust["phone"],
             "order_timestamp": ord_time.isoformat(),
-            "payment_rail": "MOBILE_WALLET_MFS",
-            "rail_provider": rail_provider,
-            "order_status": "DISPATCHED",
+            "order_amount_usd": amt,
+            "currency": "USD",
+            "quantity": 1,
+            "unit_price_usd": amt,
+            "shipping_cost_usd": 0.0,
+            "sku": catalog[m_id][0]["sku"],
+            "payment_rail": "PAYMENT_GATEWAY" if rail_prov == "Stripe" else "DIGITAL_WALLET",
+            "rail_provider": rail_prov,
+            "order_status": "DELIVERED",
             "transaction_ref": "",  # Missing ref!
-            "order_amount_taka": order_amt,
-            "shipping_cost_taka": 100.0,
-            "sku": sku_info["sku"],
-            "item_name": sku_info["item_name"],
-            "quantity": qty,
-            "unit_price_taka": sku_info["unit_retail_price_taka"],
-            "unit_cost_taka": sku_info["unit_cost_taka"],
         })
 
-        # Rail payment HAS the payment with matching phone, exact amount, within 18 mins
-        rail_payments.append({
-            "rail_payment_id": f"RP-FUZZY-{rail_seq}",
+        # Payment record exists with matching customer, amount, and close timestamp
+        rail_payments_records.append({
+            "payment_id": f"RP-FUZZY-{payment_seq}",
             "merchant_id": m_id,
-            "rail_type": "MOBILE_WALLET_MFS",
-            "provider": rail_provider,
-            "transaction_ref": real_txn_ref,
-            "customer_phone": cust_phone,
-            "amount_taka": order_amt,
-            "fee_taka": round(order_amt * 0.015, 2),
-            "net_amount_taka": round(order_amt * 0.985, 2),
+            "rail_provider": rail_prov,
+            "transaction_ref": f"TXN-STRIPE-ALT-{random.randint(100000, 999999)}",
+            "amount_usd": amt,
+            "currency": "USD",
             "payment_timestamp": pay_time.isoformat(),
+            "customer_phone": cust["phone"],
+            "customer_email": cust["email"],
             "status": "SUCCESS",
         })
 
         ground_truth["fuzzy_true_negatives"].append({
             "order_id": ord_id,
             "merchant_id": m_id,
-            "phone": cust_phone,
-            "amount_taka": order_amt,
-            "delay_minutes": delay_minutes,
-            "rail_payment_id": f"RP-FUZZY-{rail_seq}",
+            "customer_phone": cust["phone"],
+            "customer_email": cust["email"],
+            "amount_usd": amt,
+            "amount_taka": amt,
+            "expected_outcome": "RECONCILED_VIA_PASS2",
         })
 
-    # =========================================================================
-    # 5. Plant Ground Truth: Failed / Abandoned Gateway Checkouts
-    # =========================================================================
-    # 14 checkouts where payment failed and customer did NOT complete subsequently
-    for i in range(14):
+    # 6. Plant Ground-Truth Category D: Failed/Abandoned Checkouts
+    failed_merchants = ["MERCH_01", "MERCH_02", "MERCH_03", "MERCH_06", "MERCH_09", "MERCH_12", "MERCH_15", "MERCH_18"]
+    for idx, m_id in enumerate(failed_merchants):
         order_seq += 1
-        rail_seq += 1
-        m = MERCHANTS[(i + 3) % len(MERCHANTS)]
-        m_id = m["id"]
         ord_id = f"ORD-FAIL-{order_seq}"
-        sku_info = catalog[m_id][0]
-        qty = random.randint(1, 2)
-        order_amt = round(qty * sku_info["unit_retail_price_taka"], 2)
-        cust_phone = generate_bangla_phone()
-        cust_name = random.choice(BANGLA_NAMES)
-        ord_time = start_date + timedelta(days=20 + (i % 9), hours=16, minutes=30)
-        provider = "SSLCommerz" if i % 2 == 0 else "bKash"
-        failed_txn_ref = f"FAIL-TXN-{order_seq}"
+        cust = generate_customer()
+        basket_amt = round(float(random.choice([180.0, 320.0, 540.0, 890.0, 1150.0])), 2)
+        fail_time = base_date + timedelta(days=28, hours=15 + (idx % 6))
 
-        orders.append({
+        orders_records.append({
             "order_id": ord_id,
             "merchant_id": m_id,
-            "customer_name": cust_name,
-            "customer_phone": cust_phone,
-            "order_timestamp": ord_time.isoformat(),
-            "payment_rail": "PAYMENT_GATEWAY" if provider == "SSLCommerz" else "MOBILE_WALLET_MFS",
-            "rail_provider": provider,
+            "customer_name": cust["name"],
+            "customer_email": cust["email"],
+            "customer_phone": cust["phone"],
+            "order_timestamp": fail_time.isoformat(),
+            "order_amount_usd": basket_amt,
+            "currency": "USD",
+            "quantity": 1,
+            "unit_price_usd": basket_amt,
+            "shipping_cost_usd": 0.0,
+            "sku": catalog[m_id][0]["sku"],
+            "payment_rail": "PAYMENT_GATEWAY",
+            "rail_provider": "Stripe",
             "order_status": "FAILED",
-            "transaction_ref": failed_txn_ref,
-            "order_amount_taka": order_amt,
-            "shipping_cost_taka": 100.0,
-            "sku": sku_info["sku"],
-            "item_name": sku_info["item_name"],
-            "quantity": qty,
-            "unit_price_taka": sku_info["unit_retail_price_taka"],
-            "unit_cost_taka": sku_info["unit_cost_taka"],
-        })
-
-        rail_payments.append({
-            "rail_payment_id": f"RP-FAIL-{rail_seq}",
-            "merchant_id": m_id,
-            "rail_type": "PAYMENT_GATEWAY" if provider == "SSLCommerz" else "MOBILE_WALLET_MFS",
-            "provider": provider,
-            "transaction_ref": failed_txn_ref,
-            "customer_phone": cust_phone,
-            "amount_taka": order_amt,
-            "fee_taka": 0.0,
-            "net_amount_taka": 0.0,
-            "payment_timestamp": (ord_time + timedelta(minutes=2)).isoformat(),
-            "status": "FAILED",
+            "transaction_ref": "",
         })
 
         ground_truth["failed_abandoned_checkouts"].append({
             "order_id": ord_id,
             "merchant_id": m_id,
-            "customer_phone": cust_phone,
-            "order_amount_taka": order_amt,
-            "provider": provider,
+            "customer_phone": cust["phone"],
+            "customer_email": cust["email"],
+            "basket_amount_usd": basket_amt,
+            "basket_amount_taka": basket_amt,
+            "rail_provider": "Stripe",
         })
 
-    # =========================================================================
-    # 6. Build Daily Inventory Snapshots (30 Days) & Hero SKU Stockout
-    # =========================================================================
-    inventory_rows = []
-
-    for m in MERCHANTS:
-        m_id = m["id"]
-        skus = catalog[m_id]
-
-        for s in skus:
-            sku_code = s["sku"]
-            lead_time = s["supplier_lead_time_days"]
-            margin = s["unit_margin_taka"]
-            retail_price = s["unit_retail_price_taka"]
-            cost = s["unit_cost_taka"]
-            current_stock = s["initial_stock"]
-
-            is_hero = s.get("is_hero", False)
-            # Plant stockout condition on Hero SKU (MERCH_02) and 2 other SKUs
-            plant_stockout = is_hero or (sku_code in ["SKU-DTL-01", "SKU-MERCH_04-A"])
-
-            for day_idx in range(days_count):
-                snap_date = (start_date + timedelta(days=day_idx)).date().isoformat()
-                sold_today = daily_sku_sales.get((m_id, sku_code, day_idx), 0)
-
-                # Calibrate daily sales for planted stockout SKUs to establish clean Pre-Eid surge
-                if plant_stockout:
-                    if is_hero:
-                        # 2 units/day initially, rising to 3-4 units/day in Pre-Eid surge (last 7 days)
-                        sold_today = 2 if day_idx < 23 else (3 if day_idx % 2 == 0 else 4)
-                    elif sku_code == "SKU-DTL-01":
-                        sold_today = 3 if day_idx < 23 else (4 if day_idx % 2 == 0 else 5)
-                    elif sku_code == "SKU-MERCH_04-A":
-                        sold_today = 2 if day_idx < 23 else 3
-                else:
-                    # Regular SKU sales normalized
-                    sold_today = min(sold_today, 4)
-
-                # Decrement stock based on sales
-                current_stock = max(0, current_stock - sold_today)
-
-                # Replenishment: non-stockout SKUs restock continuously to maintain healthy cover
-                if not plant_stockout and current_stock < 50:
-                    current_stock += 80
-
-                # Specifically for planted stockouts at Day 29 (latest snapshot):
-                # Hero SKU: 7-day demand ~ 33 units, stock = 23 units -> lost_units = 10 -> impact = 10 * ৳4,650 = ৳46,500!
-                if is_hero and day_idx == 29:
-                    current_stock = 23
-                elif sku_code == "SKU-DTL-01" and day_idx == 29:
-                    current_stock = 20  # lost_units ~ 10 -> impact = ৳20,000
-                elif sku_code == "SKU-MERCH_04-A" and day_idx == 29:
-                    current_stock = 14  # lost_units ~ 7 -> impact = ৳8,750
-
-                reorder_point = lead_time * 4
-
-                inventory_rows.append({
-                    "snapshot_date": snap_date,
-                    "merchant_id": m_id,
-                    "sku": sku_code,
-                    "item_name": s["item_name"],
-                    "category": m["category"],
-                    "current_stock": current_stock,
-                    "unit_cost_taka": cost,
-                    "unit_retail_price_taka": retail_price,
-                    "unit_margin_taka": margin,
-                    "supplier_lead_time_days": lead_time,
-                    "reorder_point_units": reorder_point,
-                    "units_sold_today": sold_today,
-                })
-
-            if plant_stockout:
-                ground_truth["stockout_skus"].append({
-                    "merchant_id": m_id,
-                    "sku": sku_code,
-                    "is_hero": is_hero,
-                    "unit_margin_taka": margin,
-                    "supplier_lead_time_days": lead_time,
-                })
-
     # Convert to DataFrames
-    df_orders = pd.DataFrame(orders)
-    df_rail_payments = pd.DataFrame(rail_payments)
-    df_courier_settlements = pd.DataFrame(courier_settlements)
-    df_inventory = pd.DataFrame(inventory_rows)
+    df_orders = pd.DataFrame(orders_records)
+    df_payments = pd.DataFrame(rail_payments_records)
+    df_settlements = pd.DataFrame(courier_settlements_records)
+    df_inventory = pd.DataFrame(inventory_records)
 
-    # Save CSVs
-    orders_path = os.path.join(OUTPUT_DIR, "orders.csv")
-    rail_path = os.path.join(OUTPUT_DIR, "rail_payments.csv")
-    courier_path = os.path.join(OUTPUT_DIR, "courier_settlements.csv")
-    inventory_path = os.path.join(OUTPUT_DIR, "inventory_daily.csv")
+    # Save to CSV
+    df_orders.to_csv(os.path.join(OUTPUT_DIR, "orders.csv"), index=False)
+    df_payments.to_csv(os.path.join(OUTPUT_DIR, "rail_payments.csv"), index=False)
+    df_settlements.to_csv(os.path.join(OUTPUT_DIR, "courier_settlements.csv"), index=False)
+    df_inventory.to_csv(os.path.join(OUTPUT_DIR, "inventory_daily.csv"), index=False)
+
+    # Save Ground Truth JSON
     gt_path = os.path.join(OUTPUT_DIR, "ground_truth.json")
-
-    df_orders.to_csv(orders_path, index=False)
-    df_rail_payments.to_csv(rail_path, index=False)
-    df_courier_settlements.to_csv(courier_path, index=False)
-    df_inventory.to_csv(inventory_path, index=False)
-
     with open(gt_path, "w", encoding="utf-8") as f:
         json.dump(ground_truth, f, indent=2)
 
-    # Populate DuckDB
+    # Ingest into DuckDB
     duckdb_path = os.path.join(OUTPUT_DIR, "paylens.duckdb")
     if os.path.exists(duckdb_path):
-        try:
-            os.remove(duckdb_path)
-        except Exception:
-            pass
+        os.remove(duckdb_path)
 
     con = duckdb.connect(duckdb_path)
-    con.execute("CREATE OR REPLACE TABLE orders AS SELECT * FROM df_orders")
-    con.execute("CREATE OR REPLACE TABLE rail_payments AS SELECT * FROM df_rail_payments")
-    con.execute("CREATE OR REPLACE TABLE courier_settlements AS SELECT * FROM df_courier_settlements")
-    con.execute("CREATE OR REPLACE TABLE inventory_daily AS SELECT * FROM df_inventory")
+    con.execute("CREATE TABLE orders AS SELECT * FROM df_orders")
+    con.execute("CREATE TABLE rail_payments AS SELECT * FROM df_payments")
+    con.execute("CREATE TABLE courier_settlements AS SELECT * FROM df_settlements")
+    con.execute("CREATE TABLE inventory_daily AS SELECT * FROM df_inventory")
     con.close()
 
-    print(f"=== Synthetic Data Generation Complete ===")
-    print(f"Orders: {len(df_orders)} saved to {orders_path}")
-    print(f"Rail Payments: {len(df_rail_payments)} saved to {rail_path}")
-    print(f"Courier Settlements: {len(df_courier_settlements)} saved to {courier_path}")
-    print(f"Inventory Daily Snapshots: {len(df_inventory)} saved to {inventory_path}")
-    print(f"DuckDB database: {duckdb_path}")
-    print(f"Ground Truth JSON: {gt_path}")
-    print(f"Planted Dispatched-Unpaid: {len(ground_truth['dispatched_unpaid'])}")
-    print(f"Planted Courier Shortfalls: {len(ground_truth['courier_shortfalls'])}")
-    print(f"Planted Fuzzy True Negatives: {len(ground_truth['fuzzy_true_negatives'])}")
-    print(f"Planted Abandoned Checkouts: {len(ground_truth['failed_abandoned_checkouts'])}")
-    print(f"Planted Stockout SKUs: {len(ground_truth['stockout_skus'])}")
+    print(f"Generated Synthetic Dataset successfully:")
+    print(f"  - Orders: {len(df_orders):,} rows")
+    print(f"  - Rail Payments: {len(df_payments):,} rows")
+    print(f"  - Carrier Settlements: {len(df_settlements):,} rows")
+    print(f"  - Inventory Snapshots: {len(df_inventory):,} rows")
+    print(f"  - DuckDB: {duckdb_path}")
+    print(f"  - Ground Truth: {gt_path}")
 
-    # Generate sample Courier COD Settlement PDF for Evolus / PDF intake demo
-    pdf_path = os.path.join(OUTPUT_DIR, "sample_courier_settlement.pdf")
-    generate_sample_courier_pdf(pdf_path)
-    print(f"Sample Courier COD Settlement PDF generated at: {pdf_path}")
+    # Generate sample carrier settlement PDF
+    generate_sample_courier_pdf()
 
 
-def generate_sample_courier_pdf(pdf_path: str):
-    """Generate a clean 1-page sample Courier Settlement PDF with planted shortfalls."""
-    from reportlab.lib.pagesizes import letter
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib import colors
+def generate_sample_courier_pdf():
+    """Generate sample carrier settlement PDF with USD amounts for Evolus Document Extractor."""
+    try:
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import letter
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
-    doc = SimpleDocTemplate(pdf_path, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
-    styles = getSampleStyleSheet()
-    story = []
+        pdf_path = os.path.join(OUTPUT_DIR, "sample_courier_settlement.pdf")
+        doc = SimpleDocTemplate(pdf_path, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
+        story = []
+        styles = getSampleStyleSheet()
 
-    title_style = ParagraphStyle(
-        "DocTitle",
-        parent=styles["Heading1"],
-        fontSize=18,
-        leading=22,
-        textColor=colors.HexColor("#0F172A"),
-        fontName="Helvetica-Bold",
-    )
-    subtitle_style = ParagraphStyle(
-        "DocSub",
-        parent=styles["Normal"],
-        fontSize=10,
-        leading=14,
-        textColor=colors.HexColor("#475569"),
-    )
+        title_style = ParagraphStyle(
+            'TitleStyle',
+            parent=styles['Heading1'],
+            fontSize=16,
+            textColor=colors.HexColor('#0F172A'),
+            spaceAfter=8,
+        )
+        sub_style = ParagraphStyle(
+            'SubStyle',
+            parent=styles['Normal'],
+            fontSize=10,
+            textColor=colors.HexColor('#475569'),
+            spaceAfter=14,
+        )
 
-    story.append(Paragraph("ExpressBD Logistics Ltd. — Official Settlement Statement", title_style))
-    story.append(Paragraph("Merchant: Dhaka Threads & Lifestyle (MERCH_01) | Statement Date: 2026-10-15 | ID: STMT-EXP-20261015-01", subtitle_style))
-    story.append(Spacer(1, 14))
+        story.append(Paragraph("DHL Express / FedEx Commercial COD Settlement Statement", title_style))
+        story.append(Paragraph(f"Merchant: Lumina Smart Home & Audio (MERCH_02) | Statement Date: 2026-10-15 | Currency: USD ($)", sub_style))
+        story.append(Spacer(1, 10))
 
-    table_data = [
-        ["Consignment ID", "Order ID", "COD Collected", "Fee", "Expected Net", "Actual Settled", "Shortfall", "Status"],
-        ["CONS-SHORT-8001", "ORD-COD-SHORT-1001", "7,200.00", "130.00", "7,070.00", "5,820.00", "1,250.00", "DISPUTED"],
-        ["CONS-SHORT-8002", "ORD-COD-SHORT-1002", "11,500.00", "130.00", "11,370.00", "8,970.00", "2,400.00", "DISPUTED"],
-        ["CONS-SHORT-8003", "ORD-COD-SHORT-1003", "4,800.00", "130.00", "4,670.00", "4,020.00", "650.00", "DISPUTED"],
-        ["CONS-NORM-8004", "ORD-1015", "3,800.00", "98.00", "3,702.00", "3,702.00", "0.00", "SETTLED"],
-        ["CONS-NORM-8005", "ORD-1019", "5,400.00", "114.00", "5,286.00", "5,286.00", "0.00", "SETTLED"],
-    ]
+        # Sample settlement table with shortfall rows
+        data = [
+            ["Consignment ID", "Order ID", "Carrier", "COD Collected ($)", "Fee ($)", "Expected Net ($)", "Actual Settled ($)", "Status"],
+            ["CONS-SHORT-9001", "ORD-COD-SHORT-3143", "DHL Express", "$850.00", "$44.00", "$806.00", "$686.00", "PARTIAL SHORTFALL"],
+            ["CONS-SHORT-9002", "ORD-COD-SHORT-3144", "FedEx Ground", "$620.00", "$34.80", "$585.20", "$500.20", "PARTIAL SHORTFALL"],
+            ["CONS-CLEAN-9003", "ORD-3120", "DHL Express", "$450.00", "$24.25", "$425.75", "$425.75", "SETTLED"],
+            ["CONS-CLEAN-9004", "ORD-3121", "FedEx Ground", "$320.00", "$19.70", "$300.30", "$300.30", "SETTLED"],
+            ["CONS-SHORT-9005", "ORD-COD-SHORT-3147", "DHL Express", "$1,100.00", "$54.00", "$1,046.00", "$871.00", "PARTIAL SHORTFALL"],
+        ]
 
-    t = Table(table_data, colWidths=[90, 95, 65, 45, 65, 65, 55, 60])
-    t.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1E293B")),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("FONTSIZE", (0, 0), (-1, 0), 8),
-        ("BOTTOMPADDING", (0, 0), (-1, 0), 6),
-        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E1")),
-        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F8FAFC")]),
-        ("TEXTCOLOR", (6, 1), (6, 3), colors.HexColor("#DC2626")),
-        ("FONTNAME", (6, 1), (6, 3), "Helvetica-Bold"),
-        ("FONTSIZE", (0, 1), (-1, -1), 8),
-    ]))
+        t = Table(data, colWidths=[90, 95, 75, 75, 50, 75, 75, 75])
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0F172A')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#CBD5E1')),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
+            ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor('#1E293B')),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F8FAFC')]),
+            ('TEXTCOLOR', (7, 1), (7, 2), colors.HexColor('#DC2626')),
+            ('TEXTCOLOR', (7, 5), (7, 5), colors.HexColor('#DC2626')),
+        ]))
 
-    story.append(t)
-    story.append(Spacer(1, 16))
-    notice_style = ParagraphStyle("Notice", parent=styles["Normal"], fontSize=9, leading=12, textColor=colors.HexColor("#64748B"))
-    story.append(Paragraph("Notice: Undersettled consignments are subject to audit and auto-dispute reconciliation via PayLens & Evolus AI.", notice_style))
-
-    doc.build(story)
-
+        story.append(t)
+        doc.build(story)
+        print(f"  - Sample PDF generated: {pdf_path}")
+    except Exception as e:
+        print(f"  - PDF generation note: {e}")
 
 
 if __name__ == "__main__":
-    main()
+    generate_dataset()
