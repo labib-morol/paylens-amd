@@ -249,6 +249,11 @@ FINTECH_CSS = """
 """
 st.markdown(FINTECH_CSS, unsafe_allow_html=True)
 
+def render_html(html_str: str):
+    """Safely renders HTML without Markdown interpreting indented lines as code blocks."""
+    cleaned = "\n".join(line.strip() for line in html_str.strip().splitlines())
+    st.markdown(cleaned, unsafe_allow_html=True)
+
 # -----------------------------------------------------------------------------
 # Session Sandbox & State Initialization
 # -----------------------------------------------------------------------------
@@ -509,11 +514,11 @@ def show_hallucination_modal():
     st.markdown("#### Red-Team Numeric Grounding Guardrail Demo")
     st.caption("Architectural Principle: Code Computes, Model Explains. Numeric tokens are strictly regex-audited against database allowed numbers.")
 
-    st.markdown("""
+    render_html("""
     <div class="formula-banner">
         Audit Rule: All numeric tokens in model text must belong to allowed_numbers [850.00, 120.00]
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
     test_input = st.text_area(
         "Model Output to Verify:",
@@ -713,7 +718,7 @@ header_col_left, header_col_right = st.columns([1.6, 1.4])
 
 with header_col_left:
     merchant_label = "Consolidated Portfolio (20 Stores)" if selected_merchant == "ALL_MERCHANTS" else f"{selected_merchant}: {all_merchant_map.get(selected_merchant, '')}"
-    st.markdown(f"""
+    render_html(f"""
     <div style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 2px;">
         <span style="font-size: 1.65rem; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em;">PayLens</span>
         <span style="font-size: 0.85rem; font-weight: 600; color: #64748B;">// Human-Approved Cross-Rail Revenue Recovery</span>
@@ -726,7 +731,7 @@ with header_col_left:
             ● {header_badge}
         </span>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
 with header_col_right:
     btn_m1, btn_m2, btn_m3 = st.columns(3)
@@ -740,7 +745,7 @@ with header_col_right:
         if st.button("⚡ AMD Proof", use_container_width=True, help="Hardware proof and benchmark metrics"):
             show_telemetry_modal(pipeline_result, health, is_live)
 
-st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+render_html("<div style='height: 10px;'></div>")
 
 # -----------------------------------------------------------------------------
 # ROW 2: 4 SPACIOUS HERO KPI CARDS
@@ -748,34 +753,34 @@ st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 kpi_c1, kpi_c2, kpi_c3, kpi_c4 = st.columns(4)
 
 with kpi_c1:
-    st.markdown(f"""
+    render_html(f"""
     <div class="kpi-card">
         <div class="kpi-label">Capital at Risk Detected</div>
         <div class="kpi-value" style="color: #EF4444;">${total_capital_at_risk:,.2f}</div>
         <div class="kpi-sub">{len(displayed_cards)} actionable recommendations</div>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
 with kpi_c2:
-    st.markdown(f"""
+    render_html(f"""
     <div class="kpi-card">
         <div class="kpi-label">Approved &amp; Recovered Today</div>
         <div class="kpi-value" style="color: #10B981;">${st.session_state.recovered_today_usd:,.2f}</div>
         <div class="kpi-sub">{len(st.session_state.executed_actions)} live actions dispatched</div>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
 with kpi_c3:
     eval_dict = pipeline_result.get("evaluation") or {}
     eval_overall = eval_dict.get("overall") or {}
     eval_f1 = eval_overall.get("f1_score", 0.99)
-    st.markdown(f"""
+    render_html(f"""
     <div class="kpi-card">
         <div class="kpi-label">Detector Precision &amp; Recall</div>
         <div class="kpi-value" style="color: #38BDF8;">{eval_f1:.2f} F1 Score</div>
         <div class="kpi-sub">0 False Alarms on Fuzzy Matches</div>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
 with kpi_c4:
     model_cards = [c for c in displayed_cards if getattr(c, "grounding_status", "") not in ("", "NOT_APPLICABLE_OFFLINE")]
@@ -787,15 +792,15 @@ with kpi_c4:
         kpi4_val = f"{passed_count} / {len(model_cards)} Passed"
         kpi4_sub = "Strict numeric regex audit"
 
-    st.markdown(f"""
+    render_html(f"""
     <div class="kpi-card">
         <div class="kpi-label">Model Numeric Grounding</div>
         <div class="kpi-value" style="color: #A78BFA;">{kpi4_val}</div>
         <div class="kpi-sub">{kpi4_sub}</div>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
-st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
+render_html("<div style='height: 14px;'></div>")
 
 # -----------------------------------------------------------------------------
 # ROW 3: COMPACT LEAKAGE BREAKDOWN BAR
@@ -804,7 +809,7 @@ if displayed_cards:
     fig_leak = build_leakage_breakdown_bar(displayed_cards)
     st.plotly_chart(fig_leak, use_container_width=True, config={"displayModeBar": False})
 
-st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+render_html("<div style='height: 12px;'></div>")
 
 # -----------------------------------------------------------------------------
 # MAIN WORKSPACE: 2-COLUMN MASTER-DETAIL SPLIT
@@ -838,7 +843,7 @@ with col_queue:
             selected_style = "border-color: #6366F1; background: #151F33;" if is_selected else ""
             status_tag = "<span style='color: #10B981; font-size: 0.68rem; font-weight: 700; margin-left: 6px;'>✓ EXECUTED</span>" if is_done else ""
 
-            st.markdown(f"""
+            render_html(f"""
             <div class="queue-item {'queue-item-selected' if is_selected else ''}">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                     <div>
@@ -855,7 +860,7 @@ with col_queue:
                     {card.title}
                 </div>
             </div>
-            """, unsafe_allow_html=True)
+            """)
 
             btn_col1, btn_col2 = st.columns([1, 1])
             with btn_col1:
@@ -878,7 +883,7 @@ with col_inspector:
         is_done = selected_card.card_id in st.session_state.executed_actions
 
         # 1. Inspector Header
-        st.markdown(f"""
+        render_html(f"""
         <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 20px 24px; margin-bottom: 16px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
                 <div>
@@ -910,7 +915,7 @@ with col_inspector:
                 📐 Math: {selected_card.impact_formula}
             </div>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
         # 2. Inspector Sub-Tabs
         subtab_deal, subtab_proof = st.tabs([
@@ -921,20 +926,20 @@ with col_inspector:
         with subtab_deal:
             # Model Explanation
             st.markdown("**Grounded Model Explanation:**")
-            st.markdown(f"""
+            render_html(f"""
             <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; font-size: 0.88rem; line-height: 1.6; color: #F1F5F9;">
                 {selected_card.explanation_en}
             </div>
-            """, unsafe_allow_html=True)
+            """)
 
             # Grounding Status Pill
-            st.markdown(f"""
+            render_html(f"""
             <div style="margin-bottom: 16px;">
                 <span class="grounding-verified">
                     ✓ Grounding Status: {getattr(selected_card, 'grounding_status', 'PASSED')} · Checked Against DuckDB Numbers
                 </span>
             </div>
-            """, unsafe_allow_html=True)
+            """)
 
             # Strategy / Tone Selector
             st.markdown("**Action Strategy & Communication Tone:**")
@@ -967,7 +972,7 @@ with col_inspector:
                 exec_info = st.session_state.executed_actions.get(selected_card.card_id, {})
                 dispatched_time = exec_info.get("timestamp", "-")
                 dispatched_hash = exec_info.get("audit_hash", "-")
-                st.markdown(f"""
+                render_html(f"""
                 <div class="receipt-card">
                     <b>✓ ACTION DISPATCHED (SHA-256 VERIFIED)</b><br>
                     Receipt ID: <code>REC-{selected_card.card_id}</code><br>
@@ -975,7 +980,7 @@ with col_inspector:
                     Audit Hash: <code>{dispatched_hash}</code><br>
                     Status: Payout recovery initiated across payment rails.
                 </div>
-                """, unsafe_allow_html=True)
+                """)
             else:
                 if st.button("⚡ Approve & Dispatch Action Now", type="primary", use_container_width=True):
                     audit_hash = hashlib.sha256(f"{selected_card.card_id}_{draft_msg}_{time.time()}".encode()).hexdigest()[:24]
@@ -1009,9 +1014,9 @@ with col_inspector:
                 st.caption("No custom evidence payload.")
 
 # Footer Notice (Honest Synthetic Data)
-st.markdown("<div style='height: 24px;'></div>", unsafe_allow_html=True)
-st.markdown("""
+render_html("<div style='height: 24px;'></div>")
+render_html("""
 <div style="font-size: 0.72rem; color: #475569; text-align: center;">
     PayLens · Multi-Rail Revenue Recovery Engine on AMD Hardware · Demonstrated on illustrative synthetic data modeled on global commerce rails.
 </div>
-""", unsafe_allow_html=True)
+""")
