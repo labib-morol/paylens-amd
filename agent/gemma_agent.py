@@ -223,7 +223,12 @@ def check_endpoint_health() -> Dict[str, Any]:
                         lat = round((time.perf_counter() - t0) * 1000, 1)
                         data = resp.json()
                         models = [m.get("id") for m in data.get("data", [])]
-                        resolved_url = backup_url if test_url.endswith("/models") and not test_url.endswith("/v1/models") else f"{backup_url.rstrip('/')}/v1"
+                        if backup_url.rstrip("/").endswith("/v1"):
+                            resolved_url = backup_url.rstrip("/")
+                        elif test_url.endswith("/v1/models"):
+                            resolved_url = f"{backup_url.rstrip('/')}/v1"
+                        else:
+                            resolved_url = backup_url.rstrip("/")
                         result["backup_active"] = True
                         result["active_endpoint_name"] = "AMD TokenFactory GPU Cloud"
                         result["active_url"] = resolved_url
