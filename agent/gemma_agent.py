@@ -166,6 +166,7 @@ def check_endpoint_health() -> Dict[str, Any]:
         "model_valid": True,
         "execution_source": ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value,
         "is_offline": True,
+        "status": "OFFLINE",
         "latency_ms": 0.0,
         "latency_display": "-",
         "status_note": "",
@@ -190,6 +191,7 @@ def check_endpoint_health() -> Dict[str, Any]:
                     result["active_url"] = primary_url
                     result["execution_source"] = ExecutionSource.LIVE_AMD_MI300X_VLLM.value
                     result["is_offline"] = False
+                    result["status"] = "LIVE"
                     result["latency_ms"] = lat
                     result["latency_display"] = f"{lat} ms"
                     result["available_models"] = models
@@ -234,6 +236,7 @@ def check_endpoint_health() -> Dict[str, Any]:
                         result["active_url"] = resolved_url
                         result["execution_source"] = ExecutionSource.LIVE_AMD_TOKENFACTORY.value
                         result["is_offline"] = False
+                        result["status"] = "LIVE"
                         result["latency_ms"] = lat
                         result["latency_display"] = f"{lat} ms"
                         result["available_models"] = models

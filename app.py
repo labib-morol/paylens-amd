@@ -299,7 +299,7 @@ def cached_goal_to_weights(text: str) -> GoalWeights:
 
 # Hardware Health Check
 health = check_endpoint_health()
-is_live = health["status"] == "LIVE"
+is_live = (health.get("status") == "LIVE") or (not health.get("is_offline", True))
 target_model = health.get("model_served") or "Local Deterministic Fallback"
 
 # -----------------------------------------------------------------------------
@@ -698,7 +698,7 @@ else:
 # -----------------------------------------------------------------------------
 # MAIN VIEW: ROW 1 — BRAND HEADER & MODAL LAUNCHERS
 # -----------------------------------------------------------------------------
-header_badge = f"{health['active_endpoint_name']} · {target_model}" if is_live else "Local Deterministic Mode"
+header_badge = f"{health.get('active_endpoint_name', 'AMD Endpoint')} · {target_model}" if is_live else "Local Deterministic Mode"
 hardware_dot = "#34D399" if is_live else "#94A3B8"
 
 header_col_left, header_col_right = st.columns([1.6, 1.4])
