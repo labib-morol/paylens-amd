@@ -638,31 +638,34 @@ def format_merchant_label(opt: str) -> str:
         return "🌐 All 20 Global Merchants (Multi-Tenant Overview)"
     return f"{opt}: {all_merchant_map.get(opt, opt)}"
 
-# Offline mode alert banner
+# System Status Banner
 if not is_live:
     st.markdown("""
-    <div style="background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #FCA5A5; padding: 10px 16px; border-radius: 8px; margin-bottom: 15px; font-weight: 700;">
-        ⚠️ RUNNING IN OFFLINE MODE: LLM inference disabled. Deterministic engine active.
+    <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(148, 163, 184, 0.2); color: #94A3B8; padding: 9px 16px; border-radius: 9px; margin-bottom: 14px; font-size: 0.83rem; display: flex; align-items: center; justify-content: space-between;">
+        <span>⚡ <b>Deterministic Compute Active:</b> Reconciling 20 merchant portfolios with exact DuckDB arithmetic.</span>
+        <span style="background: rgba(99, 102, 241, 0.2); color: #A5B4FC; padding: 3px 10px; border-radius: 5px; font-size: 0.74rem; font-weight: 600;">Connect AMD GPU in sidebar for live model enrichment</span>
     </div>
     """, unsafe_allow_html=True)
 
-header_badge = f"{health['active_endpoint_name']} · {MODEL_NAME}" if is_live else "Offline Deterministic Mode"
+header_badge = f"{health['active_endpoint_name']} · {target_model}" if is_live else "Local Deterministic Mode"
 
 st.markdown(f"""
 <div class="top-header">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
         <div>
-            <span style="font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; color: #FFFFFF;">
-                PayLens <span style="color: #6366F1;">Solo</span>
-            </span>
-            <span style="background: rgba(99, 102, 241, 0.2); color: #818CF8; border: 1px solid rgba(99, 102, 241, 0.4); padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; margin-left: 8px;">
-                {header_badge}
-            </span>
-            <div style="font-size: 0.8rem; color: #94A3B8; margin-top: 2px;">
-                Deterministic Multi-Rail Capital Recovery Engine & Human-in-the-Loop Deal Desk
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; color: #FFFFFF;">
+                    PayLens <span style="color: #6366F1;">Solo</span>
+                </span>
+                <span style="background: rgba(99, 102, 241, 0.15); color: #818CF8; border: 1px solid rgba(99, 102, 241, 0.35); padding: 3px 9px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;">
+                    {header_badge}
+                </span>
+            </div>
+            <div style="font-size: 0.85rem; color: #94A3B8; margin-top: 3px;">
+                Multi-Rail Payment Reconciliation &amp; Capital Recovery Deal Desk on AMD Hardware
             </div>
         </div>
-        <div style="text-align: right;">
+        <div>
             <span class="grounding-pill">
                 ✓ Numeric Grounding Verification Active
             </span>
@@ -676,7 +679,7 @@ col_merch, col_goal = st.columns([1, 2])
 
 with col_merch:
     selected_merchant = st.selectbox(
-        "Select Active Merchant Portfolio:",
+        "Active Merchant Portfolio:",
         options=merchant_options,
         format_func=format_merchant_label,
         index=2,  # Default to MERCH_02 (Lumina Smart Home)
@@ -684,7 +687,7 @@ with col_merch:
 
 with col_goal:
     goal_input_val = st.text_input(
-        "Natural Language Merchant Goal (Steers Gemma Dynamic Multi-Objective Ranking):",
+        "Optimization Goal (Steers Multi-Objective Ranking):",
         value=st.session_state.goal_input,
     )
     st.session_state.goal_input = goal_input_val
@@ -692,12 +695,12 @@ with col_goal:
 # One-Click Goal Presets
 col_preset1, col_preset2, col_preset_badge = st.columns([1, 1, 1.2])
 with col_preset1:
-    if st.button("💰 Prioritize Uncollected Cash & Shortfalls", use_container_width=True):
+    if st.button("💰 Cash Priority", use_container_width=True):
         st.session_state.goal_input = "Recover uncollected cash from dispatched Shopify orders and carrier COD settlement shortfalls immediately"
         st.rerun()
 
 with col_preset2:
-    if st.button("🛡️ Protect Profit Margins & Stockouts", use_container_width=True):
+    if st.button("🛡️ Margin Protection", use_container_width=True):
         st.session_state.goal_input = "Protect profit margins and prevent stockouts on high-margin best-sellers before holiday surge"
         st.rerun()
 
@@ -810,10 +813,10 @@ st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
 # Main Navigation Tabs
 # -----------------------------------------------------------------------------
 tab_deal_desk, tab_pdf, tab_proof, tab_connectors = st.tabs([
-    "🎯 Tab 1: Ranked Action Centre & Human+AI Deal Desk",
-    "📄 Tab 2: Carrier Settlement PDF Intake (Evolus AI Track)",
-    "⚡ Tab 3: AMD Instinct MI300X Proof & Ground-Truth Audit",
-    "🌐 Tab 4: Global Multi-Rail Connector Architecture",
+    "📊 Revenue Recovery Desk",
+    "📄 Carrier COD Statements",
+    "🛡️ Verification & Benchmarks",
+    "🌐 Multi-Rail Connectors",
 ])
 
 # =============================================================================
