@@ -35,7 +35,7 @@
 - [x] **Live Action Executor:** `agent/action_executor.py` dispatches live actions, sends webhooks, and creates SHA-256 audit receipts.
 
 ### Checkpoint 4 — UI Deal Desk, Docker & Submission Readiness
-- [x] **Streamlit + Plotly Frontend:** `app.py` delivers 4 tabs: Action Centre Deal Desk, Courier PDF Intake, AMD Hardware Proof, and Global Connectors.
+- [x] **Streamlit + Plotly Frontend:** `app.py` delivers a single-screen master-detail Fintech Deal Desk with `@st.dialog` modals (Courier PDF Intake, Red-Team Guardrail Demo, AMD Hardware Proof), interactive Holt-Winters / reconciliation charts, and safe HTML rendering.
 - [x] **Per-Session Sandbox:** Live Anomaly Injector operates on an isolated temporary DuckDB copy with explicit column INSERTs and cache invalidation.
 - [x] **Containerization:** `Dockerfile` on `python:3.11-slim` and `docker-compose.yml` for 1-command startup on port 8501.
 - [x] **MIT License:** Added `LICENSE` (2026, Labib-morol).
