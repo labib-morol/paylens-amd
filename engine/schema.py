@@ -109,3 +109,31 @@ class RecommendationCard(BaseModel):
     @impact_taka.setter
     def impact_taka(self, val: float):
         self.impact_usd = val
+
+    @property
+    def score(self) -> float:
+        return self.ranking_score
+
+    @score.setter
+    def score(self, val: float):
+        self.ranking_score = val
+
+    @property
+    def impact_formula(self) -> str:
+        return self.formula_display
+
+    @impact_formula.setter
+    def impact_formula(self, val: str):
+        self.formula_display = val
+
+    @property
+    def action_draft(self) -> Optional[str]:
+        return self.action_draft_en
+
+    @action_draft.setter
+    def action_draft(self, val: Optional[str]):
+        self.action_draft_en = val
+
+    @property
+    def evidence(self) -> List[Dict[str, Any]]:
+        return [row.model_dump() if hasattr(row, 'model_dump') else row for row in self.evidence_rows]
