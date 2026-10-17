@@ -350,19 +350,11 @@ def generate_dataset(
                 if rail_type in ("PAYMENT_GATEWAY", "DIGITAL_WALLET", "BANK_TRANSFER"):
                     payment_seq += 1
                     pay_offset = random.randint(2, 12)
-                    if noise and random.random() < 0.04:
-                        pay_offset += random.choice([-50, 50])
                     pay_time = ord_time + timedelta(minutes=pay_offset)
 
                     pay_phone = format_phone_with_noise(cust["phone"], noise)
                     pay_amt = total_amt
                     pay_status = "SUCCESS"
-
-                    if noise and random.random() < 0.03:
-                        pay_amt = round(total_amt + random.choice([-0.25, -0.10, 0.10, 0.25]), 2)
-                    elif noise and random.random() < 0.015:
-                        pay_amt = round(total_amt * 0.5, 2)
-                        pay_status = "PARTIAL"
 
                     rail_payments_records.append({
                         "payment_id": f"RP-{payment_seq}",

@@ -1,8 +1,8 @@
 """PayLens: Multi-Rail Revenue Reconciliation Deal Desk on AMD Hardware.
 
 Engine: DuckDB + 2-Pass Fuzzy Matching + Holt-Winters Demand Forecasting.
-Agent:  AMD Radeon Cloud TokenFactory (DeepSeek-V4-Flash / Gemma-4-31B-IT) + Google Gemma 4 REST API + Strict Grounding Guardrail.
-Layout: Pure Native Streamlit Containers (st.container, st.columns, st.metric, st.dataframe, st.plotly_chart).
+Agent:  AMD Radeon Cloud TokenFactory (DeepSeek-V4-Flash) + Google Gemma 4 REST API + Strict Grounding Guardrail.
+Layout: Institutional Fintech Deal Desk (st.container, st.columns, st.metric, st.dataframe, st.plotly_chart).
 """
 
 import os
@@ -45,7 +45,7 @@ from agent.grounding import verify_numeric_grounding, build_fallback_template
 # -----------------------------------------------------------------------------
 st.set_page_config(
     page_title="PayLens // Revenue Recovery Deal Desk",
-    page_icon="🛡️",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -57,7 +57,7 @@ st.html(
     #MainMenu {visibility: hidden;}
     header {visibility: hidden;}
     footer {visibility: hidden;}
-    .block-container {padding-top: 1.25rem; padding-bottom: 2.5rem; max-width: 96rem;}
+    .block-container {padding-top: 1.0rem; padding-bottom: 2.5rem; max-width: 96rem;}
 
     /* Tabular numeric alignment for financial values and tables */
     [data-testid="stMetricValue"], [data-testid="stDataFrame"], code {
@@ -95,6 +95,16 @@ st.html(
         font-weight: 700;
         letter-spacing: 0.05em;
     }
+    .top-status-pill {
+        font-family: monospace;
+        font-size: 0.80rem;
+        padding: 8px 12px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 42px;
+    }
     </style>
     """
 )
@@ -112,6 +122,10 @@ if "live_enriched_cards" not in st.session_state:
     st.session_state.live_enriched_cards = {}
 if "benchmark_run_history" not in st.session_state:
     st.session_state.benchmark_run_history = None
+if "selected_merchant" not in st.session_state:
+    st.session_state.selected_merchant = "MERCH_01"
+if "last_queue_filter" not in st.session_state:
+    st.session_state.last_queue_filter = "Confirmed Cash Discrepancies"
 
 # -----------------------------------------------------------------------------
 # Cached Helper Routines
@@ -121,7 +135,12 @@ def cached_get_merchant_names() -> Dict[str, str]:
     return get_merchant_names()
 
 
-@st.cache_data(ttl=60, show_spinner=False)
+@st.cache_data(ttl=180, show_spinner=False)
+def get_cached_endpoint_status() -> Dict[str, Any]:
+    return check_endpoint_status()
+
+
+@st.cache_data(ttl=300, show_spinner=False)
 def cached_run_pipeline(weights_tuple: tuple, r_rate: float, lead_time: int) -> Dict[str, Any]:
     weights = GoalWeights(
         cash_now_weight=weights_tuple[0],
@@ -133,6 +152,12 @@ def cached_run_pipeline(weights_tuple: tuple, r_rate: float, lead_time: int) -> 
         recovery_rate=r_rate,
         supplier_lead_time_override=lead_time,
     )
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def cached_evaluate_detectors(duckdb_path: str, gt_path: str) -> Dict[str, Any]:
+    pipeline_data = run_pipeline(duckdb_path=duckdb_path, goal_weights=GoalWeights())
+    return evaluate_recommendations(pipeline_data["cards"], gt_path)
 
 
 @st.cache_data(ttl=120)
@@ -223,9 +248,9 @@ def build_stockout_forecast_chart(duckdb_path: str, sku: str):
 
 
 # -----------------------------------------------------------------------------
-# Live Runtime Hardware & Endpoint Health Check
+# Live Runtime Hardware & Endpoint Health Check (Cached 3-min TTL)
 # -----------------------------------------------------------------------------
-endpoint_status = check_endpoint_status()
+endpoint_status = get_cached_endpoint_status()
 amd_live = endpoint_status["amd_status"]["is_live"]
 amd_model = endpoint_status["amd_status"]["model_served"]
 amd_lat = endpoint_status["amd_status"]["ping_latency_ms"]
@@ -238,19 +263,8 @@ gemma_lat = endpoint_status["gemma_status"]["ping_latency_ms"]
 # -----------------------------------------------------------------------------
 # Sidebar Configuration Controls
 # -----------------------------------------------------------------------------
-st.sidebar.title("🛡️ PayLens Deal Desk")
+st.sidebar.title("PayLens Deal Desk")
 st.sidebar.caption("Deterministic Multi-Rail Capital Recovery")
-
-# Merchant Selector
-merchant_map = cached_get_merchant_names()
-merchant_ids = sorted(list(merchant_map.keys()))
-default_merch_idx = 1 if "MERCH_02" in merchant_ids else 0
-selected_merchant = st.sidebar.selectbox(
-    "Active Storefront",
-    options=merchant_ids,
-    index=default_merch_idx,
-    format_func=lambda m: f"{m} — {merchant_map.get(m, m)}",
-)
 
 # Business Priority / Objective
 st.sidebar.subheader("Business Objective")
@@ -302,7 +316,7 @@ else:
     engine_choice = "auto"
 
 # What-If Simulation Parameters
-with st.sidebar.expander("⚙️ What-If Simulation Sliders", expanded=False):
+with st.sidebar.expander("What-If Simulation Sliders", expanded=False):
     recovery_rate_input = st.slider(
         "Checkout Recovery Rate (r)",
         min_value=0.10,
@@ -320,7 +334,7 @@ with st.sidebar.expander("⚙️ What-If Simulation Sliders", expanded=False):
     )
 
 # Courier Settlement PDF Extractor
-with st.sidebar.expander("📄 Courier Settlement PDF Intake", expanded=False):
+with st.sidebar.expander("Courier Settlement PDF Intake", expanded=False):
     st.caption("Upload carrier remittance PDF or parse sample statement.")
     sample_pdf_path = os.path.join(ROOT_DIR, "data", "generated", "sample_courier_settlement.pdf")
     if os.path.exists(sample_pdf_path):
@@ -364,8 +378,13 @@ with st.sidebar.expander("📄 Courier Settlement PDF Intake", expanded=False):
             except Exception as e:
                 st.error(f"Error parsing PDF: {e}")
 
+# Sidebar Refresh for Endpoint Status
+if st.sidebar.button("Refresh Endpoint Pings", width="stretch"):
+    get_cached_endpoint_status.clear()
+    st.rerun()
+
 # -----------------------------------------------------------------------------
-# Execute Deterministic Pipeline
+# Execute Deterministic Pipeline (Cached 300s)
 # -----------------------------------------------------------------------------
 pipeline_data = cached_run_pipeline(
     (active_weights.cash_now_weight, active_weights.margin_protection_weight, active_weights.stock_availability_weight),
@@ -374,16 +393,109 @@ pipeline_data = cached_run_pipeline(
 )
 all_cards: List[RecommendationCard] = pipeline_data["cards"]
 all_store_cards = all_cards
+
+# Merchant map for storefront selection
+merchant_map = cached_get_merchant_names()
+merchant_ids = sorted(list(merchant_map.keys())) if merchant_map else ["MERCH_01"]
+
+# -----------------------------------------------------------------------------
+# Sleek Institutional Top Header Bar (4 Equal-Height Columns)
+# -----------------------------------------------------------------------------
+with st.container(border=True):
+    hdr_col1, hdr_col2, hdr_col3, hdr_col4 = st.columns([1.2, 1.2, 1.2, 1.4], gap="medium")
+
+    with hdr_col1:
+        st.markdown(
+            """
+            <div style="line-height: 1.2; padding-top: 4px;">
+                <span style="font-size: 1.22rem; font-weight: 700; color: #F8FAFC; letter-spacing: -0.01em;">PayLens</span><br>
+                <span style="font-size: 0.72rem; color: #94A3B8; letter-spacing: 0.02em;">Cross-Rail Revenue Reconciliation & Grounded AI Deal Desk</span>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with hdr_col2:
+        if amd_live:
+            st.markdown(
+                f"""
+                <div class="top-status-pill" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25);">
+                    <span style="color: #10B981; font-size: 0.75rem;">&#9679;</span>
+                    <span style="color: #E2E8F0;">AMD TOKENFACTORY &middot; {amd_model} &middot; {amd_lat:.0f}ms</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown(
+                f"""
+                <div class="top-status-pill" style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25);">
+                    <span style="color: #EF4444; font-size: 0.75rem;">&#9679;</span>
+                    <span style="color: #FCA5A5;">AMD TOKENFACTORY &middot; OFFLINE</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+    with hdr_col3:
+        if gemma_live:
+            st.markdown(
+                f"""
+                <div class="top-status-pill" style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25);">
+                    <span style="color: #38BDF8; font-size: 0.75rem;">&#9679;</span>
+                    <span style="color: #E2E8F0;">GOOGLE AI STUDIO &middot; {gemma_model} &middot; {gemma_lat:.0f}ms</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown(
+                f"""
+                <div class="top-status-pill" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25);">
+                    <span style="color: #F59E0B; font-size: 0.75rem;">&#9679;</span>
+                    <span style="color: #FDE68A;">GOOGLE AI STUDIO &middot; OFFLINE</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+    with hdr_col4:
+        merch_idx = merchant_ids.index(st.session_state.selected_merchant) if st.session_state.selected_merchant in merchant_ids else 0
+        selected_merchant = st.selectbox(
+            "Storefront Selector",
+            options=merchant_ids,
+            index=merch_idx,
+            format_func=lambda m: f"{m} — {merchant_map.get(m, m)}",
+            key="top_storefront_selector",
+            label_visibility="collapsed",
+        )
+        st.session_state.selected_merchant = selected_merchant
+        approved_total = sum(v.get("amount", 0.0) for v in st.session_state.approved_actions.values())
+        appr_count = len(st.session_state.approved_actions)
+        st.markdown(
+            f"""
+            <div style="font-family: monospace; font-size: 0.72rem; color: #10B981; padding-top: 2px;">
+                SIMULATED APPROVALS: ${approved_total:,.2f} ({appr_count})
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+# Filter active merchant cards
 store_cards = [c for c in all_cards if c.merchant_id == selected_merchant]
 
-# Evaluate detector metrics against ground truth
+# -----------------------------------------------------------------------------
+# Evaluate Detector Metrics Against Ground Truth (Cached 300s)
+# -----------------------------------------------------------------------------
+db_path = os.path.join(ROOT_DIR, "data", "generated", "paylens.duckdb")
 gt_path = os.path.join(ROOT_DIR, "data", "generated", "ground_truth.json")
+
 try:
-    eval_results = evaluate_recommendations(all_cards, gt_path)
+    eval_results = cached_evaluate_detectors(db_path, gt_path)
     std_split = eval_results.get("standard_split", {})
     stress_split = eval_results.get("stress_test_split", {})
     eval_f1 = stress_split.get("f1_score")
-    eval_f1_disp = f"{eval_f1:.2f} F1" if eval_f1 is not None else "N/A"
+    eval_f1_disp = f"{eval_f1:.3f} F1" if eval_f1 is not None else "N/A"
     stress_cm = stress_split.get("confusion_matrix", {})
     tp_cnt = stress_cm.get("true_positives")
     fp_cnt = stress_cm.get("false_positives")
@@ -424,59 +536,34 @@ stockout_cards_store = [
 stockout_risk_store = sum(c.impact_usd for c in stockout_cards_store)
 
 # -----------------------------------------------------------------------------
-# Dynamic Truthful Runtime Header
-# -----------------------------------------------------------------------------
-st.subheader("PayLens // Multi-Rail Revenue Reconciliation Deal Desk")
-
-hdr_col1, hdr_col2, hdr_col3 = st.columns([1.5, 1.5, 1.0])
-with hdr_col1:
-    if amd_live:
-        st.info(f"⚡ **AMD Radeon Cloud TokenFactory (Live API)**\nModel: `{amd_model}` · Latency: `{amd_lat:.0f} ms`")
-    else:
-        st.warning(f"⚠️ AMD TokenFactory Offline (`{amd_url}`)")
-
-with hdr_col2:
-    if gemma_live:
-        st.info(f"💎 **Google AI Studio Gemma 4 (Live REST API)**\nModel: `{gemma_model}` · Latency: `{gemma_lat:.0f} ms`")
-    else:
-        st.warning("⚠️ Google Gemma 4 REST Offline")
-
-with hdr_col3:
-    approved_total = sum(v.get("amount", 0.0) for v in st.session_state.approved_actions.values())
-    st.success(
-        f"✅ **Approved Recovery Actions (Simulated)**\n"
-        f"`${approved_total:,.2f}` ({len(st.session_state.approved_actions)} simulated approved)\n\n"
-        f"Simulated Session Log (No External Funds Settled)"
-    )
-
-st.divider()
-
-# -----------------------------------------------------------------------------
-# 4 Clear KPI Metric Cards (Strict Financial Separation)
+# 4 Clean Institutional KPI Cards (delta_color="off" — No Green Up Arrows on Risk)
 # -----------------------------------------------------------------------------
 kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
 
 with kpi_col1:
     st.metric(
-        label="1. Confirmed Cash Discrepancies ($)",
+        label="CONFIRMED CASH DISCREPANCIES",
         value=f"${confirmed_cash_store:,.2f}",
         delta=f"${confirmed_cash_all:,.2f} across 20 stores",
+        delta_color="off",
         help="Hard ledger mismatches: Unsettled dispatched orders and carrier COD remittance shortfalls",
     )
 
 with kpi_col2:
     st.metric(
-        label="2. Est. Checkout Recovery ($)",
+        label="EST. CHECKOUT RECOVERY",
         value=f"${est_checkout_store:,.2f}",
         delta=f"Based on r={recovery_rate_input*100:.0f}% assumption",
+        delta_color="off",
         help="Abandoned carts multiplied by assumed recovery rate",
     )
 
 with kpi_col3:
     st.metric(
-        label="3. Forecasted 7d Stockout Risk ($)",
+        label="7-DAY STOCKOUT EXPOSURE",
         value=f"${stockout_risk_store:,.2f}",
         delta=f"{len(stockout_cards_store)} SKUs below lead-time cover",
+        delta_color="off",
         help="Holt-Winters forecasted sales margin at risk before replenishment arrives",
     )
 
@@ -487,50 +574,63 @@ with kpi_col4:
         else "N/A"
     )
     st.metric(
-        label="4. Detector F1 (Stress-Test Split)",
+        label="DETECTOR F1 (STRESS-TEST)",
         value=eval_f1_disp,
         delta=cm_delta,
+        delta_color="off",
         help="Stress-test evaluation on synthetic baseline plus 6 hard edge cases (delayed settlements, partial payments, duplicates)",
     )
 
 # -----------------------------------------------------------------------------
-# Main Navigation Tabs
+# Main Navigation Tabs (Clean Institutional Names, Zero Emojis)
 # -----------------------------------------------------------------------------
 tab1, tab2 = st.tabs([
-    "🎯 1. Revenue Reconciliation & Deal Desk",
-    "⚡ 2. Live AMD Benchmark, Confusion Matrix & Raw Data",
+    "Revenue Reconciliation & Deal Desk",
+    "Live Benchmark & Confusion Matrix",
 ])
 
 # =============================================================================
-# TAB 1: REVENUE RECONCILIATION & DEAL DESK (MASTER-DETAIL WORKSPACE)
+# TAB 1: REVENUE RECONCILIATION & DEAL DESK (FAST FRAGMENT WORKSPACE)
 # =============================================================================
-with tab1:
-    # Filter using segmented control defaulting to Flagship Confirmed Cash Discrepancies
+@st.fragment
+def render_deal_desk_workspace(
+    cards_for_store: List[RecommendationCard],
+    all_recommendation_cards: List[RecommendationCard],
+    goal_label: str,
+    active_engine: str,
+):
+    """Encapsulates the deal desk interactive workspace inside a fast Streamlit fragment (<50ms per click)."""
+    # Filter pills without emojis
     queue_filter = st.segmented_control(
         "Queue Filter:",
         options=[
-            "🔥 Flagship: Confirmed Cash Discrepancies",
-            "📦 Supporting: Recovery & Stockouts",
-            "🌐 All Ranked Recommendations",
+            "Confirmed Cash Discrepancies",
+            "Checkout & Stockout Exposure",
+            "All Ranked Items",
         ],
-        default="🔥 Flagship: Confirmed Cash Discrepancies",
+        default="Confirmed Cash Discrepancies",
         label_visibility="collapsed",
-    ) or "🔥 Flagship: Confirmed Cash Discrepancies"
+        key="deal_desk_queue_filter",
+    ) or "Confirmed Cash Discrepancies"
 
-    if "Flagship" in queue_filter:
-        display_cards = [c for c in store_cards if c.rec_type == RecommendationType.PAYMENT_LEAKAGE]
-    elif "Supporting" in queue_filter:
-        display_cards = [c for c in store_cards if c.rec_type != RecommendationType.PAYMENT_LEAKAGE]
+    if queue_filter == "Confirmed Cash Discrepancies":
+        display_cards = [c for c in cards_for_store if c.rec_type == RecommendationType.PAYMENT_LEAKAGE]
+    elif queue_filter == "Checkout & Stockout Exposure":
+        display_cards = [c for c in cards_for_store if c.rec_type != RecommendationType.PAYMENT_LEAKAGE]
     else:
-        display_cards = store_cards
+        display_cards = cards_for_store
 
     if not display_cards:
         st.info(f"No recommendation cards matching current filter for storefront {selected_merchant}.")
-        if store_cards:
-            display_cards = store_cards
+        if cards_for_store:
+            display_cards = cards_for_store
 
-    # Default selected card
-    if st.session_state.selected_card_id is None or not any(c.card_id == st.session_state.selected_card_id for c in display_cards):
+    # Synchronization: When filter changes or on initial load, auto-select card #1
+    if queue_filter != st.session_state.last_queue_filter:
+        st.session_state.last_queue_filter = queue_filter
+        if display_cards:
+            st.session_state.selected_card_id = display_cards[0].card_id
+    elif st.session_state.selected_card_id is None or not any(c.card_id == st.session_state.selected_card_id for c in display_cards):
         if display_cards:
             st.session_state.selected_card_id = display_cards[0].card_id
 
@@ -540,7 +640,7 @@ with tab1:
     # LEFT COLUMN: Compact Priority Queue
     with left_col:
         st.markdown(f"### Priority Action Queue ({len(display_cards)} Items)")
-        st.caption(f"Ranked by impact, confidence, and objective: '{current_goal_text}'")
+        st.caption(f"Ranked by impact, confidence, and objective: '{goal_label}'")
 
         for idx, card in enumerate(display_cards, start=1):
             is_selected = (card.card_id == st.session_state.selected_card_id)
@@ -551,8 +651,11 @@ with tab1:
                 # Header row
                 c_head1, c_head2 = st.columns([2.0, 1.0])
                 with c_head1:
-                    type_icon = "🚨" if card.rec_type == RecommendationType.PAYMENT_LEAKAGE else ("🛒" if card.rec_type == RecommendationType.FAILED_PAYMENT_RECOVERY else "📦")
-                    st.markdown(f"**#{idx} · {type_icon} {card.entity_id}**")
+                    type_label = (
+                        "LEAKAGE" if card.rec_type == RecommendationType.PAYMENT_LEAKAGE
+                        else ("RECOVERY" if card.rec_type == RecommendationType.FAILED_PAYMENT_RECOVERY else "STOCKOUT")
+                    )
+                    st.markdown(f"**#{idx} · `{card.entity_id}`** <span style='font-size:0.70rem; color:#94A3B8;'>[{type_label}]</span>", unsafe_allow_html=True)
                     st.caption(card.title)
                 with c_head2:
                     st.markdown(f"### `${card.impact_usd:,.2f}`")
@@ -561,36 +664,45 @@ with tab1:
                 c_stat1, c_stat2 = st.columns([1.2, 1.0])
                 with c_stat1:
                     if is_approved:
-                        st.caption("✅ Simulated Action Logged")
+                        st.caption("Simulated Action Logged")
                     elif is_rejected:
-                        st.caption("❌ Rejected / False Positive")
+                        st.caption("Rejected / False Positive")
                     else:
                         st.caption(f"Score: `{card.ranking_score:.2f}` · Conf: `{card.confidence:.2f}`")
                 with c_stat2:
-                    btn_label = "Active 👁️" if is_selected else "Inspect →"
+                    btn_label = "Active" if is_selected else "Inspect"
                     if st.button(btn_label, key=f"btn_select_{card.card_id}", width="stretch", disabled=is_selected):
                         st.session_state.selected_card_id = card.card_id
-                        st.rerun()
+                        st.rerun(scope="fragment")
 
     # RIGHT COLUMN: Deal Desk Inspector
     with right_col:
-        selected_card = next((c for c in all_cards if c.card_id == st.session_state.selected_card_id), None)
+        selected_card = next((c for c in all_recommendation_cards if c.card_id == st.session_state.selected_card_id), None)
         if selected_card is None and display_cards:
             selected_card = display_cards[0]
 
         if selected_card:
             st.markdown(f"### Deal Desk Inspector: {selected_card.title}")
 
-            # Top Card Details Row
-            dt_col1, dt_col2, dt_col3, dt_col4 = st.columns(4)
-            with dt_col1:
-                st.metric("Entity ID", selected_card.entity_id)
-            with dt_col2:
-                st.metric("Impact", f"${selected_card.impact_usd:,.2f}")
-            with dt_col3:
-                st.metric("Confidence", f"{selected_card.confidence:.2f}")
-            with dt_col4:
-                st.metric("Ranking Score", f"{selected_card.ranking_score:.2f}")
+            # Top Metadata Strip (Institutional Container without Truncation)
+            with st.container(border=True):
+                m_col1, m_col2, m_col3, m_col4 = st.columns([1.3, 1.1, 0.8, 0.8])
+                with m_col1:
+                    st.caption("ENTITY ID")
+                    st.markdown(f"**`{selected_card.entity_id}`**")
+                with m_col2:
+                    st.caption("CATEGORY / IMPACT")
+                    cat_name = (
+                        "Cash Discrepancy" if selected_card.rec_type == RecommendationType.PAYMENT_LEAKAGE
+                        else ("Checkout Recovery" if selected_card.rec_type == RecommendationType.FAILED_PAYMENT_RECOVERY else "Stockout Risk")
+                    )
+                    st.markdown(f"**${selected_card.impact_usd:,.2f}** &middot; <span style='font-size:0.75rem; color:#94A3B8;'>{cat_name}</span>", unsafe_allow_html=True)
+                with m_col3:
+                    st.caption("CONFIDENCE")
+                    st.markdown(f"**`{selected_card.confidence:.2f}`**")
+                with m_col4:
+                    st.caption("RANKING SCORE")
+                    st.markdown(f"**`{selected_card.ranking_score:.2f}`**")
 
             # 1. Deterministic Calculation Formula Banner
             with st.container(border=True):
@@ -601,7 +713,10 @@ with tab1:
             # 2. Visual Financial Evidence Chart
             st.markdown(f"**Visual Evidence Breakdown for `{selected_card.entity_id}`:**")
             if selected_card.rec_type == RecommendationType.STOCKOUT_RISK:
-                chart_fig = build_stockout_forecast_chart(os.path.join(ROOT_DIR, "data", "generated", "paylens.duckdb"), selected_card.entity_id)
+                chart_fig = build_stockout_forecast_chart(
+                    os.path.join(ROOT_DIR, "data", "generated", "paylens.duckdb"),
+                    selected_card.entity_id,
+                )
                 if chart_fig:
                     st.plotly_chart(chart_fig, width="stretch")
                 else:
@@ -641,32 +756,32 @@ with tab1:
                         "Supplier Expedited PO",
                     ],
                     default="Polite Payment Reminder",
+                    key=f"tone_choice_{selected_card.card_id}",
                 ) or "Polite Payment Reminder"
 
                 gen_col1, gen_col2 = st.columns([1.5, 1.0])
                 with gen_col1:
-                    run_ai_btn = st.button("✨ Run Live AI Explanation & Action Draft", type="primary", width="stretch")
+                    run_ai_btn = st.button("Run Live AI Explanation & Action Draft", type="primary", width="stretch", key=f"run_ai_{selected_card.card_id}")
                 with gen_col2:
-                    test_hallucination_btn = st.button("🛡️ Test Red-Team Hallucination ($9,999.00)", width="stretch")
+                    test_hallucination_btn = st.button("Test Red-Team Hallucination ($9,999.00)", width="stretch", key=f"test_halluc_{selected_card.card_id}")
 
                 # Check if card has already been enriched in session state
-                card_key = f"{selected_card.card_id}_{tone_choice}_{engine_choice}"
+                card_key = f"{selected_card.card_id}_{tone_choice}_{active_engine}"
                 if run_ai_btn or card_key not in st.session_state.live_enriched_cards:
                     if run_ai_btn:
                         with st.spinner("Calling live reasoning endpoint..."):
                             enriched = enrich_card_with_agent(
                                 selected_card.model_copy(),
                                 tone=tone_choice,
-                                engine_choice=engine_choice,
+                                engine_choice=active_engine,
                                 force_live=True,
                             )
                             st.session_state.live_enriched_cards[card_key] = enriched
                     elif card_key not in st.session_state.live_enriched_cards:
-                        # Auto-enrich on first view
                         enriched = enrich_card_with_agent(
                             selected_card.model_copy(),
                             tone=tone_choice,
-                            engine_choice=engine_choice,
+                            engine_choice=active_engine,
                             force_live=False,
                         )
                         st.session_state.live_enriched_cards[card_key] = enriched
@@ -677,7 +792,7 @@ with tab1:
                 if test_hallucination_btn:
                     fake_draft = f"Please remit the unverified balance of $9,999.00 immediately to account #4421."
                     passed, ungrounded = verify_numeric_grounding(fake_draft, selected_card.allowed_numbers + [selected_card.impact_usd])
-                    st.error(f"🚨 Hallucination Detected! Fabricated token `{ungrounded}` is not in verified evidence numbers {selected_card.allowed_numbers}.")
+                    st.error(f"Hallucination Detected! Fabricated token `{ungrounded}` is not in verified evidence numbers {selected_card.allowed_numbers}.")
                     st.warning("Guardrail activated: Blocked ungrounded output and restored deterministic fallback template.")
 
                 # Provenance Telemetry Banner
@@ -694,7 +809,7 @@ with tab1:
 
                 # Grounding Verification Notice
                 st.caption(
-                    "🛡️ **Numeric Claim Validation Result:** Validates extracted numbers against permitted DuckDB evidence values; does not certify non-numeric prose claims."
+                    "**Numeric Claim Validation Result:** Validates extracted numbers against permitted DuckDB evidence values; does not certify non-numeric prose claims."
                 )
 
                 st.markdown("**Explanation:**")
@@ -710,7 +825,7 @@ with tab1:
 
                 # Grounding Trace Table (Itemized verification)
                 if active_enriched.grounding_trace:
-                    with st.expander("🔍 View Numeric Grounding Trace Table", expanded=False):
+                    with st.expander("View Numeric Grounding Trace Table", expanded=False):
                         st.dataframe(pd.DataFrame(active_enriched.grounding_trace), width="stretch", hide_index=True)
 
             # 5. Human-Reviewed Simulated Action Execution
@@ -720,7 +835,7 @@ with tab1:
                 act_col1, act_col2 = st.columns(2)
 
                 with act_col1:
-                    if st.button("✅ Approve Simulated Action", key=f"appr_{selected_card.card_id}", width="stretch", type="primary"):
+                    if st.button("Approve Simulated Action", key=f"appr_{selected_card.card_id}", width="stretch", type="primary"):
                         receipt_id = hashlib.sha256(f"{selected_card.card_id}_{time.time()}".encode()).hexdigest()[:16]
                         st.session_state.approved_actions[selected_card.card_id] = {
                             "amount": selected_card.impact_usd,
@@ -729,16 +844,20 @@ with tab1:
                             "entity": selected_card.entity_id,
                         }
                         st.success(f"Action approved! Simulated Action Log ID: `{receipt_id}`")
-                        st.rerun()
+                        st.rerun(scope="fragment")
 
                 with act_col2:
-                    if st.button("❌ Reject / Flag False Positive", key=f"rej_{selected_card.card_id}", width="stretch"):
+                    if st.button("Reject / Flag False Positive", key=f"rej_{selected_card.card_id}", width="stretch"):
                         st.session_state.rejected_actions[selected_card.card_id] = {
                             "timestamp": datetime.now().isoformat(),
                             "entity": selected_card.entity_id,
                         }
                         st.warning("Card flagged as False Positive and excluded from active recovery queue.")
-                        st.rerun()
+                        st.rerun(scope="fragment")
+
+
+with tab1:
+    render_deal_desk_workspace(store_cards, all_cards, current_goal_text, engine_choice)
 
 # =============================================================================
 # TAB 2: LIVE AMD BENCHMARK, CONFUSION MATRIX & RAW DATA
@@ -748,10 +867,10 @@ with tab2:
 
     # Section 1: Live AMD Radeon Cloud TokenFactory Concurrency Benchmark
     with st.container(border=True):
-        st.markdown("#### 1. Live AMD Radeon Cloud TokenFactory Concurrency Benchmark")
+        st.markdown("#### Live AMD Radeon Cloud TokenFactory Concurrency Benchmark")
         st.caption("Executes real concurrent async requests against `https://developer.amd.com.cn/radeon/api/v1` measuring real TTFT (ms), End-to-End Latency (ms), and Tokens/sec.")
 
-        bench_btn = st.button("🚀 Run Live AMD TokenFactory Concurrency Benchmark", type="primary")
+        bench_btn = st.button("Run Live AMD TokenFactory Concurrency Benchmark", type="primary")
 
         # Load existing benchmark results from benchmark_results.json
         bench_file = os.path.join(ROOT_DIR, "benchmarks", "benchmark_results.json")
@@ -809,14 +928,15 @@ with tab2:
                         label=f"Concurrency = {t['concurrency']}",
                         value=f"{t.get('tokens_per_sec', 0):.1f} tok/s" if t.get("tokens_per_sec") is not None else "N/A",
                         delta=f"TTFT: {t.get('mean_ttft_ms', 0):.0f} ms · Lat: {t.get('mean_latency_ms', 0):.0f} ms" if t.get("mean_ttft_ms") is not None else "N/A",
+                        delta_color="off",
                     )
                     fp_str = f"{fp_rate:.0f}%" if fp_rate is not None else "N/A"
                     pr_str = f"{pr_rate:.0f}%" if pr_rate is not None else "N/A"
                     fb_str = f"{fb_rate:.0f}%" if fb_rate is not None else "N/A"
                     st.caption(
                         f"Reqs: **{completed}/{attempted}** ({failed} failed)<br>"
-                        f"🎯 1st Pass: **{fp_str}** · "
-                        f"Retry: **{pr_str}** · "
+                        f"1st Pass: **{fp_str}** &middot; "
+                        f"Retry: **{pr_str}** &middot; "
                         f"Fallback: **{fb_str}**",
                         unsafe_allow_html=True,
                     )
@@ -858,25 +978,25 @@ with tab2:
             g_fb = google_data.get("deterministic_fallback_rate", google_data.get("deterministic_template_fallback_rate"))
             g_lat = google_data.get("mean_latency_ms")
 
-            st.markdown("##### 💎 Google AI Studio Gemma 4 REST Benchmark")
+            st.markdown("##### Google AI Studio Gemma 4 REST Benchmark")
             g_col1, g_col2, g_col3 = st.columns(3)
             with g_col1:
-                st.metric("Model Served", google_data.get("model", "gemma-4-26b-a4b-it"))
+                st.metric("Model Served", google_data.get("model", "gemma-4-26b-a4b-it"), delta_color="off")
             with g_col2:
-                st.metric("Mean Latency", f"{g_lat:.0f} ms" if g_lat is not None else "N/A")
+                st.metric("Mean Latency", f"{g_lat:.0f} ms" if g_lat is not None else "N/A", delta_color="off")
             with g_col3:
                 fp_disp = f"{g_fp:.0f}%" if g_fp is not None else "N/A (Not Measured / Failed)"
-                st.metric("Model Grounding", fp_disp)
+                st.metric("Model Grounding", fp_disp, delta_color="off")
             st.caption(
-                f"Requests: **{g_comp}/{g_att}** completed ({g_fail} failed) · "
-                f"1st Pass: **{f'{g_fp:.0f}%' if g_fp is not None else 'N/A'}** · "
-                f"Retry: **{f'{g_pr:.0f}%' if g_pr is not None else 'N/A'}** · "
+                f"Requests: **{g_comp}/{g_att}** completed ({g_fail} failed) &middot; "
+                f"1st Pass: **{f'{g_fp:.0f}%' if g_fp is not None else 'N/A'}** &middot; "
+                f"Retry: **{f'{g_pr:.0f}%' if g_pr is not None else 'N/A'}** &middot; "
                 f"Fallback: **{f'{g_fb:.0f}%' if g_fb is not None else 'N/A'}**"
             )
 
     # Section 2: Realistic Stress-Test Confusion Matrix
     with st.container(border=True):
-        st.markdown("#### 2. Realistic Stress-Test Confusion Matrix (Non-1.00 Ground Truth)")
+        st.markdown("#### Realistic Stress-Test Confusion Matrix (Non-1.00 Ground Truth)")
         st.caption("Evaluates detector against both clean baseline data AND 6 hard stress-test edge cases.")
         st.markdown(":badge[Synthetic Stress-Test Split (Includes Noise & Timing Jitter — Not Live Merchant Data)]")
 
@@ -919,7 +1039,7 @@ with tab2:
 
     # Section 3: DuckDB Raw Tables Explorer
     with st.container(border=True):
-        st.markdown("#### 3. DuckDB Raw Database Explorer")
+        st.markdown("#### DuckDB Raw Database Explorer")
         duck_table = st.selectbox("Select Table to Inspect", ["orders", "rail_payments", "courier_settlements", "inventory_daily"])
         con = duckdb.connect(os.path.join(ROOT_DIR, "data", "generated", "paylens.duckdb"), read_only=True)
         try:
