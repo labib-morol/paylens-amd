@@ -418,5 +418,61 @@
       "impact_usd": 9266.0,
       "is_hero": false
     }
+  ],
+  "stress_test_edge_cases": [
+    {
+      "order_id": "ORD-STRESS-DELAY-1",
+      "merchant_id": "MERCH_01",
+      "case_type": "DELAYED_48H_SETTLEMENT",
+      "expected_classification": "FALSE_POSITIVE",
+      "is_actual_leak": false,
+      "amount_usd": 850.0,
+      "explanation": "Legitimate SEPA Wire settled 48h after order dispatch, exceeding the 30-minute fuzzy matching window"
+    },
+    {
+      "order_id": "ORD-STRESS-DELAY-2",
+      "merchant_id": "MERCH_02",
+      "case_type": "DELAYED_48H_SETTLEMENT",
+      "expected_classification": "FALSE_POSITIVE",
+      "is_actual_leak": false,
+      "amount_usd": 1255.0,
+      "explanation": "Legitimate SEPA Wire settled 48h after order dispatch, exceeding the 30-minute fuzzy matching window"
+    },
+    {
+      "order_id": "ORD-STRESS-PARTIAL-1",
+      "merchant_id": "MERCH_03",
+      "case_type": "PARTIAL_SPLIT_PAYMENT",
+      "expected_classification": "TRUE_POSITIVE",
+      "is_actual_leak": true,
+      "amount_usd": 500.0,
+      "explanation": "Customer split payment ($300.0 wallet + $200.0 wire); single-transaction matching cannot reconcile multi-leg split payments"
+    },
+    {
+      "order_id": "ORD-STRESS-PARTIAL-2",
+      "merchant_id": "MERCH_04",
+      "case_type": "PARTIAL_SPLIT_PAYMENT",
+      "expected_classification": "TRUE_POSITIVE",
+      "is_actual_leak": true,
+      "amount_usd": 650.0,
+      "explanation": "Customer split payment ($390.0 wallet + $260.0 wire); single-transaction matching cannot reconcile multi-leg split payments"
+    },
+    {
+      "order_id": "ORD-STRESS-DUP-2",
+      "merchant_id": "MERCH_05",
+      "case_type": "AMBIGUOUS_DUPLICATE_ORDER",
+      "expected_classification": "TRUE_POSITIVE",
+      "is_actual_leak": true,
+      "amount_usd": 320.0,
+      "explanation": "Duplicate order placed 18m apart with identical phone and amount; only first order paid, second dispatched without payment"
+    },
+    {
+      "order_id": "ORD-STRESS-DUP-4",
+      "merchant_id": "MERCH_06",
+      "case_type": "AMBIGUOUS_DUPLICATE_ORDER",
+      "expected_classification": "TRUE_POSITIVE",
+      "is_actual_leak": true,
+      "amount_usd": 320.0,
+      "explanation": "Duplicate order placed 18m apart with identical phone and amount; only first order paid, second dispatched without payment"
+    }
   ]
 }

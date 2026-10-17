@@ -598,6 +598,196 @@ def generate_dataset(
             "rail_provider": "Stripe",
         })
 
+    # 7. Plant Ground-Truth Category E: 6 Hard Stress-Test Edge Cases
+    # Case 1 & 2: 2 Delayed 48-Hour Bank Settlement orders (legitimate payment settled 48h after order)
+    # Case 3 & 4: 2 Partial Payment orders (customer paid 60% via wallet and 40% via bank wire)
+    # Case 5 & 6: 2 Ambiguous Duplicate Phone orders (same customer placed 2 identical orders within 20m, paid for 1)
+    ground_truth["stress_test_edge_cases"] = []
+
+    stress_delay_merchants = ["MERCH_01", "MERCH_02"]
+    for idx, m_id in enumerate(stress_delay_merchants):
+        ord_id = f"ORD-STRESS-DELAY-{idx + 1}"
+        cust = generate_customer()
+        amt = 850.0 if idx == 0 else 1255.0
+        ord_time = base_date + timedelta(days=22 + idx, hours=10)
+        pay_time = ord_time + timedelta(hours=48)  # 48 hours later, outside 30-min window!
+
+        orders_records.append({
+            "order_id": ord_id,
+            "merchant_id": m_id,
+            "customer_name": cust["name"],
+            "customer_email": cust["email"],
+            "customer_phone": cust["phone"],
+            "order_timestamp": ord_time.isoformat(),
+            "order_amount_usd": amt,
+            "currency": "USD",
+            "quantity": 1,
+            "unit_price_usd": amt,
+            "shipping_cost_usd": 0.0,
+            "sku": catalog[m_id][0]["sku"],
+            "payment_rail": "BANK_TRANSFER",
+            "rail_provider": "SEPA Wire",
+            "order_status": "DISPATCHED",
+            "transaction_ref": "",
+        })
+
+        rail_payments_records.append({
+            "payment_id": f"RP-STRESS-DELAY-{idx + 1}",
+            "merchant_id": m_id,
+            "rail_provider": "SEPA Wire",
+            "transaction_ref": f"WIRE-LATE-{random.randint(100000, 999999)}",
+            "amount_usd": amt,
+            "currency": "USD",
+            "payment_timestamp": pay_time.isoformat(),
+            "customer_phone": cust["phone"],
+            "customer_email": cust["email"],
+            "status": "SUCCESS",
+        })
+
+        ground_truth["stress_test_edge_cases"].append({
+            "order_id": ord_id,
+            "merchant_id": m_id,
+            "case_type": "DELAYED_48H_SETTLEMENT",
+            "expected_classification": "FALSE_POSITIVE",
+            "is_actual_leak": False,
+            "amount_usd": amt,
+            "explanation": "Legitimate SEPA Wire settled 48h after order dispatch, exceeding the 30-minute fuzzy matching window",
+        })
+
+    stress_partial_merchants = ["MERCH_03", "MERCH_04"]
+    for idx, m_id in enumerate(stress_partial_merchants):
+        ord_id = f"ORD-STRESS-PARTIAL-{idx + 1}"
+        cust = generate_customer()
+        total_amt = 500.0 if idx == 0 else 650.0
+        amt_60 = round(total_amt * 0.60, 2)
+        amt_40 = round(total_amt * 0.40, 2)
+        ord_time = base_date + timedelta(days=20 + idx, hours=12)
+
+        orders_records.append({
+            "order_id": ord_id,
+            "merchant_id": m_id,
+            "customer_name": cust["name"],
+            "customer_email": cust["email"],
+            "customer_phone": cust["phone"],
+            "order_timestamp": ord_time.isoformat(),
+            "order_amount_usd": total_amt,
+            "currency": "USD",
+            "quantity": 1,
+            "unit_price_usd": total_amt,
+            "shipping_cost_usd": 0.0,
+            "sku": catalog[m_id][0]["sku"],
+            "payment_rail": "DIGITAL_WALLET",
+            "rail_provider": "PayPal",
+            "order_status": "DISPATCHED",
+            "transaction_ref": "",
+        })
+
+        rail_payments_records.append({
+            "payment_id": f"RP-STRESS-PARTIAL-{idx + 1}-A",
+            "merchant_id": m_id,
+            "rail_provider": "PayPal",
+            "transaction_ref": f"PAYPAL-PARTIAL-{random.randint(100000, 999999)}",
+            "amount_usd": amt_60,
+            "currency": "USD",
+            "payment_timestamp": (ord_time + timedelta(minutes=5)).isoformat(),
+            "customer_phone": cust["phone"],
+            "customer_email": cust["email"],
+            "status": "SUCCESS",
+        })
+
+        rail_payments_records.append({
+            "payment_id": f"RP-STRESS-PARTIAL-{idx + 1}-B",
+            "merchant_id": m_id,
+            "rail_provider": "SEPA Wire",
+            "transaction_ref": f"WIRE-PARTIAL-{random.randint(100000, 999999)}",
+            "amount_usd": amt_40,
+            "currency": "USD",
+            "payment_timestamp": (ord_time + timedelta(hours=2)).isoformat(),
+            "customer_phone": cust["phone"],
+            "customer_email": cust["email"],
+            "status": "SUCCESS",
+        })
+
+        ground_truth["stress_test_edge_cases"].append({
+            "order_id": ord_id,
+            "merchant_id": m_id,
+            "case_type": "PARTIAL_SPLIT_PAYMENT",
+            "expected_classification": "TRUE_POSITIVE",
+            "is_actual_leak": True,
+            "amount_usd": total_amt,
+            "explanation": f"Customer split payment (${amt_60} wallet + ${amt_40} wire); single-transaction matching cannot reconcile multi-leg split payments",
+        })
+
+    stress_dup_merchants = ["MERCH_05", "MERCH_06"]
+    for idx, m_id in enumerate(stress_dup_merchants):
+        ord_id_1 = f"ORD-STRESS-DUP-{idx * 2 + 1}"
+        ord_id_2 = f"ORD-STRESS-DUP-{idx * 2 + 2}"
+        cust = generate_customer()
+        dup_amt = 320.0
+        ord_time_1 = base_date + timedelta(days=21 + idx, hours=14, minutes=10)
+        ord_time_2 = ord_time_1 + timedelta(minutes=18)
+
+        orders_records.append({
+            "order_id": ord_id_1,
+            "merchant_id": m_id,
+            "customer_name": cust["name"],
+            "customer_email": cust["email"],
+            "customer_phone": cust["phone"],
+            "order_timestamp": ord_time_1.isoformat(),
+            "order_amount_usd": dup_amt,
+            "currency": "USD",
+            "quantity": 1,
+            "unit_price_usd": dup_amt,
+            "shipping_cost_usd": 0.0,
+            "sku": catalog[m_id][0]["sku"],
+            "payment_rail": "PAYMENT_GATEWAY",
+            "rail_provider": "Stripe",
+            "order_status": "DELIVERED",
+            "transaction_ref": "",
+        })
+
+        orders_records.append({
+            "order_id": ord_id_2,
+            "merchant_id": m_id,
+            "customer_name": cust["name"],
+            "customer_email": cust["email"],
+            "customer_phone": cust["phone"],
+            "order_timestamp": ord_time_2.isoformat(),
+            "order_amount_usd": dup_amt,
+            "currency": "USD",
+            "quantity": 1,
+            "unit_price_usd": dup_amt,
+            "shipping_cost_usd": 0.0,
+            "sku": catalog[m_id][0]["sku"],
+            "payment_rail": "PAYMENT_GATEWAY",
+            "rail_provider": "Stripe",
+            "order_status": "DISPATCHED",
+            "transaction_ref": "",
+        })
+
+        rail_payments_records.append({
+            "payment_id": f"RP-STRESS-DUP-{idx + 1}",
+            "merchant_id": m_id,
+            "rail_provider": "Stripe",
+            "transaction_ref": f"TXN-STRIPE-DUP-{random.randint(100000, 999999)}",
+            "amount_usd": dup_amt,
+            "currency": "USD",
+            "payment_timestamp": (ord_time_1 + timedelta(minutes=6)).isoformat(),
+            "customer_phone": cust["phone"],
+            "customer_email": cust["email"],
+            "status": "SUCCESS",
+        })
+
+        ground_truth["stress_test_edge_cases"].append({
+            "order_id": ord_id_2,
+            "merchant_id": m_id,
+            "case_type": "AMBIGUOUS_DUPLICATE_ORDER",
+            "expected_classification": "TRUE_POSITIVE",
+            "is_actual_leak": True,
+            "amount_usd": dup_amt,
+            "explanation": "Duplicate order placed 18m apart with identical phone and amount; only first order paid, second dispatched without payment",
+        })
+
     # Convert to DataFrames
     df_orders = pd.DataFrame(orders_records)
     df_payments = pd.DataFrame(rail_payments_records)

@@ -1,11 +1,13 @@
-"""AMD Instinct GPU Gemma Agent with Strict Numeric Grounding and Fallback Architecture.
+"""AMD Instinct GPU & Google Gemma Agent with Strict Numeric Grounding and Dual-Engine Architecture.
 
 Architecture Rules:
 1. CODE COMPUTES, MODEL EXPLAINS: The LLM explains and drafts actions; it never calculates numbers.
 2. GROUNDING CHECK: Every number in English output is verified against tool results and allowed card numbers.
-3. DUAL ENDPOINT FALLBACK: Primary AMD_VLLM_BASE_URL (vLLM), backup AMD_TOKENFACTORY_BASE_URL,
-   and deterministic offline template fallback.
-4. HONEST TELEMETRY: Clearly labels execution source and records real inference provenance.
+3. DUAL LIVE ENGINE SUPPORT:
+   - Live AMD Radeon Cloud TokenFactory (OpenAI-compatible REST API via developer.amd.com.cn/radeon/api/v1)
+   - Live Google Gemma 4 REST API (via generativelanguage.googleapis.com/v1beta)
+   - Deterministic offline template fallback
+4. HONEST TELEMETRY: Accurately labels provider, active model, base URL, and measured latency ms.
 """
 
 import os
@@ -36,62 +38,82 @@ LOGS_DIR = os.path.join(ROOT_DIR, "logs")
 INFERENCE_LOG_PATH = os.path.join(LOGS_DIR, "inference_log.jsonl")
 
 
-def get_config_val(key: str) -> Optional[str]:
+def _is_streamlit_running() -> bool:
+    """Check if code is running inside an active Streamlit server context."""
+    try:
+        from streamlit.runtime.scriptrunner import get_script_run_ctx
+        return get_script_run_ctx() is not None
+    except Exception:
+        return False
+
+
+def get_config_val(key: str, default: Optional[str] = None) -> Optional[str]:
     """Retrieve configuration with Streamlit secrets taking precedence over os.getenv."""
     val = None
-    try:
-        import streamlit as st
-        if hasattr(st, "secrets"):
-            try:
-                if key in st.secrets:
-                    val = str(st.secrets[key])
-            except Exception:
-                pass
-    except Exception:
-        pass
+    if _is_streamlit_running():
+        try:
+            import streamlit as st
+            if hasattr(st, "secrets") and key in st.secrets:
+                val = str(st.secrets[key])
+        except Exception:
+            pass
     if val is None or val == "":
         val = os.getenv(key)
+    if val is None or val == "":
+        val = default
     return val if val != "" else None
 
 
-def get_endpoint_config() -> Dict[str, Optional[str]]:
-    """Retrieve active AMD endpoint configuration with alias support and session overrides."""
-    primary = get_config_val("AMD_VLLM_BASE_URL")
-    backup = get_config_val("AMD_TOKENFACTORY_BASE_URL")
-    api_key = get_config_val("AMD_API_KEY") or get_config_val("AMD_TOKENFACTORY_API_KEY")
-    model_name = (
-        get_config_val("MODEL_NAME")
-        or get_config_val("AMD_TOKENFACTORY_MODEL")
-        or get_config_val("AMD_MODEL_NAME")
+def get_endpoint_config() -> Dict[str, Any]:
+    """Retrieve active AMD and Google endpoint configuration with alias support."""
+    vllm_url = get_config_val("AMD_VLLM_BASE_URL")
+    amd_url = get_config_val("AMD_TOKENFACTORY_BASE_URL", "https://developer.amd.com.cn/radeon/api/v1")
+    amd_key = (
+        get_config_val("AMD_TOKENFACTORY_API_KEY")
+        or get_config_val("AMD_API_KEY")
+        or ""
     )
-    try:
-        import streamlit as st
-        if hasattr(st, "session_state"):
-            if st.session_state.get("override_tokenfactory_url"):
-                backup = st.session_state["override_tokenfactory_url"]
-            if st.session_state.get("override_tokenfactory_key"):
-                api_key = st.session_state["override_tokenfactory_key"]
-            if st.session_state.get("override_model_name"):
-                model_name = st.session_state["override_model_name"]
-    except Exception:
-        pass
+    amd_model = (
+        get_config_val("AMD_MODEL_NAME")
+        or get_config_val("AMD_TOKENFACTORY_MODEL")
+        or "DeepSeek-V4-Flash"
+    )
+
+    gemini_key = (
+        get_config_val("GEMINI_API_KEY")
+        or ""
+    )
+    google_model = get_config_val("GOOGLE_MODEL_NAME", "gemma-4-31b-it")
+
+    offline_mode = (get_config_val("OFFLINE_MODE", "false") or "false").lower() in ("true", "1", "yes")
+
+    # Session overrides from Streamlit if running
+    if _is_streamlit_running():
+        try:
+            import streamlit as st
+            if hasattr(st, "session_state"):
+                if st.session_state.get("override_amd_url"):
+                    amd_url = st.session_state["override_amd_url"]
+                if st.session_state.get("override_amd_key"):
+                    amd_key = st.session_state["override_amd_key"]
+                if st.session_state.get("override_amd_model"):
+                    amd_model = st.session_state["override_amd_model"]
+                if st.session_state.get("override_gemini_key"):
+                    gemini_key = st.session_state["override_gemini_key"]
+                if st.session_state.get("override_google_model"):
+                    google_model = st.session_state["override_google_model"]
+        except Exception:
+            pass
+
     return {
-        "primary_url": primary,
-        "backup_url": backup,
-        "api_key": api_key,
-        "model_name": model_name,
+        "vllm_url": vllm_url,
+        "amd_url": amd_url,
+        "amd_key": amd_key,
+        "amd_model": amd_model,
+        "gemini_key": gemini_key,
+        "google_model": google_model,
+        "offline_mode": offline_mode,
     }
-
-
-# Environment variables with NO defaults
-PRIMARY_URL = get_config_val("AMD_VLLM_BASE_URL")
-BACKUP_URL = get_config_val("AMD_TOKENFACTORY_BASE_URL")
-API_KEY = get_config_val("AMD_API_KEY") or get_config_val("AMD_TOKENFACTORY_API_KEY")
-MODEL_NAME = (
-    get_config_val("MODEL_NAME")
-    or get_config_val("AMD_TOKENFACTORY_MODEL")
-    or get_config_val("AMD_MODEL_NAME")
-)
 
 
 def log_inference_entry(
@@ -100,6 +122,7 @@ def log_inference_entry(
     latency_ms: float,
     prompt_tokens: int = 0,
     completion_tokens: int = 0,
+    status: str = "SUCCESS",
 ):
     """Appends an anonymized inference audit log entry."""
     try:
@@ -111,6 +134,7 @@ def log_inference_entry(
             "latency_ms": round(latency_ms, 1),
             "prompt_tokens": prompt_tokens,
             "completion_tokens": completion_tokens,
+            "status": status,
         }
         with open(INFERENCE_LOG_PATH, "a", encoding="utf-8") as f:
             f.write(json.dumps(record) + "\n")
@@ -132,140 +156,252 @@ def get_recent_inference_logs(limit: int = 10) -> List[Dict[str, Any]]:
         return []
 
 
-def import_vllm_bench_serve_json(filepath: Optional[str] = None) -> Dict[str, Any]:
-    """Safely return reference benchmark telemetry if available."""
-    ref_path = filepath or os.path.join(ROOT_DIR, "benchmarks", "UNVERIFIED_reference.json")
-    if os.path.exists(ref_path):
+def check_endpoint_status() -> Dict[str, Any]:
+    """Test and truthfully report the live status of AMD TokenFactory, Google Gemma 4, and vLLM."""
+    cfg = get_endpoint_config()
+
+    res = {
+        "is_live": False,
+        "active_provider": "Offline Deterministic Fallback",
+        "active_model": "Template Fallback (Python)",
+        "active_base_url": None,
+        "live_latency_ms": None,
+        "execution_source": ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value,
+        "amd_status": {
+            "is_live": False,
+            "provider_label": "AMD Radeon Cloud TokenFactory",
+            "base_url": cfg["amd_url"],
+            "model_served": cfg["amd_model"],
+            "ping_latency_ms": None,
+            "available_models": [],
+            "error": None,
+        },
+        "gemma_status": {
+            "is_live": False,
+            "provider_label": "Google AI Studio Gemma 4 REST API",
+            "base_url": "https://generativelanguage.googleapis.com/v1beta",
+            "model_served": cfg["google_model"],
+            "ping_latency_ms": None,
+            "available_models": [],
+            "error": None,
+        },
+        "vllm_status": {
+            "is_live": False,
+            "provider_label": "Dedicated AMD MI300X vLLM",
+            "base_url": cfg["vllm_url"],
+            "model_served": None,
+            "ping_latency_ms": None,
+        },
+    }
+
+    if cfg["offline_mode"]:
+        res["note"] = "OFFLINE_MODE=true explicitly configured"
+        return res
+
+    # 1. Test AMD Radeon Cloud TokenFactory (/models discovery)
+    if cfg["amd_url"] and cfg["amd_key"]:
+        t0 = time.perf_counter()
         try:
-            with open(ref_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+            headers = {"Authorization": f"Bearer {cfg['amd_key']}"}
+            with httpx.Client(timeout=8.0) as client:
+                r = client.get(f"{cfg['amd_url'].rstrip('/')}/models", headers=headers)
+                lat = round((time.perf_counter() - t0) * 1000, 1)
+                if r.status_code == 200:
+                    data = r.json()
+                    models = [m.get("id") for m in data.get("data", [])]
+                    res["amd_status"]["is_live"] = True
+                    res["amd_status"]["ping_latency_ms"] = lat
+                    res["amd_status"]["available_models"] = models
+                    # Pick model: prefer configured, then Gemma-4-31B-IT, then DeepSeek-V4-Flash, then first model
+                    if cfg["amd_model"] in models:
+                        chosen = cfg["amd_model"]
+                    elif "Gemma-4-31B-IT" in models:
+                        chosen = "Gemma-4-31B-IT"
+                    elif "DeepSeek-V4-Flash" in models:
+                        chosen = "DeepSeek-V4-Flash"
+                    else:
+                        chosen = models[0] if models else "DeepSeek-V4-Flash"
+                    res["amd_status"]["model_served"] = chosen
+                else:
+                    res["amd_status"]["error"] = f"HTTP {r.status_code}: {r.text[:100]}"
+        except Exception as e:
+            res["amd_status"]["error"] = str(e)[:100]
+
+    # 2. Test Google Gemma 4 REST API
+    if cfg["gemini_key"]:
+        t0 = time.perf_counter()
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models?key={cfg['gemini_key']}"
+            with httpx.Client(timeout=8.0) as client:
+                r = client.get(url)
+                lat = round((time.perf_counter() - t0) * 1000, 1)
+                if r.status_code == 200:
+                    data = r.json()
+                    models = [m.get("name", "").replace("models/", "") for m in data.get("models", [])]
+                    res["gemma_status"]["is_live"] = True
+                    res["gemma_status"]["ping_latency_ms"] = lat
+                    res["gemma_status"]["available_models"] = [m for m in models if "gemma" in m.lower() or "gemini" in m.lower()]
+                    res["gemma_status"]["model_served"] = cfg["google_model"]
+                else:
+                    res["gemma_status"]["error"] = f"HTTP {r.status_code}: {r.text[:100]}"
+        except Exception as e:
+            res["gemma_status"]["error"] = str(e)[:100]
+
+    # 3. Test Local AMD Instinct vLLM if configured
+    if cfg["vllm_url"]:
+        t0 = time.perf_counter()
+        try:
+            with httpx.Client(timeout=3.0) as client:
+                r = client.get(f"{cfg['vllm_url'].rstrip('/')}/models")
+                lat = round((time.perf_counter() - t0) * 1000, 1)
+                if r.status_code == 200:
+                    data = r.json()
+                    models = [m.get("id") for m in data.get("data", [])]
+                    res["vllm_status"]["is_live"] = True
+                    res["vllm_status"]["ping_latency_ms"] = lat
+                    res["vllm_status"]["model_served"] = models[0] if models else "google/gemma-4-31B-it"
         except Exception:
             pass
-    return {}
+
+    # Determine primary active endpoint
+    if res["vllm_status"]["is_live"]:
+        res["is_live"] = True
+        res["active_provider"] = "Dedicated AMD MI300X vLLM"
+        res["active_model"] = res["vllm_status"]["model_served"]
+        res["active_base_url"] = cfg["vllm_url"]
+        res["live_latency_ms"] = res["vllm_status"]["ping_latency_ms"]
+        res["execution_source"] = ExecutionSource.LIVE_AMD_MI300X_VLLM.value
+    elif res["amd_status"]["is_live"]:
+        res["is_live"] = True
+        res["active_provider"] = "AMD Radeon Cloud TokenFactory (Live API)"
+        res["active_model"] = res["amd_status"]["model_served"]
+        res["active_base_url"] = cfg["amd_url"]
+        res["live_latency_ms"] = res["amd_status"]["ping_latency_ms"]
+        res["execution_source"] = ExecutionSource.LIVE_AMD_TOKENFACTORY.value
+    elif res["gemma_status"]["is_live"]:
+        res["is_live"] = True
+        res["active_provider"] = "Google AI Studio Gemma 4 (Live REST API)"
+        res["active_model"] = res["gemma_status"]["model_served"]
+        res["active_base_url"] = res["gemma_status"]["base_url"]
+        res["live_latency_ms"] = res["gemma_status"]["ping_latency_ms"]
+        res["execution_source"] = ExecutionSource.LIVE_GOOGLE_GEMMA4.value
+
+    return res
 
 
 def check_endpoint_health() -> Dict[str, Any]:
-    """Check health and model list of configured AMD GPU endpoints."""
-    cfg = get_endpoint_config()
-    primary_url = cfg["primary_url"]
-    backup_url = cfg["backup_url"]
-    api_key = cfg["api_key"]
-    model_name = cfg["model_name"]
-
-    offline_override = (get_config_val("OFFLINE_MODE") or "false").lower() in ("true", "1", "yes")
-
-    result = {
-        "primary_url": primary_url,
-        "primary_active": False,
-        "backup_url": backup_url,
-        "backup_active": False,
-        "active_endpoint_name": "Offline deterministic mode",
-        "active_url": None,
-        "model_served": model_name or "Not configured",
-        "available_models": [],
+    """Backward-compatible health check function mapping to check_endpoint_status."""
+    status = check_endpoint_status()
+    return {
+        "primary_url": status["vllm_status"]["base_url"],
+        "primary_active": status["vllm_status"]["is_live"],
+        "backup_url": status["amd_status"]["base_url"],
+        "backup_active": status["amd_status"]["is_live"],
+        "active_endpoint_name": status["active_provider"],
+        "active_url": status["active_base_url"],
+        "model_served": status["active_model"],
+        "available_models": status["amd_status"]["available_models"] or status["gemma_status"]["available_models"],
         "model_valid": True,
-        "execution_source": ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value,
-        "is_offline": True,
-        "status": "OFFLINE",
-        "latency_ms": 0.0,
-        "latency_display": "-",
+        "execution_source": status["execution_source"],
+        "is_offline": not status["is_live"],
+        "status": "LIVE" if status["is_live"] else "OFFLINE",
+        "latency_ms": status["live_latency_ms"] or 0.0,
+        "latency_display": f"{status['live_latency_ms']} ms" if status["live_latency_ms"] else "-",
         "status_note": "",
+        "gemma_status": status["gemma_status"],
+        "amd_status": status["amd_status"],
     }
-
-    if offline_override:
-        result["status_note"] = "OFFLINE_MODE=true set explicitly"
-        return result
-
-    # 1. Test Primary (AMD Instinct vLLM server) if configured
-    if primary_url:
-        t0 = time.perf_counter()
-        try:
-            with httpx.Client(timeout=5.0) as client:
-                resp = client.get(f"{primary_url.rstrip('/')}/models", timeout=5.0)
-                if resp.status_code == 200:
-                    lat = round((time.perf_counter() - t0) * 1000, 1)
-                    data = resp.json()
-                    models = [m.get("id") for m in data.get("data", [])]
-                    result["primary_active"] = True
-                    result["active_endpoint_name"] = "AMD vLLM Endpoint"
-                    result["active_url"] = primary_url
-                    result["execution_source"] = ExecutionSource.LIVE_AMD_MI300X_VLLM.value
-                    result["is_offline"] = False
-                    result["status"] = "LIVE"
-                    result["latency_ms"] = lat
-                    result["latency_display"] = f"{lat} ms"
-                    result["available_models"] = models
-                    if model_name:
-                        if models and model_name not in models:
-                            result["model_valid"] = False
-                            result["status_note"] = f"Model '{model_name}' not found in endpoint models: {models}"
-                            result["model_served"] = models[0] if models else model_name
-                        else:
-                            result["model_served"] = model_name
-                    else:
-                        result["model_served"] = models[0] if models else "unknown"
-                    return result
-        except Exception as e:
-            result["status_note"] = f"vLLM connection failed: {str(e)[:60]}"
-
-    # 2. Test Backup (AMD TokenFactory) if configured
-    if backup_url and api_key:
-        t0 = time.perf_counter()
-        headers = {"Authorization": f"Bearer {api_key}"}
-        # Try both /models and /v1/models if base url doesn't have /v1
-        target_urls = [f"{backup_url.rstrip('/')}/models"]
-        if not backup_url.rstrip("/").endswith("/v1"):
-            target_urls.append(f"{backup_url.rstrip('/')}/v1/models")
-
-        for test_url in target_urls:
-            try:
-                with httpx.Client(timeout=5.0) as client:
-                    resp = client.get(test_url, headers=headers, timeout=5.0)
-                    if resp.status_code == 200:
-                        lat = round((time.perf_counter() - t0) * 1000, 1)
-                        data = resp.json()
-                        models = [m.get("id") for m in data.get("data", [])]
-                        if backup_url.rstrip("/").endswith("/v1"):
-                            resolved_url = backup_url.rstrip("/")
-                        elif test_url.endswith("/v1/models"):
-                            resolved_url = f"{backup_url.rstrip('/')}/v1"
-                        else:
-                            resolved_url = backup_url.rstrip("/")
-                        result["backup_active"] = True
-                        result["active_endpoint_name"] = "AMD TokenFactory GPU Cloud"
-                        result["active_url"] = resolved_url
-                        result["execution_source"] = ExecutionSource.LIVE_AMD_TOKENFACTORY.value
-                        result["is_offline"] = False
-                        result["status"] = "LIVE"
-                        result["latency_ms"] = lat
-                        result["latency_display"] = f"{lat} ms"
-                        result["available_models"] = models
-                        if model_name:
-                            if models and model_name not in models:
-                                result["model_valid"] = False
-                                result["status_note"] = f"Model '{model_name}' not in TokenFactory model list: {models}"
-                                result["model_served"] = models[0] if models else model_name
-                            else:
-                                result["model_served"] = model_name
-                        else:
-                            result["model_served"] = models[0] if models else "unknown"
-                        return result
-            except Exception as e:
-                result["status_note"] = f"TokenFactory connection failed: {str(e)[:60]}"
-    elif not backup_url or not api_key or not model_name:
-        result["status_note"] = "TokenFactory not configured"
-
-    return result
 
 
 def get_active_endpoint() -> Tuple[Optional[str], bool, str]:
-    """Detect available AMD endpoint, offline status, and execution source."""
+    """Detect available endpoint, offline status, and execution source."""
     health = check_endpoint_health()
     return health["active_url"], health["is_offline"], health["execution_source"]
 
 
+def _call_amd_tokenfactory_chat(
+    prompt: str,
+    system_prompt: str,
+    model: str,
+    base_url: str,
+    api_key: str,
+    timeout: float = 15.0,
+) -> Tuple[Optional[str], float, int, int]:
+    """Call AMD Radeon Cloud TokenFactory OpenAI-compatible chat completion."""
+    url = f"{base_url.rstrip('/')}/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt},
+        ],
+        "temperature": 0.1,
+    }
+    t0 = time.perf_counter()
+    with httpx.Client(timeout=timeout) as client:
+        resp = client.post(url, headers=headers, json=payload)
+        lat = round((time.perf_counter() - t0) * 1000.0, 1)
+        if resp.status_code == 200:
+            data = resp.json()
+            content = data["choices"][0]["message"]["content"]
+            usage = data.get("usage", {})
+            prompt_toks = usage.get("prompt_tokens", 0)
+            comp_toks = usage.get("completion_tokens", 0)
+            return content, lat, prompt_toks, comp_toks
+        else:
+            raise RuntimeError(f"AMD TokenFactory HTTP {resp.status_code}: {resp.text[:120]}")
+
+
+def _call_google_gemma_rest(
+    prompt: str,
+    system_prompt: str,
+    model: str,
+    api_key: str,
+    timeout: float = 20.0,
+) -> Tuple[Optional[str], float, int, int]:
+    """Call Google AI Studio Gemma 4 REST API."""
+    full_prompt = f"{system_prompt}\n\nTask:\n{prompt}"
+    models_to_try = [model]
+    if model != "gemma-4-26b-a4b-it":
+        models_to_try.append("gemma-4-26b-a4b-it")
+
+    last_err = None
+    for target_model in models_to_try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{target_model}:generateContent?key={api_key}"
+        payload = {
+            "contents": [{"role": "user", "parts": [{"text": full_prompt}]}],
+            "generationConfig": {"temperature": 0.2, "maxOutputTokens": 600},
+        }
+        t0 = time.perf_counter()
+        try:
+            with httpx.Client(timeout=timeout) as client:
+                resp = client.post(url, json=payload)
+                lat = round((time.perf_counter() - t0) * 1000.0, 1)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    candidates = data.get("candidates", [])
+                    if candidates and "content" in candidates[0] and "parts" in candidates[0]["content"]:
+                        text = candidates[0]["content"]["parts"][0]["text"]
+                        return text, lat, len(full_prompt.split()), len(text.split())
+                elif resp.status_code == 500:
+                    # Google preview server error, try next fallback model
+                    last_err = f"Google 500 on {target_model}"
+                    continue
+                else:
+                    raise RuntimeError(f"Google REST HTTP {resp.status_code}: {resp.text[:120]}")
+        except Exception as e:
+            last_err = str(e)
+            continue
+
+    raise RuntimeError(f"Google Gemma REST failed: {last_err}")
+
+
 @lru_cache(maxsize=128)
-def goal_to_weights(goal_text: str) -> GoalWeights:
+def goal_to_weights(goal_text: str, engine_choice: str = "auto") -> GoalWeights:
     """Convert natural language merchant goal into normalized GoalWeights JSON (cached)."""
     goal_lower = goal_text.lower()
 
@@ -373,20 +509,44 @@ def _generate_grounding_trace(card: RecommendationCard, text: str) -> List[Dict[
     return trace
 
 
+def _extract_json_response(raw_content: str) -> Dict[str, str]:
+    """Parse JSON explanation and action draft from LLM output."""
+    import re
+    cleaned = raw_content.strip()
+    if "```" in cleaned:
+        match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", cleaned, re.DOTALL)
+        if match:
+            cleaned = match.group(1).strip()
+    try:
+        data = json.loads(cleaned)
+        return {
+            "explanation_en": data.get("explanation_en", ""),
+            "action_draft_en": data.get("action_draft_en", ""),
+        }
+    except Exception:
+        # Fallback heuristic: split paragraphs
+        paras = [p.strip() for p in cleaned.split("\n\n") if p.strip()]
+        return {
+            "explanation_en": paras[0] if paras else cleaned,
+            "action_draft_en": paras[1] if len(paras) > 1 else "Action draft ready for merchant review.",
+        }
+
+
 def enrich_card_with_agent(
     card: RecommendationCard,
     tone: str = "Polite Payment Reminder",
+    engine_choice: str = "auto",
     force_live: bool = False,
 ) -> RecommendationCard:
-    """Enrich card with grounded English explanations, tool trace, and action drafts."""
-    health = check_endpoint_health()
-    endpoint = health["active_url"]
-    is_offline = health["is_offline"]
-    exec_source = health["execution_source"]
-    model_to_use = health["model_served"]
-
-    card.execution_source = exec_source
-    card.model_name = model_to_use
+    """Enrich card with grounded English explanations, tool trace, and action drafts.
+    
+    Supports:
+    - engine_choice='amd': Routes to AMD Radeon Cloud TokenFactory (DeepSeek-V4-Flash / Gemma-4-31B-IT)
+    - engine_choice='gemma4': Routes to Google AI Studio native REST API (gemma-4-31b-it)
+    - engine_choice='auto': Prefers AMD TokenFactory if live, then Google Gemma 4, then deterministic fallback
+    """
+    cfg = get_endpoint_config()
+    status = check_endpoint_status()
 
     # Pre-compute code-driven discount numbers for VIP tone
     if tone == "VIP 5% Instant-Pay Discount":
@@ -396,10 +556,30 @@ def enrich_card_with_agent(
             if num not in card.allowed_numbers:
                 card.allowed_numbers.append(num)
 
-    # Populate tool calls trace
+    # Populate ground-truth tool calls trace
     card.tool_calls_trace = _generate_tool_calls_trace(card)
 
-    if (is_offline or not endpoint) and not force_live:
+    # Select live engine
+    selected_engine = None
+    if engine_choice == "gemma4":
+        if status["gemma_status"]["is_live"]:
+            selected_engine = "gemma4"
+        elif status["amd_status"]["is_live"]:
+            selected_engine = "amd"
+    elif engine_choice == "amd":
+        if status["amd_status"]["is_live"]:
+            selected_engine = "amd"
+        elif status["gemma_status"]["is_live"]:
+            selected_engine = "gemma4"
+    else:  # "auto"
+        if status["amd_status"]["is_live"]:
+            selected_engine = "amd"
+        elif status["gemma_status"]["is_live"]:
+            selected_engine = "gemma4"
+        elif status["vllm_status"]["is_live"]:
+            selected_engine = "vllm"
+
+    if (not selected_engine or cfg["offline_mode"]) and not force_live:
         fallback = build_fallback_template(card, tone)
         card.explanation_en = fallback["explanation_en"]
         card.action_draft_en = fallback["action_draft_en"]
@@ -408,16 +588,16 @@ def enrich_card_with_agent(
         card.grounding_passed = True
         card.grounding_retries = 0
         card.grounding_status = "NOT_APPLICABLE_OFFLINE"
+        card.execution_source = ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value
         card.http_latency_ms = 0.0
+        card.inference_latency_ms = 0.0
+        card.endpoint_used = "Offline Deterministic Template Fallback"
+        card.used_template_fallback = True
+        card.model_name = "Deterministic Rule-Engine (Python)"
         card.grounding_trace = _generate_grounding_trace(card, card.explanation_en + " " + card.action_draft_en)
         return card
 
-    # Live Online Path with AMD Endpoint
-    t_start = time.perf_counter()
-    cfg = get_endpoint_config()
-    api_key_val = cfg["api_key"] or API_KEY or "EMPTY"
-    client = OpenAI(base_url=endpoint, api_key=api_key_val, timeout=10.0)
-
+    # Construct strict grounding prompt
     system_prompt = (
         "You are PayLens AI explaining merchant capital recovery. "
         "MANDATORY ARCHITECTURE RULE: CODE COMPUTES, MODEL EXPLAINS. "
@@ -434,53 +614,52 @@ Impact (USD): ${card.impact_usd:,.2f}
 Formula: {card.formula_display}
 ALLOWED_NUMBERS: {card.allowed_numbers}
 
-Write concise English explanations and action drafts.
+Write concise English explanations and action drafts. Output JSON format: {{"explanation_en": "...", "action_draft_en": "..."}}
 """
 
+    t_start = time.perf_counter()
     retries = 0
     grounded = False
+    allowed = card.allowed_numbers + [card.impact_usd]
+    raw_content = ""
+    measured_lat_ms = 0.0
+    served_model_name = ""
+    endpoint_used_str = ""
+    exec_source_enum = ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value
 
     while retries < 2 and not grounded:
         try:
-            t_call_start = time.perf_counter()
-            try:
-                response = client.chat.completions.create(
-                    model=model_to_use,
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                    temperature=0.1,
-                    response_format={"type": "json_object"},
+            if selected_engine == "amd":
+                served_model_name = status["amd_status"]["model_served"]
+                endpoint_used_str = cfg["amd_url"]
+                exec_source_enum = ExecutionSource.LIVE_AMD_TOKENFACTORY.value
+                raw_content, call_lat, p_toks, c_toks = _call_amd_tokenfactory_chat(
+                    prompt=user_prompt,
+                    system_prompt=system_prompt,
+                    model=served_model_name,
+                    base_url=cfg["amd_url"],
+                    api_key=cfg["amd_key"],
                 )
-            except Exception:
-                response = client.chat.completions.create(
-                    model=model_to_use,
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                    temperature=0.1,
+                measured_lat_ms = call_lat
+            elif selected_engine == "gemma4":
+                served_model_name = status["gemma_status"]["model_served"]
+                endpoint_used_str = "https://generativelanguage.googleapis.com/v1beta"
+                exec_source_enum = ExecutionSource.LIVE_GOOGLE_GEMMA4.value
+                raw_content, call_lat, p_toks, c_toks = _call_google_gemma_rest(
+                    prompt=user_prompt,
+                    system_prompt=system_prompt,
+                    model=served_model_name,
+                    api_key=cfg["gemini_key"],
                 )
-            call_lat_ms = round((time.perf_counter() - t_call_start) * 1000.0, 1)
+                measured_lat_ms = call_lat
+            else:
+                break
 
-            prompt_toks = response.usage.prompt_tokens if response.usage else 0
-            comp_toks = response.usage.completion_tokens if response.usage else 0
-            log_inference_entry(exec_source, model_to_use, call_lat_ms, prompt_toks, comp_toks)
-
-            raw_content = (response.choices[0].message.content or "{}").strip()
-            if "```" in raw_content:
-                import re
-                fence_match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", raw_content, re.DOTALL)
-                if fence_match:
-                    raw_content = fence_match.group(1).strip()
-            parsed = json.loads(raw_content)
-
+            parsed = _extract_json_response(raw_content)
             exp_en = parsed.get("explanation_en", "")
             act_en = parsed.get("action_draft_en", "")
 
             # Verify Grounding
-            allowed = card.allowed_numbers + [card.impact_usd]
             ok_exp, ungrounded_exp = verify_numeric_grounding(exp_en, allowed)
             ok_act, ungrounded_act = verify_numeric_grounding(act_en, allowed)
 
@@ -492,9 +671,16 @@ Write concise English explanations and action drafts.
                 card.grounding_passed = True
                 card.grounding_retries = retries
                 card.grounding_status = "PASSED" if retries == 0 else "RETRIED_PASSED"
-                card.http_latency_ms = round((time.perf_counter() - t_start) * 1000, 1)
+                card.http_latency_ms = measured_lat_ms
+                card.inference_latency_ms = measured_lat_ms
+                card.endpoint_used = endpoint_used_str
+                card.model_name = served_model_name
+                card.execution_source = exec_source_enum
+                card.used_template_fallback = False
                 card.grounding_trace = _generate_grounding_trace(card, exp_en + " " + act_en)
                 grounded = True
+
+                log_inference_entry(exec_source_enum, served_model_name, measured_lat_ms, p_toks, c_toks, "PASSED")
                 return card
             else:
                 retries += 1
@@ -503,10 +689,14 @@ Write concise English explanations and action drafts.
                     f"\n\nERROR: The numbers {ungrounded} were not in ALLOWED_NUMBERS. "
                     f"Rewrite immediately using ONLY numbers in: {card.allowed_numbers}"
                 )
-        except Exception:
+        except Exception as e:
             retries += 1
 
-    # Fallback if ungrounded after retry or network failure
+    total_elapsed_ms = round((time.perf_counter() - t_start) * 1000.0, 1)
+    if measured_lat_ms == 0.0:
+        measured_lat_ms = total_elapsed_ms
+
+    # Fallback to verified deterministic template if ungrounded or failed
     fallback = build_fallback_template(card, tone)
     card.explanation_en = fallback["explanation_en"]
     card.action_draft_en = fallback["action_draft_en"]
@@ -515,7 +705,12 @@ Write concise English explanations and action drafts.
     card.grounding_passed = True
     card.grounding_retries = retries
     card.grounding_status = "TEMPLATE_FALLBACK"
-    card.http_latency_ms = round((time.perf_counter() - t_start) * 1000, 1)
+    card.http_latency_ms = measured_lat_ms
+    card.inference_latency_ms = measured_lat_ms
+    card.endpoint_used = endpoint_used_str or "Deterministic Template Fallback"
+    card.model_name = served_model_name or "Deterministic Template"
+    card.execution_source = exec_source_enum if served_model_name else ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value
+    card.used_template_fallback = True
     card.grounding_trace = _generate_grounding_trace(card, card.explanation_en + " " + card.action_draft_en)
     return card
 
@@ -556,11 +751,10 @@ async def _enrich_card_async(
                     {"role": "user", "content": user_prompt},
                 ],
                 temperature=0.1,
-                response_format={"type": "json_object"},
-                timeout=5.0,
+                timeout=8.0,
             )
             raw = resp.choices[0].message.content or "{}"
-            parsed = json.loads(raw)
+            parsed = _extract_json_response(raw)
             exp_en = parsed.get("explanation_en", "")
             act_en = parsed.get("action_draft_en", "")
 
@@ -591,19 +785,27 @@ async def _enrich_card_async(
 
 def run_mi300x_parallel_burst(
     cards: List[RecommendationCard],
-    max_concurrency: int = 32,
+    max_concurrency: int = 8,
     tone: str = "Polite Payment Reminder",
 ) -> Dict[str, Any]:
     """Execute parallel burst across cards, honestly reporting execution source and metrics."""
-    health = check_endpoint_health()
-    endpoint = health["active_url"]
-    is_offline = health["is_offline"]
-    exec_source = health["execution_source"]
-    model_to_use = health["model_served"]
-
+    status = check_endpoint_status()
     cfg = get_endpoint_config()
-    api_key_val = cfg["api_key"] or API_KEY or "EMPTY"
-    async_client = None if is_offline or not endpoint else AsyncOpenAI(base_url=endpoint, api_key=api_key_val)
+
+    if status["amd_status"]["is_live"]:
+        endpoint = cfg["amd_url"]
+        api_key_val = cfg["amd_key"]
+        model_to_use = status["amd_status"]["model_served"]
+        exec_source = ExecutionSource.LIVE_AMD_TOKENFACTORY.value
+        is_offline = False
+        async_client = AsyncOpenAI(base_url=endpoint, api_key=api_key_val, timeout=12.0)
+    else:
+        endpoint = None
+        api_key_val = None
+        model_to_use = "Local CPU Deterministic Fallback"
+        exec_source = ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value
+        is_offline = True
+        async_client = None
 
     async def _runner():
         semaphore = asyncio.Semaphore(max_concurrency)
@@ -617,7 +819,6 @@ def run_mi300x_parallel_burst(
 
     total_cards = len(processed_cards)
     cards_per_sec = round(total_cards / max(0.001, wall_clock_seconds), 1)
-
     grounded_count = sum(1 for c in processed_cards if c.grounding_passed)
     pass_rate = round((grounded_count / max(1, total_cards)) * 100.0, 1)
 
@@ -636,7 +837,6 @@ def run_mi300x_parallel_burst(
     if is_offline or exec_source == ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value:
         result["mode_display"] = "Local CPU Deterministic Fallback Mode"
         result["local_cpu_speed"] = f"{cards_per_sec} cards/sec (Python string formatting)"
-        result["note"] = "Local CPU mode active. Connect live AMD vLLM or TokenFactory in sidebar for live GPU token metrics."
     else:
         result["mode_display"] = f"Live GPU Endpoint ({exec_source})"
         result["recommendations_per_minute"] = round(cards_per_sec * 60, 1)

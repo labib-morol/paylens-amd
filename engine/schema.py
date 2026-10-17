@@ -23,6 +23,7 @@ class LeakSubType(str, Enum):
 
 
 class ExecutionSource(str, Enum):
+    LIVE_GOOGLE_GEMMA4 = "LIVE_GOOGLE_GEMMA4"
     LIVE_AMD_MI300X_VLLM = "LIVE_AMD_MI300X_VLLM"
     LIVE_AMD_TOKENFACTORY = "LIVE_AMD_TOKENFACTORY"
     LOCAL_DETERMINISTIC_FALLBACK = "LOCAL_DETERMINISTIC_FALLBACK"
@@ -94,9 +95,12 @@ class RecommendationCard(BaseModel):
     status: str = "PENDING"
     execution_receipt_id: Optional[str] = None
 
-    # AMD GPU Telemetry & Tool-Calling Trace
+    # AMD GPU & Google Gemma Telemetry & Tool-Calling Trace
     execution_source: str = ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value
     http_latency_ms: float = 0.0
+    inference_latency_ms: float = 0.0
+    endpoint_used: Optional[str] = None
+    used_template_fallback: bool = False
     model_name: str = "google/gemma-4-31B-it"
     tool_calls_trace: List[Dict[str, Any]] = Field(default_factory=list)
     grounding_trace: List[Dict[str, Any]] = Field(default_factory=list)
