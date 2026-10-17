@@ -1,225 +1,176 @@
-# 🛡️ PayLens Solo: Autonomous Multi-Rail Revenue Recovery & Action Centre
+# PayLens Solo: Multi-Rail Revenue Recovery & Action Centre on AMD Hardware
 
-> **AMD Developer Hackathon: ACT III**  
-> **Track 3: Reinvent Commerce** + **AMD Instinct™ MI300X Prize ($5,000)** + **Google DeepMind Gemma Prize ($5,000)** + **Evolus AI Partner Track (€1,011.50)** + **Vibe Generation Special Prize**  
-> Serving `google/gemma-4-31B-it` on **AMD Instinct™ MI300X** (192GB HBM3 @ 5.3 TB/s) via ROCm vLLM & AMD TokenFactory.
-
----
-
-## 📌 Executive Summary
-
-Modern global commerce operating across Shopify, WooCommerce, Stripe, PayPal, Wire Transfers, and Carrier COD (DHL Express, FedEx) leaks **3%–7% of gross merchandise volume** due to disconnected financial rails:
-1. **Dispatched-Unpaid Orders**: Orders fulfilled and dispatched on digital rails without verified settlement.
-2. **Carrier COD Remittance Shortfalls**: Commercial courier payouts undersettling collected cash against agreed tariff schedules.
-3. **Abandoned Checkout Drop-Offs**: Lost sales on gateway drop-offs without automated recovery links.
-4. **Demand Surge Stockout Risks**: High-margin hero SKUs running out before supplier lead-time replenishment.
-
-PayLens Solo solves this with a **Zero-Hallucination, Two-Layer Architecture**:
-1. **Deterministic Compute Layer (Python + DuckDB + statsmodels)**: Computes 100% of the matching, Holt-Winters forecasting, STL anomaly detection, and ranking scores.
-2. **Agentic Explanation Layer (AMD Instinct MI300X + Gemma-4-31B-it)**: Contextualizes seasonal surges, explains discrepancies, and drafts global action notices with strict 100% numeric regex verification.
+**AMD Developer Hackathon: Act III**  
+**Track 3: Reinvent Commerce** + **AMD Instinct Prize** + **Google DeepMind Gemma Prize** + **Evolus AI Partner Track** + **Vibe Generation Special Prize**  
+Serving `google/gemma-4-31B-it` via AMD ROCm vLLM or AMD TokenFactory.
 
 ---
 
-## 🏛️ Architecture Overview
+## 1. What It Does
 
-```mermaid
-flowchart TD
-    subgraph MultiRailSources["Multi-Rail Disconnected Data Sources"]
-        O["Shopify / WooCommerce Orders"]
-        R["Payment Rails: Stripe, PayPal, SEPA"]
-        C["Carrier COD: DHL Express, FedEx"]
-        I["Daily Inventory & Lead Times"]
-    end
+PayLens Solo is a multi-rail capital recovery engine and human-in-the-loop deal desk for international e-commerce merchants operating across Shopify, WooCommerce, Stripe, PayPal, SEPA bank transfers, and DHL/FedEx cash-on-delivery (COD).
 
-    subgraph DeterministicEngine["Deterministic Compute Layer (Python / DuckDB / statsmodels)"]
-        DDB[("DuckDB Unified Store")]
-        LMatcher["2-Pass Matcher<br/>Pass 1: Exact Txn Ref<br/>Pass 2: Email/Phone + Amt + 30m"]
-        CShortfall["Carrier COD Shortfall Checker"]
-        RecovScan["Failed Checkout Recovery Scanner"]
-        HWForecaster["Holt-Winters Forecaster<br/>statsmodels ExponentialSmoothing (m=7)"]
-        STLDetector["STL Revenue Anomaly Detector<br/>statsmodels STL (period=7)"]
-        Ranker["Multi-Objective Ranker<br/>impact * confidence * goal_weight"]
-    end
+In multi-rail commerce, disconnected financial ledgers lead to silent revenue leakage:
+- **Dispatched-Unpaid Orders**: Orders marked fulfilled and dispatched on digital rails without verified settlement.
+- **Carrier COD Remittance Shortfalls**: Commercial courier payouts undersettling collected cash against agreed tariff schedules.
+- **Abandoned Checkout Drop-Offs**: Unrecovered shopping carts that can be reclaimed with tailored outreach.
+- **Demand Surge Stockout Risks**: High-margin hero SKUs running out before supplier lead-time replenishment.
 
-    subgraph MI300XServing["AMD Instinct™ MI300X Serving Layer"]
-        ROCm["AMD Instinct MI300X (192GB HBM3)"]
-        Gemma["google/gemma-4-31B-it<br/>ROCm vLLM + AMD TokenFactory"]
-        Grounding["Strict Numeric Grounding Verifier<br/>0 Hallucinations Regex Audit"]
-        Fallback["Deterministic Offline Template Fallback"]
-    end
-
-    subgraph EvolusPartnerTrack["Evolus AI Partner Track (Multi-Block Architecture)"]
-        Tool1["Ready-Made AI Tool 1: document-to-structured-data<br/>POST /api/v1/ai-tools/document-to-structured-data/run"]
-        Tool2["Ready-Made AI Tool 2: email-writing<br/>POST /api/v1/ai-tools/email-writing/run"]
-        AgentChat["Evolus Business Agent Chat<br/>POST /v1/chat/completions + Workflow Execute"]
-    end
-
-    subgraph UI["Interactive Action Centre & Deal Desk (Track 3 + Vibe Generation)"]
-        Streamlit["Streamlit Dark Slate Fintech UI"]
-        Sankey["Cross-Rail Revenue Sankey Diagram (Plotly)"]
-        HWChart["Holt-Winters Stockout Forecast + Danger Zone"]
-        RedTeam["Red-Team Grounding Hallucination Stress-Test"]
-        Receipts["Live Cryptographic Execution Receipts"]
-    end
-
-    MultiRailSources --> DDB
-    DDB --> LMatcher & CShortfall & RecovScan & HWForecaster & STLDetector
-    LMatcher & CShortfall & RecovScan & HWForecaster & STLDetector --> Ranker
-    Ranker --> Grounding
-    Gemma <--> Grounding
-    Grounding --> Streamlit
-    Fallback -.-> Grounding
-    Streamlit --> Tool1 & Tool2 & AgentChat
-    Streamlit --> Sankey & HWChart & RedTeam & Receipts
-```
+### Core Architectural Principle: Code Computes, Model Explains
+- **Deterministic Compute Layer**: DuckDB, pandas, and statsmodels compute all arithmetic, matching logic, Holt-Winters demand forecasting, and STL anomaly decomposition. The model never calculates numbers.
+- **Model Explanation Layer**: An LLM (such as Google Gemma-4-31B-it) contextualizes discrepancies, explains trends, and drafts outreach notices under numeric regex grounding verification.
 
 ---
 
-## 📐 Mandatory Architecture Rules
+## 2. Modes
 
-PayLens Solo enforces strict architectural guardrails:
+PayLens Solo operates across three verified execution modes:
 
-1. **CODE COMPUTES, AMD GPU MODEL EXPLAINS**:
-   - Matching, leak totals, Holt-Winters demand forecasts, STL residuals, and ranking scores are computed deterministically in Python/DuckDB/statsmodels. The LLM never calculates arithmetic.
-2. **GROUNDING CHECK (ZERO HALLUCINATIONS)**:
-   - Every number in the LLM's English output is regex-extracted and verified against allowed numbers. On mismatch, the agent retries once with an explicit correction prompt, then falls back to a deterministic template.
-3. **DUAL ENDPOINT FALLBACK**:
-   - Primary: `AMD_VLLM_BASE_URL` (`http://localhost:8000/v1` for MI300X SSH tunnel).
-   - Backup: `AMD_TOKENFACTORY_BASE_URL` (`https://notebooks.amd.com/tokenfactory/v1`).
-   - Zero-GPU: Instant deterministic template fallback for crash-proof local testing.
-4. **NO SECRETS IN GIT**:
-   - All credentials loaded from `.env`; `.env` is excluded in `.gitignore`.
-
----
-
-## 🧮 Deterministic Mathematical Formulas
-
-| Problem Domain | Formula | Execution Engine |
+| Mode | Endpoint | Description |
 |---|---|---|
-| **Dispatched-Unpaid Leak** | $\text{Impact} = \text{Order Amount}$ | 2-Pass SQL / DuckDB |
-| **Carrier COD Shortfall** | $\text{Shortfall} = (\text{COD Collected} - \text{Carrier Fee}) - \text{Actual Settled}$ | DuckDB predicate ($> \$5.00$) |
-| **Failed Cart Recovery** | $\text{Recoverable Revenue} = \text{Basket Amount} \times r \quad (r = 0.35)$ | Python sensitivity engine |
-| **Holt-Winters Demand** | $\hat{y}_{t+h} = \ell_t + h b_t + s_{t+h-m} \quad (m=7)$ | `statsmodels.tsa.holtwinters` |
-| **Lost Margin Stockout** | $\text{Impact} = \max(0, \lceil \sum_{h=1}^H \hat{y}_{t+h} - \text{Stock} \rceil) \times \text{Unit Margin}$ | Lead-time demand integration |
-| **STL Revenue Anomaly** | $\text{Anomaly} \iff |R_t| > 2.2 \times \sigma(R)$ | `statsmodels.tsa.seasonal.STL` |
-| **Multi-Objective Score** | $\text{Score} = \text{round}(\text{Impact} \times \text{Confidence} \times w_{\text{goal}}, 2)$ | Python deterministic ranker |
+| `LIVE_AMD_TOKENFACTORY` | AMD TokenFactory API | Shared hosted TokenFactory endpoint (`AMD_TOKENFACTORY_BASE_URL`). Hardware is shared and not under direct local control. |
+| `LIVE_AMD_MI300X_VLLM` | Dedicated ROCm Host (`AMD_VLLM_BASE_URL`) | Dedicated host running ROCm vLLM on AMD Instinct MI300X (192GB HBM3). |
+| `LOCAL_DETERMINISTIC_FALLBACK` | Local CPU / Offline Mode | Active when `OFFLINE_MODE=true` or when no remote AMD endpoint is reachable. All detectors, matchers, and templates run deterministically on CPU with zero crashes. |
 
 ---
 
-## 📊 Measured Benchmark Telemetry (AMD Instinct MI300X)
+## 3. Architecture
 
-### 1. Deterministic Detection Accuracy (`engine/evaluator.py`)
-Tested against 30-day multi-merchant ground truth (`data/generated/ground_truth.json`):
+PayLens Solo routes data from multi-rail commerce sources through pluggable normalization connectors into a unified DuckDB database:
 
-| Evaluation Category | Precision | Recall | F1 Score | Ground-Truth Notes |
-|---|:---:|:---:|:---:|---|
-| **Dispatched-Unpaid Leaks** | **100.0%** | **100.0%** | **100.0%** | 8 planted leaks identified |
-| **Carrier COD Shortfalls** | **100.0%** | **100.0%** | **100.0%** | 6 planted carrier shortfalls caught |
-| **Failed Checkout Recovery** | **100.0%** | **100.0%** | **100.0%** | 8 abandoned checkouts scored |
-| **Stockout Risk SKUs** | **100.0%** | **100.0%** | **100.0%** | 4 surge SKUs (Hero SKU: $71,656) |
-| **Fuzzy True Negatives** | **100.0%** | **100.0%** | **100.0%** | **18 / 18 correctly excluded (0 false alarms)** |
-| **Overall Pipeline Score** | **100.0%** | **100.0%** | **100.0%** | **Zero missed leaks, zero false alarms** |
-
-### 2. AMD Instinct MI300X Serving Telemetry (`vllm bench serve` Reference)
-Measured on 1x AMD Instinct™ MI300X (192GB HBM3 @ 5.3 TB/s) with `google/gemma-4-31B-it`:
-
-- **Hardware Target**: 1x AMD Instinct™ MI300X (304 CDNA 3 CUs, 192GB HBM3 @ 5.3 TB/s)
-- **Serving Engine**: ROCm 6.2 + vLLM 0.6.3 with async kernel scheduling
-- **Model Precision**: BFloat16 (~62.4 GB weights, ~129.6 GB KV cache headroom)
-- **Aggregate Token Velocity**: **2,842.6 tokens / second** (concurrency = 32)
-- **Request Throughput**: **1,286.9 requests / minute**
-- **Mean Time-To-First-Token (TTFT)**: **42.8 ms** (P50: 38.2 ms, P95: 54.1 ms)
-- **Numeric Grounding Accuracy**: **100.0% (0 Hallucinations)**
-- **Honest Runtime Mode**: Clearly distinguishes between `LIVE_AMD_MI300X_VLLM`, `LIVE_AMD_TOKENFACTORY`, and `LOCAL_DETERMINISTIC_FALLBACK` with expandable tool-calling traces and live anomaly injection for judges.
-
----
-
-## 🚀 Serving Gemma-4-31B-it on AMD Instinct MI300X
-
-### ROCm vLLM Launch Configuration
-On your AMD Instinct MI300X droplet / VM:
-
-```bash
-docker exec -it rocm bash
-
-# Verify 192GB HBM3 visibility
-amd-smi
-
-export HF_TOKEN="hf_your_token_here"
-export VLLM_USE_V1=1
-
-# Fetch official Gemma 4 tool-calling chat template
-curl -sSL https://raw.githubusercontent.com/vllm-project/vllm/main/examples/tool_chat_template_gemma4.jinja -o examples/tool_chat_template_gemma4.jinja
-
-# Launch vLLM server
-vllm serve google/gemma-4-31B-it \
-  --host 0.0.0.0 \
-  --port 8000 \
-  --dtype bfloat16 \
-  --max-model-len 16384 \
-  --enable-auto-tool-choice \
-  --tool-call-parser gemma4 \
-  --reasoning-parser gemma4 \
-  --chat-template examples/tool_chat_template_gemma4.jinja \
-  --limit-mm-per-prompt '{"image": 0, "audio": 0}' \
-  --async-scheduling
+```
+[Raw Payment Rails]       [Connectors]          [Unified Store]       [Deterministic Detectors]
+Stripe Gateway (US/EU)  ──► PaymentRailConnector ──► DuckDB           ──► 2-Pass Leak Matcher
+PayPal Commerce         ──► Normalization        ──► Orders Table     ──► Carrier Shortfall Scanner
+DHL/FedEx Courier COD   ──► Canonical Schema     ──► Payments Table   ──► Holt-Winters Forecaster
+Pix / UPI / M-Pesa      ──► Validation           ──► Inventory Table  ──► STL Anomaly Detector
+                                                          │
+                                                          ▼
+                                                 [Multi-Objective Ranker]
+                                                          │
+                                                          ▼
+                                                 [AMD Explainer & Grounding Verifier]
+                                                          │
+                                                          ▼
+                                                 [Human-in-the-Loop Deal Desk]
+                                                          │
+                                                          ▼
+                                                 [Dispatch Receipt & Audit Hash]
 ```
 
-### AMD TokenFactory API Configuration (Instant Cloud Access)
-If testing via AMD TokenFactory:
-```env
-AMD_TOKENFACTORY_BASE_URL=https://notebooks.amd.com/tokenfactory/v1
-AMD_API_KEY=your_tokenfactory_key_here
-OFFLINE_MODE=false
-```
+### Component Responsibilities
+
+| Component | Technology | Responsibility |
+|---|---|---|
+| **Storage & Ingestion** | DuckDB, Pandas | High-speed columnar relational engine for multi-rail order matching and inventory snapshots. |
+| **2-Pass Matcher** | Python, DuckDB | Pass 1: exact transaction reference match; Pass 2: customer phone/email + amount + 30-minute timestamp window. Reconciles missing references without false flags. |
+| **Statistical Engine** | statsmodels | Holt-Winters Exponential Smoothing (`seasonal_periods=7`) for demand forecasting and STL decomposition for revenue residual tracking. |
+| **Grounding Verifier** | Python Regex | Audits every numeric token in model output against deterministic allowed numbers; enforces correction retry and template fallback on mismatch. |
+| **Partner Workflows** | Evolus API | Multi-block commercial workflows including ready-made document extraction, dispute drafting, and agent dispatch. |
+| **User Interface** | Streamlit, Plotly | Interactive Deal Desk with dynamic Sankey flow visualization, forecast danger zones, and live telemetry audit proof. |
 
 ---
 
-## 🛠️ Quickstart Instructions
+## 4. Formulas
 
-### 1. Local Run
+All financial calculations are computed deterministically before model invocation:
+
+1. **Dispatched Unpaid Orders**:
+   $$\text{Impact}_{\text{USD}} = \text{Order Amount}$$
+2. **Carrier COD Remittance Shortfalls**:
+   $$\text{Shortfall}_{\text{USD}} = (\text{COD Collected} - \text{Carrier Fee}) - \text{Actual Settled}$$
+   Flagged when discrepancy exceeds \$5.00.
+3. **Abandoned Checkout Recovery**:
+   $$\text{Impact}_{\text{USD}} = \text{Order Total} \times r$$
+   where $r \in [0.10, 0.80]$ is the configurable recovery rate (default $r = 0.35$).
+4. **Holt-Winters Stockout Risk**:
+   $$\text{Forecast Daily Demand} = \frac{1}{L} \sum_{t=1}^{L} \hat{y}_t$$
+   $$\text{Days of Cover} = \frac{\text{Current Stock}}{\text{Forecast Daily Demand}}$$
+   $$\text{Impact}_{\text{USD}} = \max(0, \hat{Y}_{\text{lead}} - \text{Current Stock}) \times \text{Unit Margin}$$
+   Flagged when $\text{Days of Cover} < L$ (supplier lead time).
+5. **Dynamic Multi-Objective Ranking Score**:
+   $$\text{Score} = \text{Impact} \times \text{Confidence} \times (w_{\text{cash}} \cdot \mathbf{1}_{\text{leak}} + w_{\text{margin}} \cdot \mathbf{1}_{\text{stock}} + w_{\text{recov}} \cdot \mathbf{1}_{\text{abandon}})$$
+   where weights $w$ are steered dynamically by natural language merchant goals.
+
+---
+
+## 5. Measured Results
+
+### AMD Inference Throughput & Latency
+
+Not measured yet: run `python benchmarks/run_benchmark.py` against an active AMD GPU endpoint.
+
+### Deterministic Detector Accuracy (Ground-Truth Evaluation)
+
+Evaluated across 20 merchants and 30 days of data against planted ground truth:
+
+| Dataset Split | Dispatched Unpaid F1 | Carrier Shortfalls F1 | Checkout Recovery F1 | Stockout Risk F1 | Fuzzy TN Exclusion |
+|---|---|---|---|---|---|
+| **Seed 42 (Tuning)** | 1.00 | 1.00 | 1.00 | 1.00 | 18/18 Reconciled |
+| **Seed 1337 (Held-Out)** | 1.00 | 1.00 | 1.00 | 1.00 | 18/18 Reconciled |
+
+*(In illustrative synthetic data with injected noise, edge-case un-reconciled orders are discovered deterministically by the 2-pass matcher without crashing).*
+
+---
+
+## 6. How to Run
+
+### Prerequisites
+- Python 3.11 or higher
+- Git
+
+### Installation
 ```bash
-# Clone and enter repo
-git clone <REPO_URL>
+git clone https://github.com/labib-morol/paylens-amd.git
 cd paylens-amd
+python -m pip install -r requirements.txt
+```
 
-# Create and activate virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .\.venv\Scripts\Activate.ps1
+### Environment Configuration
+Copy `.env.example` to `.env` and fill in your credentials (or run in offline mode):
+```bash
+cp .env.example .env
+```
+To run in offline mode (deterministic engine only):
+```bash
+# In .env:
+OFFLINE_MODE=true
+```
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Generate 30-day multi-rail dataset and DuckDB store
+### Generate Synthetic Data
+```bash
+# Default Seed 42 dataset
 python data/generate_synthetic_data.py
 
-# Verify deterministic engine and precision/recall
-python engine/pipeline.py
+# Generate both tuning (seed 42) and held-out (seed 1337) datasets with noise
+python data/generate_synthetic_data.py --generate-both-seeds --noise
+```
 
-# Run AMD MI300X benchmark
-python benchmarks/run_mi300x_benchmark.py
-
-# Launch Streamlit Fintech Deal Desk
+### Launch Interactive Streamlit App
+```bash
 streamlit run app.py
 ```
 
-### 2. Docker Run (1-Command)
+### Run Benchmarks
 ```bash
-docker build -t paylens-solo .
-docker run -p 8501:8501 paylens-solo
+python benchmarks/run_benchmark.py
 ```
-Open `http://localhost:8501` to view the interactive Deal Desk!
+
+### Run Test Suite
+```bash
+pytest -q
+```
 
 ---
 
-## 🏆 Hackathon Alignment Matrix
+## 7. Limitations
 
-| Hackathon Requirement | PayLens Solo Implementation | Location in Repo |
-|---|---|---|
-| **Track 3: Reinvent Commerce** | Multi-rail reconciliation across Shopify, Stripe, PayPal, SEPA, and DHL/FedEx | `data/generate_synthetic_data.py`, `app.py` |
-| **AMD Instinct MI300X Prize** | vLLM serving with async scheduling, 192GB HBM3 KV utilization, 82,898 recs/min benchmark | `agent/gemma_agent.py`, `benchmarks/run_mi300x_benchmark.py` |
-| **Google DeepMind Gemma Prize** | `google/gemma-4-31B-it` grounded action generation & natural language goal steering | `agent/gemma_agent.py`, `agent/grounding.py` |
-| **Evolus AI Partner Track** | Multi-Block Architecture: Ready-Made AI Tools (`document-to-structured-data`, `email-writing`) + Evolus Agent Chat (`/v1/chat/completions`) + Workflows | `agent/evolus_bridge.py`, `app.py` Tab 2 |
-| **Vibe Generation Special Prize** | High-taste Dark Slate Fintech UI, Cross-Rail Revenue Sankey Diagram, Holt-Winters Stockout danger zone, Red-Team Hallucination Stress-Test | `app.py`, `FINTECH_CSS` |
-| **Code Computes, Model Explains** | 100% deterministic math & statsmodels; zero arithmetic by LLM; 100% regex grounding | `engine/detectors.py`, `agent/grounding.py` |
-| **Global Multi-Market Scalability** | Pluggable connectors for Brazil Pix, India UPI, Kenya M-Pesa, Bangladesh MFS | `engine/connectors.py`, `app.py` Tab 4 |
+1. **Synthetic Data**: PayLens Solo is demonstrated on illustrative synthetic data modeled on global commerce rails. Real merchant deployments require production API tokens and live webhooks.
+2. **Shared vs Dedicated Hardware**: Performance measured on AMD TokenFactory reflects shared multi-tenant cloud infrastructure and will vary depending on cluster load. Dedicated AMD Instinct hosts provide consistent low-latency throughput.
+3. **Numeric Grounding Fallback**: If a model response fails numeric verification after one retry prompt, PayLens Solo falls back to a deterministic code-generated explanation template to protect financial accuracy.
+
+---
+
+## 8. License
+
+MIT License — Copyright (c) 2026 Labib-morol. See `LICENSE` for details.

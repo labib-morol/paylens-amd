@@ -76,6 +76,20 @@ def generate_customer() -> dict:
     return {"name": name, "email": email, "phone": phone}
 
 
+def format_phone_with_noise(phone: str, noise: bool = False) -> str:
+    """Optionally add noise to phone numbers (stripping country code, varying separators)."""
+    if not noise or random.random() > 0.35:
+        return phone
+    c = random.randint(1, 3)
+    if c == 1:
+        return phone.replace("+1-", "").replace("-", "")
+    elif c == 2:
+        raw = phone.replace("+1-", "").replace("-", "")
+        return f"0{raw}"
+    else:
+        return phone.replace("+1-", "").replace("-", ".")
+
+
 # Planted Stockout SKUs
 PLANTED_STOCKOUT_CONFIGS = {
     ("MERCH_02", "SKU-LUM-HERO-01"): {"lead_time": 7, "surge_start": 21, "surge_sales": (16, 22), "end_stock": 8, "is_hero": True},
@@ -172,7 +186,15 @@ def build_sku_catalog():
     return catalog
 
 
-def generate_dataset():
+def generate_dataset(
+    seed: int = 42,
+    noise: bool = False,
+    output_dir: str = None,
+    is_heldout: bool = False,
+):
+    random.seed(seed)
+    out_dir = output_dir or OUTPUT_DIR
+    os.makedirs(out_dir, exist_ok=True)
     catalog = build_sku_catalog()
     base_date = datetime.now() - timedelta(days=30)
 
@@ -299,15 +321,18 @@ def generate_dataset():
                         f"WIRE-REF-{random.randint(100000, 999999)}" if "SEPA" in rail_prov else ""
                     )
                 )
+                if noise and random.random() < 0.015:
+                    txn_ref = "TXN-CROSS-MERCH-DUP-999"
 
                 status = "DELIVERED" if day_idx < 25 else "DISPATCHED"
+                ord_phone = format_phone_with_noise(cust["phone"], noise)
 
                 orders_records.append({
                     "order_id": ord_id,
                     "merchant_id": m_id,
                     "customer_name": cust["name"],
                     "customer_email": cust["email"],
-                    "customer_phone": cust["phone"],
+                    "customer_phone": ord_phone,
                     "order_timestamp": ord_time.isoformat(),
                     "order_amount_usd": total_amt,
                     "currency": "USD",
@@ -324,18 +349,32 @@ def generate_dataset():
                 # Digital rails generate rail_payments
                 if rail_type in ("PAYMENT_GATEWAY", "DIGITAL_WALLET", "BANK_TRANSFER"):
                     payment_seq += 1
-                    pay_time = ord_time + timedelta(minutes=random.randint(2, 12))
+                    pay_offset = random.randint(2, 12)
+                    if noise and random.random() < 0.04:
+                        pay_offset += random.choice([-50, 50])
+                    pay_time = ord_time + timedelta(minutes=pay_offset)
+
+                    pay_phone = format_phone_with_noise(cust["phone"], noise)
+                    pay_amt = total_amt
+                    pay_status = "SUCCESS"
+
+                    if noise and random.random() < 0.03:
+                        pay_amt = round(total_amt + random.choice([-0.25, -0.10, 0.10, 0.25]), 2)
+                    elif noise and random.random() < 0.015:
+                        pay_amt = round(total_amt * 0.5, 2)
+                        pay_status = "PARTIAL"
+
                     rail_payments_records.append({
                         "payment_id": f"RP-{payment_seq}",
                         "merchant_id": m_id,
                         "rail_provider": rail_prov,
                         "transaction_ref": txn_ref,
-                        "amount_usd": total_amt,
+                        "amount_usd": pay_amt,
                         "currency": "USD",
                         "payment_timestamp": pay_time.isoformat(),
-                        "customer_phone": cust["phone"],
+                        "customer_phone": pay_phone,
                         "customer_email": cust["email"],
-                        "status": "SUCCESS",
+                        "status": pay_status,
                     })
 
                 # Courier COD rails generate courier_settlements
@@ -346,13 +385,17 @@ def generate_dataset():
                     net_expected = round(total_amt - cod_fee, 2)
                     actual_settled = net_expected  # Default clean
 
+                    stmt_days = 3
+                    if noise and random.random() < 0.05:
+                        stmt_days = random.randint(15, 28)
+
                     courier_settlements_records.append({
                         "settlement_id": f"SETTLE-{settle_seq}",
                         "merchant_id": m_id,
                         "consignment_id": f"CONS-{consignment_seq}",
                         "order_id": ord_id,
                         "courier_name": rail_prov,
-                        "statement_date": (ord_time + timedelta(days=3)).strftime("%Y-%m-%d"),
+                        "statement_date": (ord_time + timedelta(days=stmt_days)).strftime("%Y-%m-%d"),
                         "cod_collected_usd": total_amt,
                         "courier_fee_usd": cod_fee,
                         "expected_net_payout_usd": net_expected,
@@ -562,18 +605,21 @@ def generate_dataset():
     df_inventory = pd.DataFrame(inventory_records)
 
     # Save to CSV
-    df_orders.to_csv(os.path.join(OUTPUT_DIR, "orders.csv"), index=False)
-    df_payments.to_csv(os.path.join(OUTPUT_DIR, "rail_payments.csv"), index=False)
-    df_settlements.to_csv(os.path.join(OUTPUT_DIR, "courier_settlements.csv"), index=False)
-    df_inventory.to_csv(os.path.join(OUTPUT_DIR, "inventory_daily.csv"), index=False)
+    suffix = "_heldout" if is_heldout else ""
+    df_orders.to_csv(os.path.join(out_dir, f"orders{suffix}.csv"), index=False)
+    df_payments.to_csv(os.path.join(out_dir, f"rail_payments{suffix}.csv"), index=False)
+    df_settlements.to_csv(os.path.join(out_dir, f"courier_settlements{suffix}.csv"), index=False)
+    df_inventory.to_csv(os.path.join(out_dir, f"inventory_daily{suffix}.csv"), index=False)
 
     # Save Ground Truth JSON
-    gt_path = os.path.join(OUTPUT_DIR, "ground_truth.json")
+    gt_filename = "ground_truth_heldout.json" if is_heldout else "ground_truth.json"
+    gt_path = os.path.join(out_dir, gt_filename)
     with open(gt_path, "w", encoding="utf-8") as f:
         json.dump(ground_truth, f, indent=2)
 
     # Ingest into DuckDB
-    duckdb_path = os.path.join(OUTPUT_DIR, "paylens.duckdb")
+    duckdb_filename = "paylens_heldout.duckdb" if is_heldout else "paylens.duckdb"
+    duckdb_path = os.path.join(out_dir, duckdb_filename)
     if os.path.exists(duckdb_path):
         os.remove(duckdb_path)
 
@@ -584,7 +630,7 @@ def generate_dataset():
     con.execute("CREATE TABLE inventory_daily AS SELECT * FROM df_inventory")
     con.close()
 
-    print(f"Generated Synthetic Dataset successfully:")
+    print(f"Generated Synthetic Dataset ({'held-out seed 1337' if is_heldout else 'seed ' + str(seed)}):")
     print(f"  - Orders: {len(df_orders):,} rows")
     print(f"  - Rail Payments: {len(df_payments):,} rows")
     print(f"  - Carrier Settlements: {len(df_settlements):,} rows")
@@ -592,11 +638,12 @@ def generate_dataset():
     print(f"  - DuckDB: {duckdb_path}")
     print(f"  - Ground Truth: {gt_path}")
 
-    # Generate sample carrier settlement PDF
-    generate_sample_courier_pdf()
+    # Generate sample carrier settlement PDF if not held-out
+    if not is_heldout:
+        generate_sample_courier_pdf(out_dir)
 
 
-def generate_sample_courier_pdf():
+def generate_sample_courier_pdf(output_dir=None):
     """Generate sample carrier settlement PDF with USD amounts for Evolus Document Extractor."""
     try:
         from reportlab.lib import colors
@@ -604,7 +651,8 @@ def generate_sample_courier_pdf():
         from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
-        pdf_path = os.path.join(OUTPUT_DIR, "sample_courier_settlement.pdf")
+        out_dir = output_dir or OUTPUT_DIR
+        pdf_path = os.path.join(out_dir, "sample_courier_settlement.pdf")
         doc = SimpleDocTemplate(pdf_path, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
         story = []
         styles = getSampleStyleSheet()
@@ -660,4 +708,20 @@ def generate_sample_courier_pdf():
 
 
 if __name__ == "__main__":
-    generate_dataset()
+    import argparse
+    parser = argparse.ArgumentParser(description="Synthetic Data Generator for PayLens Solo")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed (default 42)")
+    parser.add_argument("--noise", action="store_true", help="Inject realistic noise cases")
+    parser.add_argument("--output-dir", type=str, default=None, help="Output directory")
+    parser.add_argument("--generate-both-seeds", action="store_true", help="Generate both seed 42 and seed 1337 held-out")
+    args = parser.parse_args()
+
+    target_dir = args.output_dir or OUTPUT_DIR
+    if args.generate_both_seeds:
+        print("Generating tuning dataset (seed 42)...")
+        generate_dataset(seed=42, noise=args.noise, output_dir=target_dir, is_heldout=False)
+        print("\nGenerating held-out dataset (seed 1337)...")
+        generate_dataset(seed=1337, noise=args.noise, output_dir=target_dir, is_heldout=True)
+    else:
+        generate_dataset(seed=args.seed, noise=args.noise, output_dir=target_dir, is_heldout=(args.seed != 42))
+

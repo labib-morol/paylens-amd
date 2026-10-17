@@ -23,7 +23,6 @@ EXPOSE 8501
 
 ENV PYTHONUNBUFFERED=1
 ENV DUCKDB_PATH=data/generated/paylens.duckdb
-ENV OFFLINE_MODE=true
 
 HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health || exit 1
 

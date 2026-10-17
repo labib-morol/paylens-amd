@@ -1,9 +1,9 @@
 """One-Click Live Action Executor for PayLens Solo.
 
 Dispatches approved actions through:
-1. Evolus Business Workflow (dispute notice on connected AMD MI300X Gemma model)
+1. Evolus Business Workflow (dispute notice on connected AMD model)
 2. Merchant notification webhook (Discord/Slack/REST if MERCHANT_WEBHOOK_URL is set)
-3. Generates cryptographic execution receipt for the audit trail.
+3. Generates audit receipt (SHA-256 hash) for the audit trail.
 """
 
 import os
@@ -75,7 +75,7 @@ def execute_approved_action(
         except Exception:
             webhook_sent = False
 
-    # 4. Generate Cryptographic Audit Receipt
+    # 4. Generate Audit Receipt (SHA-256 of action payload)
     audit_str = f"{card.card_id}:{card.impact_usd}:{channel}:{timestamp_str}"
     audit_hash = hashlib.sha256(audit_str.encode()).hexdigest()[:12].upper()
     receipt_id = f"PAYLENS-TX-{audit_hash}"
@@ -90,9 +90,7 @@ def execute_approved_action(
         "merchant_name": card.merchant_name,
         "entity_id": card.entity_id,
         "impact_usd": card.impact_usd,
-        "impact_taka": card.impact_usd,
-        "recovered_usd_credited": card.impact_usd,
-        "recovered_taka_credited": card.impact_usd,
+        "expected_recovery_usd": card.impact_usd,
         "timestamp": timestamp_str,
         "new_status": "APPROVED & DISPATCHED",
         "webhook_dispatched": webhook_sent,

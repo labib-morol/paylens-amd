@@ -1,10 +1,10 @@
-"""PayLens Solo: Autonomous Multi-Rail Revenue Recovery & Action Centre on AMD Instinct MI300X.
+"""PayLens Solo: Multi-Rail Revenue Recovery & Action Centre on AMD Hardware.
 
 AMD Developer Hackathon: Act III — Track 3: Reinvent Commerce + Evolus AI Partner Track
 Architecture Guardrails:
 1. CODE COMPUTES, MODEL EXPLAINS: Deterministic calculations in Python/DuckDB/statsmodels.
-2. GROUNDING CHECK: 100% numeric regex extraction & verification (0 hallucinations).
-3. DUAL ENDPOINT FALLBACK: AMD MI300X ROCm vLLM -> AMD TokenFactory -> Deterministic Offline Fallback.
+2. GROUNDING CHECK: Strict numeric regex extraction & verification against deterministic allowed values.
+3. DUAL ENDPOINT FALLBACK: AMD ROCm vLLM -> AMD TokenFactory -> Deterministic Offline Fallback.
 4. HONEST TELEMETRY: Clearly labels execution source and reference AMD GPU benchmarks.
 """
 
@@ -12,6 +12,8 @@ import os
 import sys
 import time
 import json
+import shutil
+import tempfile
 import hashlib
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -47,6 +49,7 @@ from agent.evolus_bridge import (
     extract_settlement_pdf_via_evolus,
     trigger_dispute_workflow_via_evolus,
     is_evolus_configured,
+    get_evolus_status,
     run_evolus_telemetry_ping,
 )
 from agent.action_executor import execute_approved_action
@@ -76,7 +79,7 @@ FINTECH_CSS = """
 
     /* Top Command Header */
     .top-header {
-        background: linear-gradient(180deg, rgba(15, 23, 42, 0.85) 0%, rgba(10, 15, 29, 0.7) 100%);
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.85), rgba(10, 15, 29, 0.7));
         border: 1px solid rgba(51, 65, 85, 0.4);
         border-radius: 14px;
         padding: 16px 24px;
@@ -86,7 +89,7 @@ FINTECH_CSS = """
 
     /* KPI Cards */
     .kpi-card {
-        background: linear-gradient(135deg, rgba(17, 24, 39, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+        background: linear-gradient(135deg, rgba(17, 24, 39, 0.9), rgba(15, 23, 42, 0.95));
         border: 1px solid rgba(148, 163, 184, 0.15);
         border-radius: 12px;
         padding: 16px 20px;
@@ -442,10 +445,14 @@ if "custom_injected_cards" not in st.session_state:
 # Sidebar: AMD Instinct MI300X Hardware & Live Endpoint Health Monitor
 # -----------------------------------------------------------------------------
 health = check_endpoint_health()
+# -----------------------------------------------------------------------------
+# Sidebar: AMD Hardware & Live Endpoint Health Monitor
+# -----------------------------------------------------------------------------
+health = check_endpoint_health()
 ref_bench = import_vllm_bench_serve_json()
 
 with st.sidebar:
-    st.markdown("### ⚡ AMD Instinct Hardware")
+    st.markdown("### ⚡ AMD Hardware Status")
 
     is_live = health["execution_source"] != ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value
     pill_style = "source-pill-live" if is_live else "source-pill-local"
@@ -463,19 +470,26 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("#### Hardware Specs (AMD MI300X)")
-    st.markdown("""
-    - **Compute**: 304 CDNA 3 Compute Units
-    - **VRAM**: 192 GB HBM3 @ 5.3 TB/s
-    - **Serving Engine**: ROCm vLLM Async Pipeline
-    - **Model Weights**: ~62.4 GB BFloat16
-    - **KV Cache Free**: ~129.6 GB (32+ concurrency)
-    """)
+    st.markdown("#### Hardware Configuration")
+    if health["execution_source"] == ExecutionSource.LIVE_AMD_TOKENFACTORY.value:
+        st.info("AMD TokenFactory (shared hosted; hardware not under our control)")
+    elif health["execution_source"] == ExecutionSource.LIVE_AMD_MI300X_VLLM.value:
+        hw_label = os.getenv("HARDWARE_LABEL", "AMD Instinct MI300X")
+        st.success(f"Dedicated Host: {hw_label}")
+        if "MI300" in hw_label.upper():
+            st.markdown("""
+            - **Architecture**: AMD CDNA 3
+            - **VRAM**: 192 GB HBM3
+            - **Serving**: ROCm vLLM Async Pipeline
+            """)
+    else:
+        st.warning("Offline deterministic mode (no remote AMD GPU connected)")
 
     st.markdown("---")
-    st.markdown("#### Evolus AI Partner Track")
-    evo_status = "Connected (Live Multi-Block)" if is_evolus_configured() else "Local Sandbox Mode (Deterministic)"
-    st.caption(f"Status: **{evo_status}**")
+    st.markdown("#### Evolus Integration")
+    evolus_info = get_evolus_status()
+    st.caption(f"Status: **{evolus_info['badge']}**")
+    st.caption(f"Detail: {evolus_info['reason']}")
     st.caption("Blocks: AI Tools (Document + Email) + Agent Chat")
 
     st.markdown("---")
@@ -484,12 +498,21 @@ with st.sidebar:
 # -----------------------------------------------------------------------------
 # Top Command Bar: Merchant Selector & Natural Language Goal Steerer
 # -----------------------------------------------------------------------------
-duckdb_path = os.path.join(ROOT_DIR, "data", "generated", "paylens.duckdb")
-if not os.path.exists(duckdb_path):
-    st.error(f"DuckDB database not found at {duckdb_path}. Run `python data/generate_synthetic_data.py` first.")
+base_duckdb_path = os.path.join(ROOT_DIR, "data", "generated", "paylens.duckdb")
+if not os.path.exists(base_duckdb_path):
+    st.error(f"DuckDB database not found at {base_duckdb_path}. Run `python data/generate_synthetic_data.py` first.")
     st.stop()
 
-con_ro = duckdb.connect(duckdb_path, read_only=True)
+# Initialize per-session sandbox DuckDB copy
+if "sandbox_duckdb_path" not in st.session_state or not os.path.exists(st.session_state.sandbox_duckdb_path):
+    tmp_fd, tmp_path = tempfile.mkstemp(suffix=".duckdb", prefix="paylens_sandbox_")
+    os.close(tmp_fd)
+    shutil.copyfile(base_duckdb_path, tmp_path)
+    st.session_state.sandbox_duckdb_path = tmp_path
+
+active_duckdb_path = st.session_state.sandbox_duckdb_path
+
+con_ro = duckdb.connect(active_duckdb_path, read_only=True)
 all_merchant_map = get_merchant_names(con_ro)
 con_ro.close()
 
@@ -500,7 +523,17 @@ def format_merchant_label(opt: str) -> str:
         return "🌐 All 20 Global Merchants (Multi-Tenant Overview)"
     return f"{opt}: {all_merchant_map.get(opt, opt)}"
 
-st.markdown("""
+# Offline mode alert banner
+if not is_live:
+    st.markdown("""
+    <div style="background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #FCA5A5; padding: 10px 16px; border-radius: 8px; margin-bottom: 15px; font-weight: 700;">
+        ⚠️ RUNNING IN OFFLINE MODE: LLM inference disabled. Deterministic engine active.
+    </div>
+    """, unsafe_allow_html=True)
+
+header_badge = f"{health['active_endpoint_name']} · {MODEL_NAME}" if is_live else "Offline Deterministic Mode"
+
+st.markdown(f"""
 <div class="top-header">
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div>
@@ -508,15 +541,15 @@ st.markdown("""
                 PayLens <span style="color: #6366F1;">Solo</span>
             </span>
             <span style="background: rgba(99, 102, 241, 0.2); color: #818CF8; border: 1px solid rgba(99, 102, 241, 0.4); padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; margin-left: 8px;">
-                AMD Instinct MI300X · Gemma 4
+                {header_badge}
             </span>
             <div style="font-size: 0.8rem; color: #94A3B8; margin-top: 2px;">
-                Deterministic Multi-Rail Capital Recovery Engine & Autonomous Human+AI Deal Desk
+                Deterministic Multi-Rail Capital Recovery Engine & Human-in-the-Loop Deal Desk
             </div>
         </div>
         <div style="text-align: right;">
             <span class="grounding-pill">
-                ✓ 100% Numeric Grounding Verified
+                ✓ Numeric Grounding Verification Active
             </span>
         </div>
     </div>
@@ -560,19 +593,28 @@ st.session_state.active_weights = active_weights
 with col_preset_badge:
     st.markdown(f"""
     <div style="padding-top: 6px; font-size: 0.78rem; color: #94A3B8;">
-        <span class="metric-pill">💵 Cash: <b>{int(active_weights.cash_now_weight*100)}%</b></span>
-        <span class="metric-pill">📈 Margin: <b>{int(active_weights.margin_protection_weight*100)}%</b></span>
-        <span class="metric-pill">📦 Stock: <b>{int(active_weights.stock_availability_weight*100)}%</b></span>
+        <span class="metric-pill">💵 Cash: <b>{active_weights.cash_now_weight:.2f}</b></span>
+        <span class="metric-pill">📈 Margin: <b>{active_weights.margin_protection_weight:.2f}</b></span>
+        <span class="metric-pill">📦 Stock: <b>{active_weights.stock_availability_weight:.2f}</b></span>
     </div>
     """, unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# Execute Deterministic Pipeline
+# Execute Deterministic Pipeline (Cached)
 # -----------------------------------------------------------------------------
-pipeline_result = run_pipeline(
-    duckdb_path=duckdb_path,
-    goal_weights=active_weights,
-    recovery_rate=0.35,
+@st.cache_data
+def cached_run_pipeline(db_path: str, weights_tuple: tuple, rec_rate: float):
+    gw = GoalWeights(
+        cash_now_weight=weights_tuple[0],
+        margin_protection_weight=weights_tuple[1],
+        stock_availability_weight=weights_tuple[2],
+    )
+    return run_pipeline(duckdb_path=db_path, goal_weights=gw, recovery_rate=rec_rate)
+
+pipeline_result = cached_run_pipeline(
+    active_duckdb_path,
+    (active_weights.cash_now_weight, active_weights.margin_protection_weight, active_weights.stock_availability_weight),
+    0.35,
 )
 
 all_cards: List[RecommendationCard] = st.session_state.custom_injected_cards + pipeline_result["cards"]
@@ -609,23 +651,35 @@ with kpi_c2:
     """, unsafe_allow_html=True)
 
 with kpi_c3:
+    model_cards = [c for c in displayed_cards if getattr(c, "grounding_status", "") not in ("", "NOT_APPLICABLE_OFFLINE")]
+    passed_count = sum(1 for c in model_cards if c.grounding_status in ("PASSED", "RETRIED_PASSED"))
+    retried_count = sum(1 for c in model_cards if c.grounding_status == "RETRIED_PASSED")
+    fallback_count = sum(1 for c in model_cards if c.grounding_status == "TEMPLATE_FALLBACK")
+
+    if not is_live or not model_cards:
+        kpi3_val = "Offline"
+        kpi3_sub = "N/A: no model text generated (offline)"
+    else:
+        kpi3_val = f"{passed_count} / {len(model_cards)}"
+        kpi3_sub = f"{passed_count} of {len(model_cards)} passed, {retried_count} retries, {fallback_count} template fallbacks"
+
     st.markdown(f"""
     <div class="kpi-card">
-        <div class="kpi-label">Numeric Grounding Accuracy</div>
-        <div class="kpi-value" style="color: #38BDF8;">100.0%</div>
-        <div class="kpi-sub">0 Hallucinations · Strict regex audit</div>
+        <div class="kpi-label">Model Numeric Grounding</div>
+        <div class="kpi-value" style="color: #38BDF8;">{kpi3_val}</div>
+        <div class="kpi-sub">{kpi3_sub}</div>
     </div>
     """, unsafe_allow_html=True)
 
 with kpi_c4:
     if is_live:
-        gpu_label = "AMD GPU Throughput (Live)"
+        gpu_label = "AMD GPU Latency (Live)"
         gpu_val = f"{health['latency_ms']} ms"
         gpu_sub = f"Live {health['active_endpoint_name']}"
     else:
-        gpu_label = "AMD MI300X Benchmark (Reference)"
-        gpu_val = f"{ref_bench['benchmark_results']['token_throughput_per_sec']:,.0f} <span style='font-size: 0.9rem;'>tok/s</span>"
-        gpu_sub = f"vLLM Bench Serve · {ref_bench['benchmark_results']['mean_ttft_ms']}ms TTFT"
+        gpu_label = "Engine Speed (Local CPU Mode)"
+        gpu_val = "Deterministic"
+        gpu_sub = "Connect AMD GPU in sidebar for live vLLM tok/s"
 
     st.markdown(f"""
     <div class="kpi-card">
@@ -655,7 +709,7 @@ with tab_deal_desk:
     # Visual Feature 1: Cross-Rail Revenue Flow Sankey Diagram
     # -------------------------------------------------------------------------
     with st.expander("🌊 Cross-Rail Revenue Reconciliation Flow (Interactive Sankey Diagram)", expanded=True):
-        sankey_fig = build_revenue_sankey_chart(duckdb_path, selected_merchant, displayed_cards)
+        sankey_fig = build_revenue_sankey_chart(active_duckdb_path, selected_merchant, displayed_cards)
         st.plotly_chart(sankey_fig, use_container_width=True)
         st.markdown("""
         <div style="font-size: 0.8rem; color: #94A3B8; margin-top: -6px; line-height: 1.4;">
@@ -682,64 +736,55 @@ with tab_deal_desk:
             inj_type = st.selectbox("Anomaly Type:", options=["Dispatched Unpaid Order (Missing Settlement)", "Carrier COD Remittance Shortfall"])
             inj_shortfall = st.number_input("Remittance Shortfall ($):", min_value=5.0, max_value=inj_amt, value=185.0, step=10.0) if "Shortfall" in inj_type else 0.0
 
-        if st.button("🚀 Inject into DuckDB & Audit with AMD Gemma", use_container_width=True):
-            inj_id = f"ORD-LIVE-JUDGE-{int(time.time()) % 10000}"
-            cons_id = f"CONS-LIVE-{int(time.time()) % 10000}"
-            con_rw = duckdb.connect(duckdb_path)
+        sb_btn1, sb_btn2 = st.columns(2)
+        with sb_btn1:
+            if st.button("🚀 Inject into Sandbox DuckDB & Run Pipeline", use_container_width=True):
+                inj_id = f"ORD-LIVE-JUDGE-{int(time.time()) % 10000}"
+                cons_id = f"CONS-LIVE-{int(time.time()) % 10000}"
+                con_rw = duckdb.connect(active_duckdb_path)
 
-            if "Dispatched" in inj_type:
-                con_rw.execute("""
-                    INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, [
-                    inj_id, inj_merch, inj_name, "judge.alex@amd-hackathon.org", "+1-415-555-0999",
-                    datetime.now().isoformat(), inj_amt, "USD", 1, inj_amt, 0.0, "SKU-INJECT-01",
-                    "PAYMENT_GATEWAY" if "Stripe" in inj_rail else "DIGITAL_WALLET",
-                    "Stripe" if "Stripe" in inj_rail else "PayPal",
-                    "DISPATCHED", f"TXN-UNMATCHED-{int(time.time())}"
-                ])
-                card_title = f"Dispatched Unpaid Order #{inj_id} (Judge Live Injection)"
-                card_rec_type = RecommendationType.PAYMENT_LEAKAGE
-                card_sub = LeakSubType.DISPATCHED_UNPAID
-                card_entity = inj_id
-                card_impact = inj_amt
-                formula = f"1 injected unpaid order * ${inj_amt:,.2f} = ${inj_amt:,.2f}"
-            else:
-                con_rw.execute("""
-                    INSERT INTO courier_settlements VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, [
-                    f"SETTLE-{cons_id}", inj_merch, cons_id, inj_id,
-                    "DHL Express" if "DHL" in inj_rail else "FedEx Ground",
-                    datetime.now().strftime("%Y-%m-%d"), inj_amt, 45.0, inj_amt - 45.0,
-                    inj_amt - 45.0 - inj_shortfall, "PARTIAL SHORTFALL"
-                ])
-                card_title = f"Carrier COD Remittance Shortfall: {cons_id} (Judge Live Injection)"
-                card_rec_type = RecommendationType.PAYMENT_LEAKAGE
-                card_sub = LeakSubType.SETTLEMENT_SHORTFALL
-                card_entity = cons_id
-                card_impact = inj_shortfall
-                formula = f"${inj_amt - 45.0:,.2f} expected - ${inj_amt - 45.0 - inj_shortfall:,.2f} actual = ${inj_shortfall:,.2f} shortfall"
+                if "Dispatched" in inj_type:
+                    con_rw.execute("""
+                        INSERT INTO orders (
+                            order_id, merchant_id, customer_name, customer_email, customer_phone,
+                            order_timestamp, order_amount_usd, currency, quantity, unit_price_usd,
+                            shipping_cost_usd, sku, payment_rail, rail_provider, order_status, transaction_ref
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, [
+                        inj_id, inj_merch, inj_name, "judge.alex@example.com", "+1-415-555-0999",
+                        datetime.now().isoformat(), inj_amt, "USD", 1, inj_amt, 0.0, "SKU-INJECT-01",
+                        "PAYMENT_GATEWAY" if "Stripe" in inj_rail else "DIGITAL_WALLET",
+                        "Stripe" if "Stripe" in inj_rail else "PayPal",
+                        "DISPATCHED", f"TXN-UNMATCHED-{int(time.time())}"
+                    ])
+                    card_entity = inj_id
+                else:
+                    con_rw.execute("""
+                        INSERT INTO courier_settlements (
+                            settlement_id, merchant_id, consignment_id, order_id, courier_name,
+                            statement_date, cod_collected_usd, courier_fee_usd, expected_net_payout_usd,
+                            actual_settled_usd, payout_status
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, [
+                        f"SETTLE-{cons_id}", inj_merch, cons_id, inj_id,
+                        "DHL Express" if "DHL" in inj_rail else "FedEx Ground",
+                        datetime.now().strftime("%Y-%m-%d"), inj_amt, 45.0, inj_amt - 45.0,
+                        inj_amt - 45.0 - inj_shortfall, "PARTIAL SHORTFALL"
+                    ])
+                    card_entity = cons_id
 
-            con_rw.close()
+                con_rw.close()
+                st.cache_data.clear()
+                st.success(f"🎉 Anomaly #{card_entity} injected into sandbox DuckDB! Running real deterministic detectors...")
+                st.rerun()
 
-            # Create and enrich the new recommendation card immediately
-            new_card = RecommendationCard(
-                card_id=f"CARD-LIVE-{inj_id}",
-                merchant_id=inj_merch,
-                merchant_name=all_merchant_map.get(inj_merch, inj_merch),
-                rec_type=card_rec_type,
-                leak_sub_type=card_sub,
-                entity_id=card_entity,
-                title=card_title,
-                impact_usd=card_impact,
-                confidence=0.99,
-                formula_display=formula,
-                allowed_numbers=[card_impact, inj_amt, 1.0, 5.0],
-                ranking_score=round(card_impact * 0.99 * active_weights.cash_now_weight, 2),
-            )
-            new_card = enrich_card_with_agent(new_card, tone=st.session_state.last_tone)
-            st.session_state.custom_injected_cards.insert(0, new_card)
-            st.success(f"🎉 Anomaly #{card_entity} injected into DuckDB! Recommendation card created and audited with AMD Gemma.")
-            st.rerun()
+        with sb_btn2:
+            if st.button("🔄 Reset Sandbox Database", use_container_width=True):
+                shutil.copyfile(base_duckdb_path, st.session_state.sandbox_duckdb_path)
+                st.cache_data.clear()
+                st.session_state.custom_injected_cards = []
+                st.success("Sandbox database reset to initial base synthetic state.")
+                st.rerun()
 
     # Interactive Controls: What-If Recovery Rate Slider & Tone Steerer
     ctrl_col1, ctrl_col2, ctrl_col3 = st.columns([1.5, 1.5, 1.2])
@@ -751,7 +796,7 @@ with tab_deal_desk:
             max_value=0.80,
             value=0.35,
             step=0.05,
-            format="%0.0f%%",
+            format="%0.2f",
             help="Dynamically recomputes failed checkout recovery impact and updates deterministic card ranking instantly.",
         )
 
@@ -764,7 +809,7 @@ with tab_deal_desk:
                 "Formal Carrier Dispute",
             ],
             index=0,
-            help="Instructs Google Gemma-4-31B-it on AMD MI300X to draft the customer or carrier message under strict 100% numeric grounding.",
+            help="Instructs Google Gemma-4-31B-it to draft the customer or carrier message under strict deterministic numeric grounding verification.",
         )
         st.session_state.last_tone = selected_tone
 
@@ -779,10 +824,10 @@ with tab_deal_desk:
 
     # Dynamic recomputation if slider changed from default 0.35
     if what_if_recovery_rate != 0.35:
-        dyn_pipeline = run_pipeline(
-            duckdb_path=duckdb_path,
-            goal_weights=active_weights,
-            recovery_rate=what_if_recovery_rate,
+        dyn_pipeline = cached_run_pipeline(
+            active_duckdb_path,
+            (active_weights.cash_now_weight, active_weights.margin_protection_weight, active_weights.stock_availability_weight),
+            what_if_recovery_rate,
         )
         base_cards = dyn_pipeline["cards"]
         all_dyn = st.session_state.custom_injected_cards + base_cards
@@ -807,7 +852,8 @@ with tab_deal_desk:
                 badge_class = "badge-stockout"
                 badge_label = "📦 STOCKOUT SURGE RISK"
 
-            if not card.explanation_en:
+            # Enrich top 3 cards on page load; rest on demand
+            if idx <= 3 and not card.explanation_en:
                 card = enrich_card_with_agent(card, tone=selected_tone)
 
             is_executed = card.card_id in st.session_state.executed_actions
@@ -831,7 +877,7 @@ with tab_deal_desk:
                             <div style="font-family: 'JetBrains Mono'; font-size: 1.5rem; font-weight: 800; color: #34D399;">
                                 ${card.impact_usd:,.2f}
                             </div>
-                            <div style="font-size: 0.72rem; color: #94A3B8;">Confidence: <b>{int(card.confidence*100)}%</b> · Ranking Score: <b>{card.ranking_score:,.1f}</b></div>
+                            <div style="font-size: 0.72rem; color: #94A3B8;">Confidence: <b>{card.confidence:.2f}</b> · Ranking Score: <b>{card.ranking_score:,.1f}</b></div>
                         </div>
                     </div>
                     
@@ -845,7 +891,7 @@ with tab_deal_desk:
                 # Visual Feature 2: Holt-Winters Forecast Chart on Stockout Cards
                 # -------------------------------------------------------------
                 if card.rec_type == RecommendationType.STOCKOUT_RISK:
-                    stockout_fig = build_stockout_forecast_chart(duckdb_path, card.entity_id, card.title, card.impact_usd)
+                    stockout_fig = build_stockout_forecast_chart(active_duckdb_path, card.entity_id, card.title, card.impact_usd)
                     if stockout_fig:
                         st.plotly_chart(stockout_fig, use_container_width=True)
 
@@ -894,7 +940,7 @@ with tab_deal_desk:
                     with st.expander("🛡️ Red-Team Grounding Stress Test (Simulate LLM Hallucination)", expanded=False):
                         st.markdown("""
                         **Architecture Guardrail 2 Verification**: Test what happens if an ungrounded LLM fabricates financial numbers.
-                        PayLens's numeric regex grounding verifier catches any ungrounded token, rejects the hallucination, and enforces 100% mathematical integrity.
+                        PayLens's numeric regex grounding verifier catches any ungrounded token, rejects the hallucination, and enforces mathematical integrity.
                         """)
                         hallucinated_amt = round(card.impact_usd * 3.45 + 1250.0, 2)
                         fake_unverified_text = f"Audit Finding: We detected an unverified loss of ${hallucinated_amt:,.2f} on {card.entity_id} with an ungrounded penalty fee of $495.00."
@@ -927,24 +973,44 @@ with tab_deal_desk:
                             st.markdown(f"""
                             <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; padding: 12px; font-size: 0.83rem; color: #E2E8F0;">
                                 <div style="color: #34D399; font-weight: 700; margin-bottom: 4px;">✓ Hallucination Intercepted & Purged</div>
-                                {card.explanation_en}
+                                {card.explanation_en if card.explanation_en else 'Clean deterministic fallback explanation active.'}
                             </div>
                             """, unsafe_allow_html=True)
                             st.markdown("""
                             <div style="margin-top: 8px;">
-                                <span class="grounding-pill">✓ 100% Numeric Grounding Restored (0 Hallucinations)</span>
+                                <span class="grounding-pill">✓ Numeric Grounding Restored via Deterministic Template</span>
                             </div>
                             """, unsafe_allow_html=True)
 
-                    st.markdown("""
+                    grounding_status = getattr(card, "grounding_status", "NOT_APPLICABLE_OFFLINE")
+                    if grounding_status == "PASSED":
+                        g_pill_text = "✓ Grounding Check: PASSED"
+                        g_pill_color = "#34D399"
+                    elif grounding_status == "RETRIED_PASSED":
+                        g_pill_text = "✓ Grounding Check: RETRIED_PASSED"
+                        g_pill_color = "#38BDF8"
+                    elif grounding_status == "TEMPLATE_FALLBACK":
+                        g_pill_text = "⚠️ Grounding Check: TEMPLATE_FALLBACK"
+                        g_pill_color = "#FBBF24"
+                    else:
+                        g_pill_text = "● Grounding Check: NOT_APPLICABLE_OFFLINE"
+                        g_pill_color = "#94A3B8"
+
+                    st.markdown(f"""
                     <div style="margin-top: 8px;">
-                        <span class="grounding-pill">✓ Grounding Check Passed (0 Hallucinations)</span>
+                        <span class="grounding-pill" style="color: {g_pill_color}; border-color: {g_pill_color}40;">{g_pill_text}</span>
                     </div>
                     """, unsafe_allow_html=True)
 
                 with det_col2:
-                    st.markdown(f"**Gemma-4-31B-it Explanation ({card.execution_source}):**")
-                    st.info(card.explanation_en)
+                    if not card.explanation_en:
+                        st.info("Explanation on-demand: click below to generate explanation with AMD GPU or deterministic fallback.")
+                        if st.button(f"Generate Explanation for #{idx}", key=f"btn_card_enrich_{card.card_id}", use_container_width=True):
+                            enrich_card_with_agent(card, tone=selected_tone)
+                            st.rerun()
+                    else:
+                        st.markdown(f"**Gemma-4-31B-it Explanation ({card.execution_source}):**")
+                        st.info(card.explanation_en)
 
                     st.markdown("**Editable Action Dispatch Draft:**")
                     action_text_input = st.text_area(
@@ -986,8 +1052,8 @@ with tab_deal_desk:
                             ✓ EXECUTION DISPATCH RECEIPT: {receipt['receipt_id']}
                         </div>
                         <div>Channel: <b>{receipt['channel']}</b></div>
-                        <div>Credited Recovery: <b>${receipt['recovered_usd_credited']:,.2f}</b></div>
-                        <div>Cryptographic Audit Hash: <code>{receipt['audit_hash']}</code></div>
+                        <div>Expected Recovery: <b>${receipt.get('expected_recovery_usd', receipt.get('recovered_usd_credited', card.impact_usd)):,.2f}</b></div>
+                        <div>Audit Hash (SHA-256): <code>{receipt['audit_hash']}</code></div>
                         <div>Dispatched Timestamp: <code>{receipt['timestamp']}</code></div>
                     </div>
                     """, unsafe_allow_html=True)
@@ -1000,10 +1066,10 @@ with tab_deal_desk:
 with tab_pdf:
     st.markdown("### 📄 Evolus AI Partner Track: Multi-Block Commercial Workflows")
     st.markdown("""
-    PayLens Solo integrates **three official Evolus building blocks** into an autonomous capital recovery engine:
+    PayLens Solo integrates **three official Evolus building blocks** into a deterministic capital recovery engine:
     1. **Ready-Made AI Tool 1 (`document-to-structured-data`)**: Parses courier COD PDF settlements into structured line items.
     2. **Ready-Made AI Tool 2 (`email-writing`)**: Generates legally-grounded carrier remittance shortfall dispute notices & high-converting customer cart recovery offers.
-    3. **Evolus Business Agent (`/v1/chat/completions` & `/workflows/{id}/execute`)**: Dispatches autonomous reconciliation workflows with cryptographic audit receipts.
+    3. **Evolus Business Agent (`/v1/chat/completions` & `/workflows/{id}/execute`)**: Dispatches reconciliation workflows with SHA-256 audit receipts.
     """)
 
     # -------------------------------------------------------------------------
@@ -1023,7 +1089,7 @@ with tab_pdf:
         t_c1.metric("Verification Calls", f"{len(telem)} / 6")
         t_c2.metric("Building Blocks Audited", "3 Distinct Blocks")
         t_c3.metric("Live API Endpoint", "api.evolus.ai")
-        t_c4.metric("Verification Status", "100.0% Audited")
+        t_c4.metric("Verification Status", "Verified")
 
         st.markdown("#### Live Evolus API Telemetry Audit Log:")
         telem_df = pd.DataFrame([
@@ -1093,39 +1159,35 @@ with tab_pdf:
         st.caption(f"Extraction Engine: **{res.get('source')}** | Building Block: **{res.get('building_block')}**")
 
 # =============================================================================
-# TAB 3: AMD INSTINCT MI300X PROOF & GROUND-TRUTH AUDIT
+# TAB 3: AMD HARDWARE PROOF & GROUND-TRUTH AUDIT
 # =============================================================================
 with tab_proof:
-    st.markdown("### ⚡ AMD Instinct MI300X Proof & Ground-Truth Verification")
-    st.markdown("""
-    **Architecture Guardrail Verification**:
-    - **Ground Truth**: Verified against planted ground truth in `data/generated/ground_truth.json`.
-    - **0 False Alarms on Fuzzy True Negatives**: 18/18 orders with missing transaction IDs reconciled via Pass 2 fuzzy matching.
-    """)
+    st.markdown("### ⚡ AMD Hardware Proof & Ground-Truth Verification")
+    st.info("ℹ️ **Notice**: PayLens Solo is demonstrated on illustrative synthetic data modeled on international commerce (Shopify, Stripe, PayPal, SEPA, and DHL/FedEx COD).")
 
     eval_data = pipeline_result.get("evaluation", {})
     if eval_data:
         m_col1, m_col2, m_col3, m_col4 = st.columns(4)
-        m_col1.metric("Overall Precision", f"{eval_data['overall']['precision']*100:.1f}%")
-        m_col2.metric("Overall Recall", f"{eval_data['overall']['recall']*100:.1f}%")
-        m_col3.metric("Overall F1 Score", f"{eval_data['overall']['f1_score']*100:.1f}%")
-        m_col4.metric("Fuzzy TN Exclusion Rate", f"{eval_data['fuzzy_true_negatives']['exclusion_rate_percent']:.1f}%", help="Must be 100% to guarantee 0 false alarms on missing transaction IDs!")
+        m_col1.metric("Overall Precision", f"{eval_data['overall']['precision']:.2f}")
+        m_col2.metric("Overall Recall", f"{eval_data['overall']['recall']:.2f}")
+        m_col3.metric("Overall F1 Score", f"{eval_data['overall']['f1_score']:.2f}")
+        m_col4.metric("Fuzzy TN Exclusion Rate", f"{eval_data['fuzzy_true_negatives']['exclusion_rate_percent']:.1f}%", help="Rate at which orders with missing transaction IDs are reconciled in Pass 2.")
 
         perf_data = [
-            {"Category": "Dispatched Unpaid Orders", "Precision": f"{eval_data['dispatched_unpaid']['precision']*100:.1f}%", "Recall": f"{eval_data['dispatched_unpaid']['recall']*100:.1f}%", "F1": f"{eval_data['dispatched_unpaid']['f1_score']*100:.1f}%"},
-            {"Category": "Carrier Shortfalls", "Precision": f"{eval_data['courier_shortfalls']['precision']*100:.1f}%", "Recall": f"{eval_data['courier_shortfalls']['recall']*100:.1f}%", "F1": f"{eval_data['courier_shortfalls']['f1_score']*100:.1f}%"},
-            {"Category": "Failed Payment Recovery", "Precision": f"{eval_data['failed_payment_recovery']['precision']*100:.1f}%", "Recall": f"{eval_data['failed_payment_recovery']['recall']*100:.1f}%", "F1": f"{eval_data['failed_payment_recovery']['f1_score']*100:.1f}%"},
-            {"Category": "Stockout Risk SKUs (Holt-Winters)", "Precision": f"{eval_data['stockout_risk']['precision']*100:.1f}%", "Recall": f"{eval_data['stockout_risk']['recall']*100:.1f}%", "F1": f"{eval_data['stockout_risk']['f1_score']*100:.1f}%"},
-            {"Category": "Fuzzy True Negatives (0 False Alarms)", "Precision": "100.0%", "Recall": "100.0%", "F1": "100.0%"},
+            {"Category": "Dispatched Unpaid Orders", "Precision": f"{eval_data['dispatched_unpaid']['precision']:.2f}", "Recall": f"{eval_data['dispatched_unpaid']['recall']:.2f}", "F1": f"{eval_data['dispatched_unpaid']['f1_score']:.2f}"},
+            {"Category": "Carrier Shortfalls", "Precision": f"{eval_data['courier_shortfalls']['precision']:.2f}", "Recall": f"{eval_data['courier_shortfalls']['recall']:.2f}", "F1": f"{eval_data['courier_shortfalls']['f1_score']:.2f}"},
+            {"Category": "Failed Payment Recovery", "Precision": f"{eval_data['failed_payment_recovery']['precision']:.2f}", "Recall": f"{eval_data['failed_payment_recovery']['recall']:.2f}", "F1": f"{eval_data['failed_payment_recovery']['f1_score']:.2f}"},
+            {"Category": "Stockout Risk SKUs (Holt-Winters)", "Precision": f"{eval_data['stockout_risk']['precision']:.2f}", "Recall": f"{eval_data['stockout_risk']['recall']:.2f}", "F1": f"{eval_data['stockout_risk']['f1_score']:.2f}"},
+            {"Category": "Fuzzy True Negatives", "Precision": "Verified", "Recall": "Verified", "F1": "Verified"},
         ]
         st.table(pd.DataFrame(perf_data))
 
     st.markdown("---")
-    st.markdown("#### High-Concurrency MI300X Serving Burst Benchmark")
-    st.markdown("Fires concurrent requests via `asyncio.gather` across all 20 merchants to benchmark serving latency and verify 100% numeric grounding.")
+    st.markdown("#### High-Concurrency Serving Burst Benchmark")
+    st.markdown("Fires concurrent requests via `asyncio.gather` across merchants to audit serving latency and numeric grounding.")
 
-    if st.button("🚀 Run AMD GPU Parallel Burst Benchmark (20 Merchants)", use_container_width=True):
-        with st.spinner("Executing high-concurrency burst benchmark..."):
+    if st.button("🚀 Run Parallel Burst Benchmark", use_container_width=True):
+        with st.spinner("Executing burst benchmark..."):
             burst_res = run_mi300x_parallel_burst(all_cards, max_concurrency=32)
             st.session_state["last_burst"] = burst_res
 
@@ -1135,22 +1197,55 @@ with tab_proof:
 
         b_c1.metric("Execution Mode", b["mode_display"])
         b_c2.metric("Wall-Clock Duration", f"{b['wall_clock_seconds']}s")
-        b_c3.metric("Grounding Accuracy", f"{b['grounding_pass_rate']}%")
-        b_c4.metric("MI300X Reference Speed", f"{ref_bench['benchmark_results']['token_throughput_per_sec']:,.0f} tok/s")
+        b_c3.metric("Grounding Pass Rate", f"{b['grounding_pass_rate']}%")
+        b_c4.metric("Latency", f"{b.get('mean_latency_ms', '-')} ms")
 
-        # Concurrency scaling Plotly chart
-        concurrency_levels = [1, 4, 8, 16, 32]
-        throughputs = [350, 1100, 1850, 2400, ref_bench['benchmark_results']['token_throughput_per_sec']]
-        fig = px.bar(
-            x=[f"c={c}" for c in concurrency_levels],
-            y=throughputs,
-            labels={"x": "Concurrency Level", "y": "Tokens / Second (vLLM ROCm)"},
-            title="AMD Instinct MI300X vLLM Benchmark Reference (CDNA 3 HBM3 Concurrency Scaling)",
-            color=throughputs,
-            color_continuous_scale="Viridis",
-        )
-        fig.update_layout(template="plotly_dark", plot_bgcolor="#070B14", paper_bgcolor="#070B14")
-        st.plotly_chart(fig, use_container_width=True)
+    st.markdown("#### Measured Concurrency Scaling")
+    latest_bench_file = Path(ROOT_DIR) / "benchmarks" / "results" / "latest.json"
+    if latest_bench_file.exists():
+        try:
+            with open(latest_bench_file, "r", encoding="utf-8") as bf:
+                bench_json = json.load(bf)
+            tiers = bench_json.get("concurrency_tiers", [])
+            if tiers:
+                c_levels = [f"c={t['concurrency']}" for t in tiers]
+                t_vals = [t["tokens_per_sec"] for t in tiers]
+                fig = px.bar(
+                    x=c_levels,
+                    y=t_vals,
+                    labels={"x": "Concurrency Level", "y": "Tokens / Second"},
+                    title=f"Measured Concurrency Scaling ({bench_json.get('hardware', 'Benchmark')})",
+                    color=t_vals,
+                    color_continuous_scale="Viridis",
+                )
+                fig.update_layout(template="plotly_dark", plot_bgcolor="#070B14", paper_bgcolor="#070B14")
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.info("No benchmark run yet: run python benchmarks/run_benchmark.py")
+        except Exception:
+            st.info("No benchmark run yet: run python benchmarks/run_benchmark.py")
+    else:
+        st.info("No benchmark run yet: run python benchmarks/run_benchmark.py")
+
+    st.markdown("---")
+    st.markdown("#### 📜 Live Inference Proof (Last 10 Log Entries)")
+    st.caption("Provenance audit log from `logs/inference_log.jsonl` recording inference calls, endpoints, and latency:")
+    log_file = Path(ROOT_DIR) / "logs" / "inference_log.jsonl"
+    if log_file.exists() and log_file.stat().st_size > 0:
+        try:
+            entries = []
+            with open(log_file, "r", encoding="utf-8") as lf:
+                for line in lf:
+                    line = line.strip()
+                    if line:
+                        entries.append(json.loads(line))
+            last_10 = entries[-10:]
+            last_10.reverse()
+            st.dataframe(pd.DataFrame(last_10), use_container_width=True)
+        except Exception as ex:
+            st.caption(f"Error reading inference log: {ex}")
+    else:
+        st.caption("No inference calls logged yet.")
 
 # =============================================================================
 # TAB 4: GLOBAL MULTI-RAIL CONNECTOR ARCHITECTURE
@@ -1182,28 +1277,55 @@ with tab_connectors:
         st.markdown("#### 2. PayLens Canonical DuckDB Schema Output")
         st.dataframe(normalized_df, use_container_width=True)
 
-    st.markdown("""
-    ```mermaid
-    flowchart LR
-        subgraph RawRails[Disconnected Global Payment Rails]
-            R1[Stripe Gateway US/EU]
-            R2[PayPal Commerce]
-            R3[DHL / FedEx Commercial COD]
-            R4[Brazil Pix]
-            R5[India UPI]
-            R6[Kenya M-Pesa]
-            R7[Bangladesh MFS]
-        end
-        subgraph ConnectorLayer[PayLens Pluggable Connectors]
-            C[PaymentRailConnector Interface]
-        end
-        subgraph CoreEngine[PayLens Deterministic Engine]
-            D[(Unified DuckDB Schema)]
-            M[2-Pass Leak Matcher]
-            F[Holt-Winters Forecaster]
-            S[STL Anomaly Detector]
-            A[AMD MI300X Gemma 4 Agent]
-        end
-        RawRails --> C --> D --> M & F & S --> A
-    ```
-    """)
+    st.markdown("#### End-to-End Pipeline Architecture Diagram:")
+    dot_graph = """
+    digraph G {
+        graph [rankdir=LR, bgcolor="#070B14", fontname="Helvetica"];
+        node [shape=box, style="filled,rounded", fontname="Helvetica", fontcolor="#F8FAFC", color="#334155"];
+        edge [color="#64748B", fontname="Helvetica", fontcolor="#94A3B8"];
+
+        subgraph cluster_rails {
+            label = "Raw Global Payment Rails";
+            style = "dashed";
+            color = "#475569";
+            fontcolor = "#94A3B8";
+            node [fillcolor="#0E1626"];
+            R1 [label="Stripe Gateway\\n(US/EU)"];
+            R2 [label="PayPal\\nCommerce"];
+            R3 [label="DHL / FedEx\\nCOD"];
+            R4 [label="Brazil Pix"];
+            R5 [label="India UPI"];
+            R6 [label="Kenya M-Pesa"];
+            R7 [label="Bangladesh MFS"];
+        }
+
+        subgraph cluster_conn {
+            label = "Pluggable Connectors";
+            style = "dashed";
+            color = "#475569";
+            fontcolor = "#94A3B8";
+            node [fillcolor="#1E293B"];
+            C [label="PaymentRailConnector\\nInterface"];
+        }
+
+        subgraph cluster_engine {
+            label = "PayLens Deterministic Engine";
+            style = "dashed";
+            color = "#475569";
+            fontcolor = "#94A3B8";
+            node [fillcolor="#1E1B4B"];
+            D [label="Canonical DuckDB\\nSchema", shape=cylinder, fillcolor="#064E3B"];
+            M [label="2-Pass Matcher"];
+            F [label="Holt-Winters Forecaster"];
+            S [label="STL Anomaly Detector"];
+            A [label="AMD Model Explainer"];
+        }
+
+        R1 -> C; R2 -> C; R3 -> C; R4 -> C; R5 -> C; R6 -> C; R7 -> C;
+        C -> D;
+        D -> M; D -> F; D -> S;
+        M -> A; F -> A; S -> A;
+    }
+    """
+    st.graphviz_chart(dot_graph)
+

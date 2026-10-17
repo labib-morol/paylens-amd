@@ -2,7 +2,7 @@
 
 Architecture Rule 1: CODE COMPUTES, AMD GPU MODEL EXPLAINS.
 All mathematical computations, matching logic, and forecasts are strictly deterministic.
-The LLM only explains and drafts actions, verified by 100% numeric regex grounding.
+The LLM only explains and drafts actions, verified by numeric regex grounding.
 """
 
 from enum import Enum
@@ -90,6 +90,7 @@ class RecommendationCard(BaseModel):
     # Grounding telemetry
     grounding_passed: bool = False
     grounding_retries: int = 0
+    grounding_status: str = "NOT_APPLICABLE_OFFLINE"  # PASSED, RETRIED_PASSED, TEMPLATE_FALLBACK, or NOT_APPLICABLE_OFFLINE
     status: str = "PENDING"
     execution_receipt_id: Optional[str] = None
 

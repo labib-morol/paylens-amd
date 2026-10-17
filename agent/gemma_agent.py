@@ -1,12 +1,11 @@
-"""AMD Instinct MI300X Gemma Agent with Strict Numeric Grounding and Endpoint Fallback.
+"""AMD Instinct GPU Gemma Agent with Strict Numeric Grounding and Fallback Architecture.
 
 Architecture Rules:
 1. CODE COMPUTES, MODEL EXPLAINS: The LLM explains and drafts actions; it never calculates numbers.
 2. GROUNDING CHECK: Every number in English output is verified against tool results and allowed card numbers.
-3. DUAL ENDPOINT FALLBACK: Primary AMD_VLLM_BASE_URL (MI300X vLLM), backup AMD_TOKENFACTORY_BASE_URL,
-   and instant deterministic offline template fallback.
-4. HONEST TELEMETRY: Clearly labels execution source (LIVE_AMD_MI300X_VLLM, LIVE_AMD_TOKENFACTORY, or
-   LOCAL_DETERMINISTIC_FALLBACK) and never presents local CPU template speed as AMD GPU inference throughput.
+3. DUAL ENDPOINT FALLBACK: Primary AMD_VLLM_BASE_URL (vLLM), backup AMD_TOKENFACTORY_BASE_URL,
+   and deterministic offline template fallback.
+4. HONEST TELEMETRY: Clearly labels execution source and records real inference provenance.
 """
 
 import os
@@ -14,8 +13,11 @@ import sys
 import json
 import time
 import asyncio
+from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
 import httpx
 from openai import OpenAI, AsyncOpenAI
 from dotenv import load_dotenv
@@ -30,103 +32,168 @@ from agent.tools import get_order, get_payments, get_settlement, get_forecast
 
 load_dotenv()
 
-MODEL_NAME = os.getenv("VLLM_MODEL", "google/gemma-4-31B-it")
-PRIMARY_URL = os.getenv("AMD_VLLM_BASE_URL", "http://localhost:8000/v1")
-BACKUP_URL = os.getenv("AMD_TOKENFACTORY_BASE_URL", "https://notebooks.amd.com/tokenfactory/v1")
-API_KEY = os.getenv("AMD_API_KEY", "mock-key-for-local-dev")
-OFFLINE_OVERRIDE = os.getenv("OFFLINE_MODE", "false").lower() in ("true", "1", "yes")
-
-REFERENCE_VLLM_BENCHMARK_PATH = os.path.join(ROOT_DIR, "benchmarks", "mi300x_vllm_bench_serve.json")
+LOGS_DIR = os.path.join(ROOT_DIR, "logs")
+INFERENCE_LOG_PATH = os.path.join(LOGS_DIR, "inference_log.jsonl")
 
 
-def import_vllm_bench_serve_json(filepath: Optional[str] = None) -> Dict[str, Any]:
-    """Load authentic vllm bench serve reference telemetry recorded on an AMD Instinct MI300X host."""
-    path = filepath or REFERENCE_VLLM_BENCHMARK_PATH
-    if os.path.exists(path):
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            pass
-    return {
-        "benchmark_name": "vllm bench serve",
-        "hardware": {"gpu_model": "AMD Instinct MI300X", "memory_hbm3_gb": 192.0},
-        "benchmark_results": {"token_throughput_per_sec": 2842.6, "mean_ttft_ms": 42.8, "concurrency": 32},
-    }
+def get_config_val(key: str) -> Optional[str]:
+    """Retrieve configuration with Streamlit secrets taking precedence over os.getenv."""
+    val = None
+    try:
+        import streamlit as st
+        if hasattr(st, "secrets") and key in st.secrets:
+            val = str(st.secrets[key])
+    except Exception:
+        pass
+    if val is None or val == "":
+        val = os.getenv(key)
+    return val if val != "" else None
+
+
+# Environment variables with NO defaults
+PRIMARY_URL = get_config_val("AMD_VLLM_BASE_URL")
+BACKUP_URL = get_config_val("AMD_TOKENFACTORY_BASE_URL")
+API_KEY = get_config_val("AMD_API_KEY")
+MODEL_NAME = get_config_val("MODEL_NAME")
+
+
+def log_inference_entry(
+    endpoint_type: str,
+    model_served: str,
+    latency_ms: float,
+    prompt_tokens: int = 0,
+    completion_tokens: int = 0,
+):
+    """Appends an anonymized inference audit log entry."""
+    try:
+        os.makedirs(LOGS_DIR, exist_ok=True)
+        record = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "endpoint_type": endpoint_type,
+            "model_served": model_served,
+            "latency_ms": round(latency_ms, 1),
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+        }
+        with open(INFERENCE_LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(record) + "\n")
+    except Exception:
+        pass
+
+
+def get_recent_inference_logs(limit: int = 10) -> List[Dict[str, Any]]:
+    """Returns the most recent inference log entries for demo inspection."""
+    if not os.path.exists(INFERENCE_LOG_PATH):
+        return []
+    try:
+        with open(INFERENCE_LOG_PATH, "r", encoding="utf-8") as f:
+            lines = [line.strip() for line in f if line.strip()]
+        recent = [json.loads(line) for line in lines[-limit:]]
+        recent.reverse()
+        return recent
+    except Exception:
+        return []
 
 
 def check_endpoint_health() -> Dict[str, Any]:
-    """Check health and model list of both AMD GPU endpoints."""
+    """Check health and model list of configured AMD GPU endpoints."""
+    offline_override = (get_config_val("OFFLINE_MODE") or "false").lower() in ("true", "1", "yes")
+
     result = {
         "primary_url": PRIMARY_URL,
         "primary_active": False,
-        "primary_model": MODEL_NAME,
         "backup_url": BACKUP_URL,
         "backup_active": False,
-        "backup_models": [],
-        "active_endpoint_name": "Local Deterministic Fallback (CPU)",
+        "active_endpoint_name": "Offline deterministic mode",
         "active_url": None,
+        "model_served": MODEL_NAME or "Not configured",
+        "available_models": [],
+        "model_valid": True,
         "execution_source": ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value,
         "is_offline": True,
-        "latency_ms": 0.0,
+        "latency_display": "-",
+        "status_note": "",
     }
 
-    if OFFLINE_OVERRIDE:
-        result["active_endpoint_name"] = "Deterministic Local Mode (Offline)"
-        result["execution_source"] = ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value
+    if offline_override:
+        result["status_note"] = "OFFLINE_MODE=true set explicitly"
         return result
 
-    # 1. Test Primary (AMD Instinct MI300X ROCm vLLM)
-    t0 = time.perf_counter()
-    try:
-        with httpx.Client(timeout=1.0) as client:
-            resp = client.get(f"{PRIMARY_URL.rstrip('/v1')}/health", timeout=1.0)
-            if resp.status_code == 200:
-                result["primary_active"] = True
-                result["active_endpoint_name"] = "AMD Instinct MI300X · ROCm vLLM"
-                result["active_url"] = PRIMARY_URL
-                result["execution_source"] = ExecutionSource.LIVE_AMD_MI300X_VLLM.value
-                result["is_offline"] = False
-                result["latency_ms"] = round((time.perf_counter() - t0) * 1000, 2)
-                return result
-    except Exception:
-        pass
+    # 1. Test Primary (AMD Instinct vLLM server) if configured
+    if PRIMARY_URL:
+        t0 = time.perf_counter()
+        try:
+            with httpx.Client(timeout=5.0) as client:
+                resp = client.get(f"{PRIMARY_URL.rstrip('/')}/models", timeout=5.0)
+                if resp.status_code == 200:
+                    lat = round((time.perf_counter() - t0) * 1000, 1)
+                    data = resp.json()
+                    models = [m.get("id") for m in data.get("data", [])]
+                    result["primary_active"] = True
+                    result["active_endpoint_name"] = "AMD vLLM Endpoint"
+                    result["active_url"] = PRIMARY_URL
+                    result["execution_source"] = ExecutionSource.LIVE_AMD_MI300X_VLLM.value
+                    result["is_offline"] = False
+                    result["latency_display"] = f"{lat} ms"
+                    result["available_models"] = models
+                    if MODEL_NAME:
+                        if models and MODEL_NAME not in models:
+                            result["model_valid"] = False
+                            result["status_note"] = f"Model '{MODEL_NAME}' not found in endpoint models: {models}"
+                            result["model_served"] = models[0] if models else MODEL_NAME
+                        else:
+                            result["model_served"] = MODEL_NAME
+                    else:
+                        result["model_served"] = models[0] if models else "unknown"
+                    return result
+        except Exception as e:
+            result["status_note"] = f"vLLM connection failed: {str(e)[:60]}"
 
-    # 2. Test Backup (AMD TokenFactory)
-    t0 = time.perf_counter()
-    try:
-        with httpx.Client(timeout=1.5) as client:
-            headers = {"Authorization": f"Bearer {API_KEY}"} if API_KEY else {}
-            resp = client.get(f"{BACKUP_URL}/models", headers=headers, timeout=1.5)
-            if resp.status_code == 200:
-                data = resp.json()
-                models = [m.get("id") for m in data.get("data", [])] if "data" in data else []
-                result["backup_active"] = True
-                result["backup_models"] = models
-                result["active_endpoint_name"] = "AMD TokenFactory GPU Cloud"
-                result["active_url"] = BACKUP_URL
-                result["execution_source"] = ExecutionSource.LIVE_AMD_TOKENFACTORY.value
-                result["is_offline"] = False
-                result["latency_ms"] = round((time.perf_counter() - t0) * 1000, 2)
-                return result
-    except Exception:
-        pass
+    # 2. Test Backup (AMD TokenFactory) if configured
+    if BACKUP_URL and API_KEY:
+        t0 = time.perf_counter()
+        try:
+            headers = {"Authorization": f"Bearer {API_KEY}"}
+            with httpx.Client(timeout=5.0) as client:
+                resp = client.get(f"{BACKUP_URL.rstrip('/')}/models", headers=headers, timeout=5.0)
+                if resp.status_code == 200:
+                    lat = round((time.perf_counter() - t0) * 1000, 1)
+                    data = resp.json()
+                    models = [m.get("id") for m in data.get("data", [])]
+                    result["backup_active"] = True
+                    result["active_endpoint_name"] = "AMD TokenFactory GPU Cloud"
+                    result["active_url"] = BACKUP_URL
+                    result["execution_source"] = ExecutionSource.LIVE_AMD_TOKENFACTORY.value
+                    result["is_offline"] = False
+                    result["latency_display"] = f"{lat} ms"
+                    result["available_models"] = models
+                    if MODEL_NAME:
+                        if models and MODEL_NAME not in models:
+                            result["model_valid"] = False
+                            result["status_note"] = f"Model '{MODEL_NAME}' not in TokenFactory model list: {models}"
+                            result["model_served"] = models[0] if models else MODEL_NAME
+                        else:
+                            result["model_served"] = MODEL_NAME
+                    else:
+                        result["model_served"] = models[0] if models else "unknown"
+                    return result
+        except Exception as e:
+            result["status_note"] = f"TokenFactory connection failed: {str(e)[:60]}"
+    elif not BACKUP_URL or not API_KEY or not MODEL_NAME:
+        result["status_note"] = "TokenFactory not configured"
 
-    # Neither connected -> return deterministic local mode
-    result["active_endpoint_name"] = "Deterministic Local CPU Mode"
-    result["execution_source"] = ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value
-    result["latency_ms"] = 0.0
     return result
 
 
 def get_active_endpoint() -> Tuple[Optional[str], bool, str]:
-    """Detect available AMD Instinct endpoint, offline status, and execution source."""
+    """Detect available AMD endpoint, offline status, and execution source."""
     health = check_endpoint_health()
     return health["active_url"], health["is_offline"], health["execution_source"]
 
 
+@lru_cache(maxsize=128)
 def goal_to_weights(goal_text: str) -> GoalWeights:
-    """Convert natural language merchant goal into normalized GoalWeights JSON."""
+    """Convert natural language merchant goal into normalized GoalWeights JSON (cached)."""
     goal_lower = goal_text.lower()
 
     # Cash priority signals
@@ -238,16 +305,28 @@ def enrich_card_with_agent(
     tone: str = "Polite Payment Reminder",
     force_live: bool = False,
 ) -> RecommendationCard:
-    """Enrich card with grounded Global English explanations, tool trace, and action drafts."""
-    endpoint, is_offline, exec_source = get_active_endpoint()
+    """Enrich card with grounded English explanations, tool trace, and action drafts."""
+    health = check_endpoint_health()
+    endpoint = health["active_url"]
+    is_offline = health["is_offline"]
+    exec_source = health["execution_source"]
+    model_to_use = health["model_served"]
+
     card.execution_source = exec_source
-    card.model_name = MODEL_NAME
+    card.model_name = model_to_use
+
+    # Pre-compute code-driven discount numbers for VIP tone
+    if tone == "VIP 5% Instant-Pay Discount":
+        disc_amt = round(card.impact_usd * 0.95, 2)
+        sav_amt = round(card.impact_usd * 0.05, 2)
+        for num in [disc_amt, sav_amt, 5.0, 0.05]:
+            if num not in card.allowed_numbers:
+                card.allowed_numbers.append(num)
 
     # Populate tool calls trace
     card.tool_calls_trace = _generate_tool_calls_trace(card)
 
     if (is_offline or not endpoint) and not force_live:
-        # Deterministic offline fallback template (100% grounded by design)
         fallback = build_fallback_template(card, tone)
         card.explanation_en = fallback["explanation_en"]
         card.action_draft_en = fallback["action_draft_en"]
@@ -255,16 +334,18 @@ def enrich_card_with_agent(
         card.action_draft_bn = fallback["action_draft_bn"]
         card.grounding_passed = True
         card.grounding_retries = 0
+        card.grounding_status = "NOT_APPLICABLE_OFFLINE"
         card.http_latency_ms = 0.0
         card.grounding_trace = _generate_grounding_trace(card, card.explanation_en + " " + card.action_draft_en)
         return card
 
-    # Live Online Path with Gemma on AMD MI300X or TokenFactory
+    # Live Online Path with AMD Endpoint
     t_start = time.perf_counter()
-    client = OpenAI(base_url=endpoint, api_key=API_KEY, timeout=5.0)
+    api_key_val = API_KEY or "EMPTY"
+    client = OpenAI(base_url=endpoint, api_key=api_key_val, timeout=5.0)
 
     system_prompt = (
-        "You are PayLens Solo AI on AMD Instinct MI300X. "
+        "You are PayLens AI explaining merchant capital recovery. "
         "MANDATORY ARCHITECTURE RULE: CODE COMPUTES, MODEL EXPLAINS. "
         "You must NEVER calculate numbers. You may ONLY mention numbers from the ALLOWED_NUMBERS list below. "
         "Output valid JSON with exactly two keys: 'explanation_en' and 'action_draft_en'."
@@ -275,7 +356,7 @@ Merchant: {card.merchant_name}
 Recommendation Type: {card.rec_type.value}
 Entity ID: {card.entity_id}
 Tone: {tone}
-Impact (USD): ${card.impact_usd}
+Impact (USD): ${card.impact_usd:,.2f}
 Formula: {card.formula_display}
 ALLOWED_NUMBERS: {card.allowed_numbers}
 
@@ -287,8 +368,9 @@ Write concise English explanations and action drafts.
 
     while retries < 2 and not grounded:
         try:
+            t_call_start = time.perf_counter()
             response = client.chat.completions.create(
-                model=MODEL_NAME,
+                model=model_to_use,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},
@@ -296,6 +378,12 @@ Write concise English explanations and action drafts.
                 temperature=0.1,
                 response_format={"type": "json_object"},
             )
+            call_lat_ms = round((time.perf_counter() - t_call_start) * 1000.0, 1)
+
+            prompt_toks = response.usage.prompt_tokens if response.usage else 0
+            comp_toks = response.usage.completion_tokens if response.usage else 0
+            log_inference_entry(exec_source, model_to_use, call_lat_ms, prompt_toks, comp_toks)
+
             raw_content = response.choices[0].message.content or "{}"
             parsed = json.loads(raw_content)
 
@@ -314,7 +402,8 @@ Write concise English explanations and action drafts.
                 card.action_draft_bn = act_en
                 card.grounding_passed = True
                 card.grounding_retries = retries
-                card.http_latency_ms = round((time.perf_counter() - t_start) * 1000, 2)
+                card.grounding_status = "PASSED" if retries == 0 else "RETRIED_PASSED"
+                card.http_latency_ms = round((time.perf_counter() - t_start) * 1000, 1)
                 card.grounding_trace = _generate_grounding_trace(card, exp_en + " " + act_en)
                 grounded = True
                 return card
@@ -336,18 +425,21 @@ Write concise English explanations and action drafts.
     card.action_draft_bn = fallback["action_draft_bn"]
     card.grounding_passed = True
     card.grounding_retries = retries
-    card.http_latency_ms = round((time.perf_counter() - t_start) * 1000, 2)
+    card.grounding_status = "TEMPLATE_FALLBACK"
+    card.http_latency_ms = round((time.perf_counter() - t_start) * 1000, 1)
     card.grounding_trace = _generate_grounding_trace(card, card.explanation_en + " " + card.action_draft_en)
     return card
 
 
 async def _enrich_card_async(
     client: Optional[AsyncOpenAI],
+    model: str,
+    exec_source: str,
     card: RecommendationCard,
     tone: str,
     semaphore: asyncio.Semaphore,
 ) -> RecommendationCard:
-    """Asynchronously process an individual recommendation card under semaphore concurrency control."""
+    """Asynchronously process an individual recommendation card under semaphore control."""
     async with semaphore:
         if client is None:
             fallback = build_fallback_template(card, tone)
@@ -355,6 +447,7 @@ async def _enrich_card_async(
             card.action_draft_en = fallback["action_draft_en"]
             card.grounding_passed = True
             card.grounding_retries = 0
+            card.grounding_status = "NOT_APPLICABLE_OFFLINE"
             card.execution_source = ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value
             card.http_latency_ms = 0.0
             card.tool_calls_trace = _generate_tool_calls_trace(card)
@@ -362,13 +455,13 @@ async def _enrich_card_async(
             await asyncio.sleep(0.005)
             return card
 
-        system_prompt = "You are PayLens Solo AI on AMD Instinct MI300X. CODE COMPUTES, MODEL EXPLAINS."
-        user_prompt = f"Merchant: {card.merchant_name}\nImpact: ${card.impact_usd}\nALLOWED: {card.allowed_numbers}"
+        system_prompt = "You are PayLens AI explaining merchant capital recovery. CODE COMPUTES, MODEL EXPLAINS."
+        user_prompt = f"Merchant: {card.merchant_name}\nImpact: ${card.impact_usd:,.2f}\nALLOWED: {card.allowed_numbers}"
 
         t0 = time.perf_counter()
         try:
             resp = await client.chat.completions.create(
-                model=MODEL_NAME,
+                model=model,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},
@@ -388,7 +481,8 @@ async def _enrich_card_async(
                 card.explanation_en = exp_en
                 card.action_draft_en = act_en
                 card.grounding_passed = True
-                card.http_latency_ms = round((time.perf_counter() - t0) * 1000, 2)
+                card.grounding_status = "PASSED"
+                card.http_latency_ms = round((time.perf_counter() - t0) * 1000, 1)
                 card.tool_calls_trace = _generate_tool_calls_trace(card)
                 card.grounding_trace = _generate_grounding_trace(card, exp_en + " " + act_en)
                 return card
@@ -399,7 +493,8 @@ async def _enrich_card_async(
         card.explanation_en = fallback["explanation_en"]
         card.action_draft_en = fallback["action_draft_en"]
         card.grounding_passed = True
-        card.http_latency_ms = round((time.perf_counter() - t0) * 1000, 2)
+        card.grounding_status = "TEMPLATE_FALLBACK"
+        card.http_latency_ms = round((time.perf_counter() - t0) * 1000, 1)
         card.tool_calls_trace = _generate_tool_calls_trace(card)
         card.grounding_trace = _generate_grounding_trace(card, card.explanation_en + " " + card.action_draft_en)
         return card
@@ -411,14 +506,18 @@ def run_mi300x_parallel_burst(
     tone: str = "Polite Payment Reminder",
 ) -> Dict[str, Any]:
     """Execute parallel burst across cards, honestly reporting execution source and metrics."""
-    endpoint, is_offline, exec_source = get_active_endpoint()
-    ref_benchmark = import_vllm_bench_serve_json()
+    health = check_endpoint_health()
+    endpoint = health["active_url"]
+    is_offline = health["is_offline"]
+    exec_source = health["execution_source"]
+    model_to_use = health["model_served"]
 
-    async_client = None if is_offline or not endpoint else AsyncOpenAI(base_url=endpoint, api_key=API_KEY)
+    api_key_val = API_KEY or "EMPTY"
+    async_client = None if is_offline or not endpoint else AsyncOpenAI(base_url=endpoint, api_key=api_key_val)
 
     async def _runner():
         semaphore = asyncio.Semaphore(max_concurrency)
-        tasks = [_enrich_card_async(async_client, card, tone, semaphore) for card in cards]
+        tasks = [_enrich_card_async(async_client, model_to_use, exec_source, card, tone, semaphore) for card in cards]
         t0 = time.perf_counter()
         results = await asyncio.gather(*tasks)
         elapsed = time.perf_counter() - t0
@@ -435,7 +534,7 @@ def run_mi300x_parallel_burst(
     result = {
         "execution_source": exec_source,
         "is_offline": is_offline,
-        "model": MODEL_NAME,
+        "model": model_to_use,
         "endpoint": endpoint or "None (Deterministic Local CPU Mode)",
         "total_cards": total_cards,
         "wall_clock_seconds": round(wall_clock_seconds, 3),
@@ -445,19 +544,13 @@ def run_mi300x_parallel_burst(
     }
 
     if is_offline or exec_source == ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value:
-        # Honest reporting: Local CPU mode
         result["mode_display"] = "Local CPU Deterministic Fallback Mode"
         result["local_cpu_speed"] = f"{cards_per_sec} cards/sec (Python string formatting)"
-        result["note"] = "Local CPU mode active. For live AMD MI300X vLLM tokens/sec, connect endpoint in sidebar or see reference benchmark below."
-        result["amd_mi300x_reference"] = ref_benchmark["benchmark_results"]
-        result["hardware_target"] = "AMD Instinct MI300X (192GB HBM3)"
-        result["reference_token_throughput_per_sec"] = ref_benchmark["benchmark_results"].get("token_throughput_per_sec", 2842.6)
-        result["reference_mean_ttft_ms"] = ref_benchmark["benchmark_results"].get("mean_ttft_ms", 42.8)
+        result["note"] = "Local CPU mode active. Connect live AMD vLLM or TokenFactory in sidebar for live GPU token metrics."
     else:
-        # Live AMD GPU Endpoint
         result["mode_display"] = f"Live GPU Endpoint ({exec_source})"
         result["recommendations_per_minute"] = round(cards_per_sec * 60, 1)
-        result["mean_ttft_ms"] = round(wall_clock_seconds * 1000 / total_cards, 2)
+        result["mean_ttft_ms"] = round(wall_clock_seconds * 1000 / max(1, total_cards), 2)
         result["output_tokens_per_sec"] = round((total_cards * 125) / max(0.001, wall_clock_seconds), 1)
 
     return result

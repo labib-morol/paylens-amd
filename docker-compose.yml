@@ -9,10 +9,10 @@ services:
     ports:
       - "8501:8501"
     environment:
-      - AMD_VLLM_BASE_URL=http://host.docker.internal:8000/v1
-      - AMD_TOKENFACTORY_BASE_URL=https://notebooks.amd.com/tokenfactory/v1
-      - AMD_API_KEY=${AMD_API_KEY:-mock-key-for-local-dev}
-      - VLLM_MODEL=google/gemma-4-31B-it
+      - AMD_VLLM_BASE_URL=${AMD_VLLM_BASE_URL:-}
+      - AMD_TOKENFACTORY_BASE_URL=${AMD_TOKENFACTORY_BASE_URL:-}
+      - AMD_API_KEY=${AMD_API_KEY:-}
+      - MODEL_NAME=${MODEL_NAME:-}
       - DUCKDB_PATH=data/generated/paylens.duckdb
-      - OFFLINE_MODE=${OFFLINE_MODE:-true}
+      - OFFLINE_MODE=${OFFLINE_MODE:-false}
     restart: unless-stopped

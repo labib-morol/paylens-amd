@@ -144,7 +144,7 @@ def run_leak_matcher(
     # Load successful rail payments
     payments_df = con.execute(f"""
         SELECT * FROM rail_payments 
-        WHERE status = 'SUCCESS'
+        WHERE status IN ('SUCCESS', 'SETTLED')
     """).df()
 
     # Index payments for Pass 1 (exact ref)
@@ -580,4 +580,14 @@ def run_stockout_forecaster(
                 )
                 cards.append(card)
 
+    return cards
+
+
+def detect_payment_leakages(
+    con: duckdb.DuckDBPyConnection,
+    merchant_names: Optional[Dict[str, str]] = None,
+    stl_anomalies: Optional[Dict[str, List[Dict[str, Any]]]] = None,
+) -> List[RecommendationCard]:
+    """Convenience wrapper around run_leak_matcher returning only cards."""
+    cards, _ = run_leak_matcher(con, merchant_names=merchant_names, stl_anomalies=stl_anomalies)
     return cards

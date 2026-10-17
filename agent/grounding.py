@@ -4,7 +4,7 @@ Architecture Rule 2: GROUNDING CHECK.
 Every number in the LLM's English or multilingual output must be regex-extracted
 and verified against tool results and allowed card numbers.
 If a mismatch occurs, retry once with an explicit error prompt, then fall back
-to a 100% deterministic template to guarantee zero hallucinations.
+to a deterministic template to maintain mathematical integrity.
 """
 
 import re
@@ -15,9 +15,9 @@ BENGALI_TO_ASCII = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
 
 
 def _normalize_text(text: str) -> str:
-    """Translate Bengali digits and clean formatting."""
+    """Translate Bengali digits and normalize thousands and lakh formatting."""
     translated = text.translate(BENGALI_TO_ASCII)
-    # Remove commas between digits (e.g. 12,500 -> 12500)
+    # Remove commas between digits for Western (12,500) and South Asian / Lakh (1,25,000)
     cleaned = re.sub(r"(?<=\d),(?=\d)", "", translated)
     return cleaned
 
@@ -29,33 +29,42 @@ def verify_numeric_grounding(
 ) -> Tuple[bool, List[float]]:
     """Extract and verify all numbers in text against allowed_numbers.
 
-    Strips currency symbols ($ and ৳), commas, ignores leading list numbering
-    and entity IDs, and checks each number against allowed numbers
-    (including percentages e.g. 0.35 -> 35% and unit multiples).
+    Strips currency symbols ($ and ৳), commas, ignores leading list numbering,
+    entity IDs, dates, times, phone numbers, and validates every extracted number
+    against allowed numbers (including percentages e.g. 0.35 -> 35% and unit multiples).
     """
     if not text:
         return True, []
 
     normalized = _normalize_text(text)
 
-    # 1. Mask out entity identifiers (e.g., ORD-1042, SKU-LUM-01, CONS-SHORT-9001, MERCH_02, TXN-12345, CARD-123)
-    masked = re.sub(r"\b(ORD|SKU|CONS|CARD|MERCH|RP|TXN|SETTLE|REF|WIRE|PAYPAL|STRIPE)[A-Za-z0-9_-]*\b", " ", normalized, flags=re.IGNORECASE)
+    # 1. Mask out entity identifiers (e.g., ORD-1042, SKU-LUM-01, CONS-SHORT-9001, MERCH_02, TXN-12345, CARD-123, INJ-ORD-101)
+    masked = re.sub(
+        r"\b(ORD|SKU|CONS|CARD|MERCH|RP|TXN|SETTLE|REF|WIRE|PAYPAL|STRIPE|INJ)[A-Za-z0-9_-]*\b",
+        " ",
+        normalized,
+        flags=re.IGNORECASE,
+    )
 
     # 2. Mask out phone numbers (+1-415-..., +88017..., etc.)
     masked = re.sub(r"\b(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b", " ", masked)
     masked = re.sub(r"\b(?:\+?880)?1[3-9]\d{8}\b", " ", masked)
 
-    # 3. Mask out ISO dates and timestamps (e.g. 2026-10-15, 2026-09-16T12:00:00)
-    masked = re.sub(r"\b\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2})?\b", " ", masked)
+    # 3. Mask out ISO dates and timestamps (e.g. 2026-10-15, 2026-09-16T12:00:00, 15/10/2026)
+    masked = re.sub(r"\b\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?)?\b", " ", masked)
+    masked = re.sub(r"\b\d{1,2}/\d{1,2}/\d{2,4}\b", " ", masked)
 
-    # 4. Mask out list bullet numbers at line starts or standalone (e.g., "1. ", "2) ", "#1 ")
+    # 4. Mask out times of day (e.g. 14:30, 2:30pm, 09:15:00)
+    masked = re.sub(r"\b\d{1,2}:\d{2}(?::\d{2})?\s*(?:am|pm|AM|PM)?\b", " ", masked)
+
+    # 5. Mask out list bullet numbers at line starts or standalone (e.g., "1. ", "2) ", "#1 ")
     masked = re.sub(r"(?:^|\n|\s)#?\d+[\.\)]\s+", " ", masked)
 
-    # 5. Mask out currency symbols and words
-    masked = re.sub(r"[\$\৳€£]", " ", masked)
-    masked = re.sub(r"\b(usd|dollars|dollar|cents|taka|tk|bdt)\b", " ", masked, flags=re.IGNORECASE)
+    # 6. Mask out currency symbols and currency words
+    masked = re.sub(r"[\$\৳€£₹]", " ", masked)
+    masked = re.sub(r"\b(usd|dollars|dollar|cents|taka|tk|bdt|inr|eur|gbp)\b", " ", masked, flags=re.IGNORECASE)
 
-    # 6. Extract all remaining numbers (floats or integers)
+    # 7. Extract all remaining numbers (floats or integers)
     number_tokens = re.findall(r"\b\d+(?:\.\d+)?\b", masked)
 
     ungrounded: List[float] = []
@@ -90,21 +99,30 @@ def verify_numeric_grounding(
 
 
 def build_fallback_template(card: RecommendationCard, tone: str = "Polite Payment Reminder") -> Dict[str, str]:
-    """Generate 100% grounded deterministic explanation and action drafts strictly from card fields."""
+    """Generate grounded deterministic explanation and action drafts strictly from card fields."""
     impact = card.impact_usd
     entity = card.entity_id
     m_name = card.merchant_name
 
+    # If tone is VIP 5% discount, pre-compute values in code and whitelist them
+    if tone == "VIP 5% Instant-Pay Discount":
+        discount_amount = round(impact * 0.95, 2)
+        savings_amount = round(impact * 0.05, 2)
+        for num in [discount_amount, savings_amount, 5.0, 0.05]:
+            if num not in card.allowed_numbers:
+                card.allowed_numbers.append(num)
+
     if card.rec_type == RecommendationType.PAYMENT_LEAKAGE:
         if card.leak_sub_type == LeakSubType.DISPATCHED_UNPAID:
             if tone == "VIP 5% Instant-Pay Discount":
+                discount_amount = round(impact * 0.95, 2)
                 explanation_en = (
                     f"Audit for {m_name}: Order #{entity} was fulfilled and marked dispatched without verified gateway settlement. "
                     f"Total uncollected capital at risk is ${impact:,.2f}."
                 )
                 action_en = (
-                    f"Priority Settlement Notice: Order #{entity} was dispatched with an uncollected balance of ${impact:,.2f}. "
-                    f"Complete settlement today via your secure checkout link to verify fulfillment."
+                    f"Priority VIP Settlement Offer: Order #{entity} was dispatched with an uncollected balance of ${impact:,.2f}. "
+                    f"Pay ${discount_amount:,.2f} today (5% instant discount applied) via your secure checkout link to verify fulfillment."
                 )
             else:
                 explanation_en = (

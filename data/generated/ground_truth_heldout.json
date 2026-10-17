@@ -1,0 +1,422 @@
+{
+  "dispatched_unpaid": [
+    {
+      "order_id": "ORD-LEAK-4307",
+      "merchant_id": "MERCH_01",
+      "amount_usd": 620.0,
+      "amount_taka": 620.0,
+      "rail": "PAYMENT_GATEWAY",
+      "provider": "Stripe"
+    },
+    {
+      "order_id": "ORD-LEAK-4308",
+      "merchant_id": "MERCH_02",
+      "amount_usd": 750.0,
+      "amount_taka": 750.0,
+      "rail": "DIGITAL_WALLET",
+      "provider": "PayPal"
+    },
+    {
+      "order_id": "ORD-LEAK-4309",
+      "merchant_id": "MERCH_03",
+      "amount_usd": 620.0,
+      "amount_taka": 620.0,
+      "rail": "PAYMENT_GATEWAY",
+      "provider": "Stripe"
+    },
+    {
+      "order_id": "ORD-LEAK-4310",
+      "merchant_id": "MERCH_05",
+      "amount_usd": 950.0,
+      "amount_taka": 950.0,
+      "rail": "DIGITAL_WALLET",
+      "provider": "PayPal"
+    },
+    {
+      "order_id": "ORD-LEAK-4311",
+      "merchant_id": "MERCH_07",
+      "amount_usd": 480.0,
+      "amount_taka": 480.0,
+      "rail": "PAYMENT_GATEWAY",
+      "provider": "Stripe"
+    },
+    {
+      "order_id": "ORD-LEAK-4312",
+      "merchant_id": "MERCH_10",
+      "amount_usd": 620.0,
+      "amount_taka": 620.0,
+      "rail": "DIGITAL_WALLET",
+      "provider": "PayPal"
+    },
+    {
+      "order_id": "ORD-LEAK-4313",
+      "merchant_id": "MERCH_13",
+      "amount_usd": 620.0,
+      "amount_taka": 620.0,
+      "rail": "PAYMENT_GATEWAY",
+      "provider": "Stripe"
+    },
+    {
+      "order_id": "ORD-LEAK-4314",
+      "merchant_id": "MERCH_14",
+      "amount_usd": 480.0,
+      "amount_taka": 480.0,
+      "rail": "DIGITAL_WALLET",
+      "provider": "PayPal"
+    }
+  ],
+  "courier_shortfalls": [
+    {
+      "consignment_id": "CONS-SHORT-10347",
+      "order_id": "ORD-COD-SHORT-4315",
+      "merchant_id": "MERCH_01",
+      "courier_name": "DHL Express",
+      "expected_net_usd": 585.2,
+      "actual_settled_usd": 540.2,
+      "shortfall_usd": 45.0,
+      "shortfall_taka": 45.0
+    },
+    {
+      "consignment_id": "CONS-SHORT-10348",
+      "order_id": "ORD-COD-SHORT-4316",
+      "merchant_id": "MERCH_02",
+      "courier_name": "FedEx Ground",
+      "expected_net_usd": 806.0,
+      "actual_settled_usd": 631.0,
+      "shortfall_usd": 175.0,
+      "shortfall_taka": 175.0
+    },
+    {
+      "consignment_id": "CONS-SHORT-10349",
+      "order_id": "ORD-COD-SHORT-4317",
+      "merchant_id": "MERCH_04",
+      "courier_name": "DHL Express",
+      "expected_net_usd": 354.8,
+      "actual_settled_usd": 179.8,
+      "shortfall_usd": 175.0,
+      "shortfall_taka": 175.0
+    },
+    {
+      "consignment_id": "CONS-SHORT-10350",
+      "order_id": "ORD-COD-SHORT-4318",
+      "merchant_id": "MERCH_08",
+      "courier_name": "FedEx Ground",
+      "expected_net_usd": 585.2,
+      "actual_settled_usd": 410.2,
+      "shortfall_usd": 175.0,
+      "shortfall_taka": 175.0
+    },
+    {
+      "consignment_id": "CONS-SHORT-10351",
+      "order_id": "ORD-COD-SHORT-4319",
+      "merchant_id": "MERCH_11",
+      "courier_name": "DHL Express",
+      "expected_net_usd": 585.2,
+      "actual_settled_usd": 465.2,
+      "shortfall_usd": 120.0,
+      "shortfall_taka": 120.0
+    },
+    {
+      "consignment_id": "CONS-SHORT-10352",
+      "order_id": "ORD-COD-SHORT-4320",
+      "merchant_id": "MERCH_17",
+      "courier_name": "FedEx Ground",
+      "expected_net_usd": 1046.0,
+      "actual_settled_usd": 961.0,
+      "shortfall_usd": 85.0,
+      "shortfall_taka": 85.0
+    }
+  ],
+  "fuzzy_true_negatives": [
+    {
+      "order_id": "ORD-FUZZY-TN-4321",
+      "merchant_id": "MERCH_01",
+      "customer_phone": "+1-428-422-5008",
+      "customer_email": "charlotte.chen74@outlook.com",
+      "amount_usd": 220.0,
+      "amount_taka": 220.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-4322",
+      "merchant_id": "MERCH_02",
+      "customer_phone": "+1-589-747-8760",
+      "customer_email": "ethan.rossi82@fastmail.com",
+      "amount_usd": 220.0,
+      "amount_taka": 220.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-4323",
+      "merchant_id": "MERCH_03",
+      "customer_phone": "+1-388-342-5776",
+      "customer_email": "sebastian.vance59@yahoo.com",
+      "amount_usd": 145.0,
+      "amount_taka": 145.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-4324",
+      "merchant_id": "MERCH_04",
+      "customer_phone": "+1-558-740-1338",
+      "customer_email": "noah.chen91@fastmail.com",
+      "amount_usd": 145.0,
+      "amount_taka": 145.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-4325",
+      "merchant_id": "MERCH_05",
+      "customer_phone": "+1-602-468-7069",
+      "customer_email": "chloe.silva91@outlook.com",
+      "amount_usd": 310.0,
+      "amount_taka": 310.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-4326",
+      "merchant_id": "MERCH_06",
+      "customer_phone": "+1-306-854-6243",
+      "customer_email": "elena.taylor38@yahoo.com",
+      "amount_usd": 220.0,
+      "amount_taka": 220.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-4327",
+      "merchant_id": "MERCH_07",
+      "customer_phone": "+1-236-581-2034",
+      "customer_email": "ethan.anderson44@icloud.com",
+      "amount_usd": 220.0,
+      "amount_taka": 220.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-4328",
+      "merchant_id": "MERCH_08",
+      "customer_phone": "+1-523-853-5705",
+      "customer_email": "liam.santos82@yahoo.com",
+      "amount_usd": 560.0,
+      "amount_taka": 560.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-4329",
+      "merchant_id": "MERCH_09",
+      "customer_phone": "+1-791-240-4795",
+      "customer_email": "harper.patel18@yahoo.com",
+      "amount_usd": 310.0,
+      "amount_taka": 310.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-4330",
+      "merchant_id": "MERCH_10",
+      "customer_phone": "+1-319-870-2423",
+      "customer_email": "emma.johansson34@gmail.com",
+      "amount_usd": 480.0,
+      "amount_taka": 480.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-4331",
+      "merchant_id": "MERCH_11",
+      "customer_phone": "+1-518-345-6944",
+      "customer_email": "alexander.anderson50@icloud.com",
+      "amount_usd": 145.0,
+      "amount_taka": 145.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-4332",
+      "merchant_id": "MERCH_12",
+      "customer_phone": "+1-824-281-1570",
+      "customer_email": "ava.dubois36@yahoo.com",
+      "amount_usd": 480.0,
+      "amount_taka": 480.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-4333",
+      "merchant_id": "MERCH_13",
+      "customer_phone": "+1-885-651-6903",
+      "customer_email": "ava.chen84@proton.me",
+      "amount_usd": 145.0,
+      "amount_taka": 145.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-4334",
+      "merchant_id": "MERCH_14",
+      "customer_phone": "+1-296-514-7618",
+      "customer_email": "sebastian.brown47@yahoo.com",
+      "amount_usd": 145.0,
+      "amount_taka": 145.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-4335",
+      "merchant_id": "MERCH_15",
+      "customer_phone": "+1-321-723-9572",
+      "customer_email": "isabella.kowalski12@gmail.com",
+      "amount_usd": 220.0,
+      "amount_taka": 220.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-4336",
+      "merchant_id": "MERCH_16",
+      "customer_phone": "+1-613-205-4180",
+      "customer_email": "mateo.rossi41@yahoo.com",
+      "amount_usd": 145.0,
+      "amount_taka": 145.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-4337",
+      "merchant_id": "MERCH_17",
+      "customer_phone": "+1-281-643-9536",
+      "customer_email": "sebastian.johansson12@icloud.com",
+      "amount_usd": 560.0,
+      "amount_taka": 560.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    },
+    {
+      "order_id": "ORD-FUZZY-TN-4338",
+      "merchant_id": "MERCH_18",
+      "customer_phone": "+1-224-664-6084",
+      "customer_email": "alexander.schneider19@yahoo.com",
+      "amount_usd": 480.0,
+      "amount_taka": 480.0,
+      "expected_outcome": "RECONCILED_VIA_PASS2"
+    }
+  ],
+  "failed_abandoned_checkouts": [
+    {
+      "order_id": "ORD-FAIL-4339",
+      "merchant_id": "MERCH_01",
+      "customer_phone": "+1-697-443-1181",
+      "customer_email": "elena.chen55@gmail.com",
+      "basket_amount_usd": 1150.0,
+      "basket_amount_taka": 1150.0,
+      "rail_provider": "Stripe"
+    },
+    {
+      "order_id": "ORD-FAIL-4340",
+      "merchant_id": "MERCH_02",
+      "customer_phone": "+1-249-571-7745",
+      "customer_email": "ava.martin47@outlook.com",
+      "basket_amount_usd": 540.0,
+      "basket_amount_taka": 540.0,
+      "rail_provider": "Stripe"
+    },
+    {
+      "order_id": "ORD-FAIL-4341",
+      "merchant_id": "MERCH_03",
+      "customer_phone": "+1-567-394-6750",
+      "customer_email": "lucas.martin35@proton.me",
+      "basket_amount_usd": 1150.0,
+      "basket_amount_taka": 1150.0,
+      "rail_provider": "Stripe"
+    },
+    {
+      "order_id": "ORD-FAIL-4342",
+      "merchant_id": "MERCH_06",
+      "customer_phone": "+1-718-301-6888",
+      "customer_email": "alexander.o'connor61@outlook.com",
+      "basket_amount_usd": 890.0,
+      "basket_amount_taka": 890.0,
+      "rail_provider": "Stripe"
+    },
+    {
+      "order_id": "ORD-FAIL-4343",
+      "merchant_id": "MERCH_09",
+      "customer_phone": "+1-592-432-5770",
+      "customer_email": "isabella.kowalski79@yahoo.com",
+      "basket_amount_usd": 890.0,
+      "basket_amount_taka": 890.0,
+      "rail_provider": "Stripe"
+    },
+    {
+      "order_id": "ORD-FAIL-4344",
+      "merchant_id": "MERCH_12",
+      "customer_phone": "+1-731-404-9998",
+      "customer_email": "marcus.anderson60@proton.me",
+      "basket_amount_usd": 890.0,
+      "basket_amount_taka": 890.0,
+      "rail_provider": "Stripe"
+    },
+    {
+      "order_id": "ORD-FAIL-4345",
+      "merchant_id": "MERCH_15",
+      "customer_phone": "+1-544-668-7334",
+      "customer_email": "mia.kim91@proton.me",
+      "basket_amount_usd": 180.0,
+      "basket_amount_taka": 180.0,
+      "rail_provider": "Stripe"
+    },
+    {
+      "order_id": "ORD-FAIL-4346",
+      "merchant_id": "MERCH_18",
+      "customer_phone": "+1-724-313-7743",
+      "customer_email": "noah.m\u00fcller45@icloud.com",
+      "basket_amount_usd": 320.0,
+      "basket_amount_taka": 320.0,
+      "rail_provider": "Stripe"
+    }
+  ],
+  "stockout_skus": [
+    {
+      "merchant_id": "MERCH_01",
+      "sku": "SKU-APX-01",
+      "item_name": "Merino Wool Performance Blazer",
+      "current_stock": 6,
+      "supplier_lead_time_days": 6,
+      "forecast_daily_demand": 14.71,
+      "days_of_cover": 0.41,
+      "lost_units": 82.3,
+      "unit_margin_usd": 165.0,
+      "impact_usd": 13579.5,
+      "is_hero": false
+    },
+    {
+      "merchant_id": "MERCH_02",
+      "sku": "SKU-LUM-HERO-01",
+      "item_name": "Aura Wireless Hi-Fi Studio Monitor (Pair)",
+      "current_stock": 8,
+      "supplier_lead_time_days": 7,
+      "forecast_daily_demand": 19.14,
+      "days_of_cover": 0.42,
+      "lost_units": 126.0,
+      "unit_margin_usd": 465.0,
+      "impact_usd": 58590.0,
+      "is_hero": true
+    },
+    {
+      "merchant_id": "MERCH_03",
+      "sku": "SKU-03-A",
+      "item_name": "Premium Outdoor Edition A",
+      "current_stock": 5,
+      "supplier_lead_time_days": 6,
+      "forecast_daily_demand": 13.14,
+      "days_of_cover": 0.38,
+      "lost_units": 73.9,
+      "unit_margin_usd": 177.0,
+      "impact_usd": 13080.3,
+      "is_hero": false
+    },
+    {
+      "merchant_id": "MERCH_07",
+      "sku": "SKU-07-A",
+      "item_name": "Premium Furniture Edition A",
+      "current_stock": 7,
+      "supplier_lead_time_days": 6,
+      "forecast_daily_demand": 14.14,
+      "days_of_cover": 0.49,
+      "lost_units": 77.9,
+      "unit_margin_usd": 215.0,
+      "impact_usd": 16748.5,
+      "is_hero": false
+    }
+  ]
+}

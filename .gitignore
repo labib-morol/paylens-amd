@@ -2,6 +2,16 @@
 .env
 .env.local
 *.env
+.streamlit/secrets.toml
+
+# Logs
+logs/
+*.log
+*.jsonl
+
+# Databases
+*.duckdb
+*.duckdb.wal
 
 # Python & Virtual Environments
 .venv/
@@ -29,3 +39,7 @@ dist/
 # OS Specific
 .DS_Store
 Thumbs.db
+
+# Untracked Skills & Third-Party Caches
+.agents/skills/
+skills-lock.json
