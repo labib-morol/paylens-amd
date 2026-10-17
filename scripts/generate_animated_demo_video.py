@@ -1,11 +1,12 @@
 """PayLens Automated Animated Demo Video Generator (1080p, 30fps).
-HumanPatch & T2V Style:
-- Clean numbered top-left chapter pills (01 —— THE PROBLEM, etc.)
-- Crisp sans-serif headlines with glowing emerald accent phrases
-- High-definition framed studio mockups of the actual live app screens
-- Animated spotlight callouts highlighting live AMD TokenFactory telemetry & real catches
-- Expressive prosody-modulated neural voiceover with conversational pauses
-- Floating glassmorphic bottom subtitle pill
+Institutional Fintech Motion Graphics:
+- Top-left numbered chapter breadcrumbs (01 —— THE PROBLEM, etc.)
+- Framed desktop studio window mockups with authentic live app captures
+- Institutional Dimmer effect: 35% canvas dimming focusing 100% brightness on active cards
+- Smooth Ken Burns camera pans/zooms into calculations, evidence tables, and benchmark charts
+- Subtitle pill at y=980 with centered 24pt typography and bold emerald entity highlights
+- Procedural audio: High-to-low chord synth chimes and soft UI clicks
+- Master audio compression and EBU R128 normalization to -16 LUFS (peak -1.5 dB)
 - Strict mathematical consistency with ground_truth.json and README.md
 
 Output: submission_demo_animated.mp4 (mirrored to docs/demo.mp4)
@@ -23,7 +24,7 @@ from typing import Dict, Any, List, Tuple, Optional
 
 import numpy as np
 import scipy.io.wavfile as wav
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 OUTPUT_MP4 = str(ROOT_DIR / "submission_demo_animated.mp4")
@@ -36,7 +37,7 @@ WIDTH, HEIGHT = 1920, 1080
 FPS = 30
 SAMPLE_RATE = 44100
 
-# Color Palette (Institutional Dark Fintech / HumanPatch & T2V Style)
+# Color Palette (Institutional Dark Fintech)
 C_BG = (11, 15, 25)
 C_BG_DEEP = (7, 10, 19)
 C_PANEL = (17, 24, 39)
@@ -77,27 +78,28 @@ font_title = get_font(28, bold=True)
 font_card_head = get_font(22, bold=True)
 font_body_lg = get_font(20)
 font_body = get_font(17)
+font_sub = get_font(24, bold=False)
+font_sub_bold = get_font(24, bold=True)
 font_mono = get_font(16, mono=True)
 font_mono_lg = get_font(24, bold=True, mono=True)
-font_mono_xl = get_font(34, bold=True, mono=True)
 font_caption = get_font(15)
 font_badge = get_font(13, bold=True, mono=True)
 
 # -----------------------------------------------------------------------------
-# 1. Expressive Voiceover Narrative Script (13 Streamlined Beats, ~147s)
+# 1. Expressive Voiceover Narrative Script (13 Streamlined Beats, ~152s)
 # -----------------------------------------------------------------------------
 BEATS = [
     # Act 1: The Human Problem & Relatable Mystery
     {
         "id": "b01", "scene": "s01", "chapter": "01 —— THE PROBLEM",
         "text": "If you run an e-commerce brand, here is an uncomfortable question: do you actually know where every single dollar went today?",
-        "rate": "-2%", "pitch": "+0Hz", "pause": 0.80, "sfx": None,
+        "rate": "-2%", "pitch": "+0Hz", "pause": 0.80, "sfx": "chime",
         "accent_words": "uncomfortable question",
     },
     {
         "id": "b02", "scene": "s01", "chapter": "01 —— THE PROBLEM",
         "text": "Behind booming dashboards, silent leakage happens across rails: unpaid dispatched orders, courier cash shortfalls, and stockouts. Over ten thousand dollars vanishing across 20 stores.",
-        "rate": "+3%", "pitch": "-1Hz", "pause": 0.40, "sfx": "whoosh",
+        "rate": "+3%", "pitch": "-1Hz", "pause": 0.40, "sfx": None,
         "accent_words": "silent leakage",
     },
 
@@ -105,13 +107,13 @@ BEATS = [
     {
         "id": "b03", "scene": "s02", "chapter": "02 —— ARCHITECTURE",
         "text": "Most teams throw an LLM at raw financial ledgers. But creative AI math balancing bank accounts is the last thing any CFO wants.",
-        "rate": "+5%", "pitch": "+2Hz", "pause": 0.50, "sfx": None,
+        "rate": "+5%", "pitch": "+2Hz", "pause": 0.50, "sfx": "chime",
         "accent_words": "creative AI math",
     },
     {
         "id": "b04", "scene": "s02", "chapter": "02 —— ARCHITECTURE",
         "text": "PayLens splits compute in two: deterministic DuckDB calculates all arithmetic; while models on AMD Radeon Cloud and Google Gemma 4 strictly explain discrepancies under regex numeric validation.",
-        "rate": "+6%", "pitch": "+2Hz", "pause": 0.40, "sfx": "chime",
+        "rate": "+6%", "pitch": "+2Hz", "pause": 0.40, "sfx": None,
         "accent_words": "deterministic DuckDB",
     },
 
@@ -119,13 +121,13 @@ BEATS = [
     {
         "id": "b05", "scene": "s03", "chapter": "03 —— LIVE DEAL DESK",
         "text": "Here is the live Deal Desk for Apex Global Apparel. At the top: AMD Radeon Cloud TokenFactory serving DeepSeek-V4-Flash alongside Google AI Studio Gemma 4.",
-        "rate": "+4%", "pitch": "+1Hz", "pause": 0.40, "sfx": "click",
+        "rate": "+4%", "pitch": "+1Hz", "pause": 0.40, "sfx": "chime",
         "accent_words": "AMD Radeon Cloud",
     },
     {
         "id": "b06", "scene": "s04", "chapter": "04 —— TRUE LEAKAGE CATCH",
         "text": "Card number one caught a confirmed $1,255 leakage: order 4348 was dispatched on digital rails, but Stripe never received the customer's funds. DuckDB verifies the exact formula: one order at $1,255.",
-        "rate": "-1%", "pitch": "+1Hz", "pause": 0.40, "sfx": "chime",
+        "rate": "-1%", "pitch": "+1Hz", "pause": 0.40, "sfx": "click",
         "accent_words": "confirmed $1,255 leakage",
     },
 
@@ -139,7 +141,7 @@ BEATS = [
     {
         "id": "b08", "scene": "s05", "chapter": "05 —— GROUNDED TRIAGE",
         "text": "Card two is an $850 SEPA wire delayed by 48 hours—our intentional stress-test edge case. In PayLens, the operator flags it with one click, keeping the audit trail transparent.",
-        "rate": "+3%", "pitch": "+1Hz", "pause": 0.40, "sfx": "click",
+        "rate": "+3%", "pitch": "+1Hz", "pause": 0.40, "sfx": "chime",
         "accent_words": "transparent",
     },
 
@@ -161,13 +163,13 @@ BEATS = [
     {
         "id": "b11", "scene": "s07", "chapter": "07 —— BENCHMARKS & PROOF",
         "text": "On Tab 2, authentic telemetry on AMD Radeon Cloud TokenFactory scales from 18.2 tokens per second to 62.9 tokens per second during concurrent bursts.",
-        "rate": "+4%", "pitch": "+1Hz", "pause": 0.40, "sfx": "whoosh",
+        "rate": "+4%", "pitch": "+1Hz", "pause": 0.40, "sfx": "chime",
         "accent_words": "62.9 tokens per second",
     },
     {
         "id": "b12", "scene": "s07", "chapter": "07 —— BENCHMARKS & PROOF",
         "text": "Next to it, our stress-test evaluation split scores 0.933 F1 across 28 true positives, transparently disclosing delayed wires and partial payments.",
-        "rate": "+3%", "pitch": "+1Hz", "pause": 0.40, "sfx": "chime",
+        "rate": "+3%", "pitch": "+1Hz", "pause": 0.40, "sfx": None,
         "accent_words": "0.933 F1",
     },
 
@@ -244,8 +246,6 @@ async def synthesize_voiceover() -> Tuple[str, List[Dict[str, Any]], float]:
 
     for idx, c in enumerate(cues):
         concat_filter_inputs.extend(["-i", c["wav_path"]])
-        # Add pause via apad filter or anull
-        pause_ms = int(c["pause"] * 1000)
         filter_complex_parts.append(f"[{idx}:a]apad=pad_dur={c['pause']}[a{idx}];")
 
     merge_tags = "".join(f"[a{idx}]" for idx in range(len(cues)))
@@ -269,58 +269,63 @@ async def synthesize_voiceover() -> Tuple[str, List[Dict[str, Any]], float]:
     return master_voice_path, cues, total_duration
 
 # -----------------------------------------------------------------------------
-# 3. Layered Procedural Sound Design
+# 3. Layered Procedural Sound Design & Master Normalization
 # -----------------------------------------------------------------------------
 def build_sound_design_track(cues: List[Dict[str, Any]], total_duration: float) -> str:
     print("[2/5] Synthesizing layered procedural audio landscape...")
     num_samples = int(total_duration * SAMPLE_RATE)
     time_arr = np.linspace(0, total_duration, num_samples, endpoint=False)
 
-    # 1. Warm ambient bed (Sine 55Hz + 110Hz gentle drone)
-    drone_55 = np.sin(2 * np.pi * 55.0 * time_arr) * 0.035
-    drone_110 = np.sin(2 * np.pi * 110.0 * time_arr) * 0.020
+    # 1. Warm ambient bed (Sine 55Hz + 110Hz subtle foundation)
+    drone_55 = np.sin(2 * np.pi * 55.0 * time_arr) * 0.015
+    drone_110 = np.sin(2 * np.pi * 110.0 * time_arr) * 0.008
     ambient_bed = drone_55 + drone_110
 
-    # Stereo mix
     left_channel = ambient_bed.copy()
     right_channel = ambient_bed.copy()
 
-    # 2. Frame-synced procedural sound effects
-    def add_sfx(kind: str, start_sec: float):
+    # 2. Frame-synced procedural sound effects (High-to-low triad chime chords + clicks)
+    def add_chime(start_sec: float):
         nonlocal left_channel, right_channel
+        dur = 0.65
+        n = int(dur * SAMPLE_RATE)
         s_idx = int(start_sec * SAMPLE_RATE)
-        if kind == "whoosh":
-            dur = 0.40
-            n = int(dur * SAMPLE_RATE)
-            if s_idx + n >= num_samples: return
-            t = np.linspace(0, dur, n, endpoint=False)
-            freq = np.linspace(150, 600, n)
-            env = np.sin(np.pi * (t / dur)) ** 2
-            sig = np.sin(2 * np.pi * freq * t) * env * 0.08
-            left_channel[s_idx:s_idx+n] += sig * 0.8
-            right_channel[s_idx:s_idx+n] += sig * 0.5
-        elif kind == "chime":
-            dur = 0.50
-            n = int(dur * SAMPLE_RATE)
-            if s_idx + n >= num_samples: return
-            t = np.linspace(0, dur, n, endpoint=False)
-            env = np.exp(-t * 6.0)
-            sig = (np.sin(2 * np.pi * 1046.5 * t) + 0.5 * np.sin(2 * np.pi * 1318.5 * t)) * env * 0.09
-            left_channel[s_idx:s_idx+n] += sig * 0.6
-            right_channel[s_idx:s_idx+n] += sig * 0.6
-        elif kind == "click":
-            dur = 0.08
-            n = int(dur * SAMPLE_RATE)
-            if s_idx + n >= num_samples: return
-            t = np.linspace(0, dur, n, endpoint=False)
-            env = np.exp(-t * 40.0)
-            sig = np.sin(2 * np.pi * 880.0 * t) * env * 0.06
-            left_channel[s_idx:s_idx+n] += sig
-            right_channel[s_idx:s_idx+n] += sig
+        if s_idx + n >= num_samples:
+            return
+        t = np.linspace(0, dur, n, endpoint=False)
+        # High-to-low chord: E6 (1318.5 Hz) -> B5 (987.7 Hz) -> G#5 (830.6 Hz) -> E5 (659.2 Hz)
+        e1 = np.exp(-t * 6.0)
+        e2 = np.exp(-t * 5.0)
+        e3 = np.exp(-t * 4.0)
+        e4 = np.exp(-t * 3.5)
+        sig = (
+            0.35 * np.sin(2 * np.pi * 1318.5 * t) * e1 +
+            0.30 * np.sin(2 * np.pi * 987.7 * t) * e2 +
+            0.25 * np.sin(2 * np.pi * 830.6 * t) * e3 +
+            0.20 * np.sin(2 * np.pi * 659.2 * t) * e4
+        ) * 0.08
+        left_channel[s_idx:s_idx + n] += sig * 0.8
+        right_channel[s_idx:s_idx + n] += sig * 0.6
+
+    def add_click(start_sec: float):
+        nonlocal left_channel, right_channel
+        dur = 0.05
+        n = int(dur * SAMPLE_RATE)
+        s_idx = int(start_sec * SAMPLE_RATE)
+        if s_idx + n >= num_samples:
+            return
+        t = np.linspace(0, dur, n, endpoint=False)
+        env = np.exp(-t * 60.0)
+        sig = np.sin(2 * np.pi * 1200.0 * t) * env * 0.05
+        left_channel[s_idx:s_idx + n] += sig
+        right_channel[s_idx:s_idx + n] += sig
 
     for c in cues:
-        if c.get("sfx"):
-            add_sfx(c["sfx"], c["start"])
+        sfx_type = c.get("sfx")
+        if sfx_type == "chime":
+            add_chime(c["start"])
+        elif sfx_type == "click":
+            add_click(c["start"])
 
     stereo_audio = np.vstack([left_channel, right_channel]).T
     stereo_int16 = np.clip(stereo_audio * 32767, -32768, 32767).astype(np.int16)
@@ -330,19 +335,23 @@ def build_sound_design_track(cues: List[Dict[str, Any]], total_duration: float) 
     return bg_path
 
 # -----------------------------------------------------------------------------
-# 4. HumanPatch / T2V Visual Rendering Engine
+# 4. Motion Graphics & Visual Staging Engine
 # -----------------------------------------------------------------------------
 def load_app_screen(filename: str) -> Image.Image:
     path = SCREENS_DIR / filename
     if path.exists():
         try:
-            return Image.open(path).convert("RGB")
+            im = Image.open(path).convert("RGB")
+            # If valid size and not fully black
+            if im.size == (WIDTH, HEIGHT) and np.array(im).mean() > 5.0:
+                return im
         except Exception:
             pass
-    # Fallback blank panel
+
+    # High-Fidelity Institutional Fallback Graphic
     img = Image.new("RGB", (WIDTH, HEIGHT), C_PANEL)
     d = ImageDraw.Draw(img)
-    d.text((100, 100), f"Live Screen: {filename}", fill=C_WHITE, font=font_title)
+    d.text((100, 100), f"PayLens Institutional View: {filename}", fill=C_WHITE, font=font_title)
     return img
 
 SCREEN_01 = load_app_screen("01_deal_desk_live.png")
@@ -354,36 +363,90 @@ SCREEN_05 = load_app_screen("05_stress_confusion_matrix.png")
 def draw_top_chapter_badge(draw: ImageDraw.ImageDraw, chapter_text: str):
     """Draws top-left numbered chapter badge in HumanPatch/T2V style."""
     draw.text((80, 50), chapter_text, fill=C_CYAN, font=font_badge)
-    # Subtle accent line under chapter
     draw.line([(80, 72), (240, 72)], fill=C_CYAN, width=2)
 
-def draw_bottom_caption_pill(draw: ImageDraw.ImageDraw, text: str, accent_word: Optional[str] = None):
-    """Draws floating translucent glassmorphic subtitle caption pill centered at y=1000."""
-    pill_w = 1400
-    pill_h = 56
+def draw_bottom_caption_pill(draw: ImageDraw.ImageDraw, text: str, accent_words: Optional[str] = None):
+    """Draws floating translucent glassmorphic subtitle caption pill centered at y=980 with 24pt typography
+    and numeric entities highlighted in bold emerald (#10b981).
+    """
+    pill_w = 1520
+    pill_h = 64
     pill_x = (WIDTH - pill_w) // 2
-    pill_y = 995
+    pill_y = 980
 
-    # Glassmorphic backdrop
+    # Frosted glass container
     draw.rounded_rectangle(
         [(pill_x, pill_y), (pill_x + pill_w, pill_y + pill_h)],
-        radius=28,
-        fill=(15, 23, 42, 235),
-        outline=(70, 95, 130),
+        radius=16,
+        fill=(11, 15, 25, 240),
+        outline=(45, 60, 85),
         width=1,
     )
 
-    # Render text with accent highlight
-    full_text = text if len(text) < 130 else text[:127] + "..."
-    # Measure text centering
-    bbox = draw.textbbox((0, 0), full_text, font=font_body)
-    tw = bbox[2] - bbox[0]
-    th = bbox[3] - bbox[1]
-    tx = (WIDTH - tw) // 2
-    ty = pill_y + (pill_h - th) // 2 - 2
-    draw.text((tx, ty), full_text, fill=C_WHITE, font=font_body)
+    # Highlight entities
+    highlight_terms = [
+        "$1,255.00", "$1,255", "62.9 tokens per second", "62.9 tok/s", "62.9",
+        "18.2 tokens per second", "18.2", "0.933 F1", "0.933", "DeepSeek-V4-Flash",
+        "Google Gemma 4", "Gemma 4", "SKU-APX-01", "$1,597.50", "$1,597",
+        "DuckDB", "$850", "48 hours", "20 stores", "ten thousand dollars", "$10,000",
+        "100%", "order 4348", "Apex Global Apparel", "Prevent Stockouts", "regex-checked"
+    ]
+    if accent_words and accent_words not in highlight_terms:
+        highlight_terms.append(accent_words)
 
-def draw_studio_mockup(canvas: Image.Image, screen_img: Image.Image, crop_box: Tuple[int, int, int, int], scale: float = 1.0):
+    # Tokenize spans
+    lower_text = text.lower()
+    spans = []
+    for term in highlight_terms:
+        start_idx = 0
+        l_term = term.lower()
+        while True:
+            idx = lower_text.find(l_term, start_idx)
+            if idx == -1:
+                break
+            spans.append((idx, idx + len(term)))
+            start_idx = idx + len(term)
+
+    # Merge overlapping spans
+    spans.sort(key=lambda s: s[0])
+    merged_spans = []
+    for s in spans:
+        if not merged_spans:
+            merged_spans.append(s)
+        else:
+            prev = merged_spans[-1]
+            if s[0] < prev[1]:
+                merged_spans[-1] = (prev[0], max(prev[1], s[1]))
+            else:
+                merged_spans.append(s)
+
+    # Build segment list
+    segments = []
+    curr = 0
+    for s_start, s_end in merged_spans:
+        if s_start > curr:
+            segments.append((text[curr:s_start], False))
+        segments.append((text[s_start:s_end], True))
+        curr = s_end
+    if curr < len(text):
+        segments.append((text[curr:], False))
+
+    # Calculate total width
+    total_w = 0.0
+    for seg_text, is_hl in segments:
+        f = font_sub_bold if is_hl else font_sub
+        total_w += draw.textlength(seg_text, font=f)
+
+    # Render centered
+    cur_x = (WIDTH - total_w) // 2
+    cur_y = pill_y + 16
+    for seg_text, is_hl in segments:
+        f = font_sub_bold if is_hl else font_sub
+        c = C_EMERALD_LIGHT if is_hl else C_WHITE
+        draw.text((cur_x, cur_y), seg_text, fill=c, font=f)
+        cur_x += draw.textlength(seg_text, font=f)
+
+def draw_studio_mockup(canvas: Image.Image, screen_img: Image.Image, crop_box: Tuple[int, int, int, int] = (0, 0, 1920, 1080)):
     """Draws framed desktop studio window mockup with drop shadow and title bar."""
     cw = 1760
     ch = 850
@@ -397,7 +460,7 @@ def draw_studio_mockup(canvas: Image.Image, screen_img: Image.Image, crop_box: T
     # Window title bar (height 36)
     tb_h = 36
     draw.rounded_rectangle([(cx, cy), (cx + cw, cy + tb_h)], radius=12, fill=(24, 34, 52))
-    # Traffic light window dots
+    # Window dots
     dot_y = cy + 18
     draw.ellipse([(cx + 20, dot_y - 5), (cx + 30, dot_y + 5)], fill=(239, 68, 68))
     draw.ellipse([(cx + 38, dot_y - 5), (cx + 48, dot_y + 5)], fill=(245, 158, 11))
@@ -417,11 +480,79 @@ def draw_studio_mockup(canvas: Image.Image, screen_img: Image.Image, crop_box: T
     fitted = cropped.resize((vp_w, vp_h), Image.Resampling.BICUBIC)
     canvas.paste(fitted, (vp_x, vp_y))
 
+def apply_institutional_dimmer(
+    canvas: Image.Image,
+    highlight_boxes: List[Tuple[int, int, int, int]],
+    border_color: Tuple[int, int, int] = C_EMERALD,
+    dim_factor: float = 0.35,
+    border_width: int = 2,
+    corner_radius: int = 10,
+) -> Image.Image:
+    """Darkens the entire canvas to 35% opacity while preserving highlight_boxes
+    at 100% crisp brightness with a soft 2px glowing border.
+    """
+    # Create 35% dimmed version of the canvas
+    dimmed_canvas = Image.blend(
+        canvas,
+        Image.new("RGB", canvas.size, C_BG_DEEP),
+        1.0 - dim_factor
+    )
+
+    # Cut-out target regions from 100% canvas and paste onto dimmed canvas
+    for box in highlight_boxes:
+        bx1, by1, bx2, by2 = box
+        bw = max(1, bx2 - bx1)
+        bh = max(1, by2 - by1)
+
+        mask = Image.new("L", (bw, bh), 0)
+        mask_draw = ImageDraw.Draw(mask)
+        mask_draw.rounded_rectangle([(0, 0), (bw, bh)], radius=corner_radius, fill=255)
+
+        region = canvas.crop(box)
+        dimmed_canvas.paste(region, (bx1, by1), mask=mask)
+
+        # Draw soft glowing 2px border
+        draw = ImageDraw.Draw(dimmed_canvas)
+        draw.rounded_rectangle(
+            [(bx1, by1), (bx2, by2)],
+            radius=corner_radius,
+            outline=border_color,
+            width=border_width
+        )
+    return dimmed_canvas
+
+def apply_ken_burns(
+    img: Image.Image,
+    progress: float,
+    target_center: Tuple[float, float],
+    max_zoom: float = 1.25,
+) -> Image.Image:
+    """Glides camera smoothly into target_center with smooth cosine ease."""
+    w, h = img.size
+    t = 0.5 - 0.5 * math.cos(math.pi * min(1.0, max(0.0, progress)))
+    zoom = 1.0 + (max_zoom - 1.0) * t
+
+    crop_w = w / zoom
+    crop_h = h / zoom
+
+    start_cx, start_cy = w / 2.0, h / 2.0
+    dest_cx, dest_cy = target_center
+    curr_cx = start_cx + (dest_cx - start_cx) * t
+    curr_cy = start_cy + (dest_cy - start_cy) * t
+
+    x1 = max(0, min(w - crop_w, curr_cx - crop_w / 2.0))
+    y1 = max(0, min(h - crop_h, curr_cy - crop_h / 2.0))
+    x2 = x1 + crop_w
+    y2 = y1 + crop_h
+
+    cropped = img.crop((int(x1), int(y1), int(x2), int(y2)))
+    return cropped.resize((w, h), Image.Resampling.BICUBIC)
+
 # -----------------------------------------------------------------------------
 # 5. Scene Renderers
 # -----------------------------------------------------------------------------
 def render_s01_problem(cue: Dict[str, Any], progress: float) -> Image.Image:
-    """Scene 01: The Multi-Rail E-Commerce Problem (HumanPatch / T2V Style)."""
+    """Scene 01: The Multi-Rail E-Commerce Problem."""
     img = Image.new("RGB", (WIDTH, HEIGHT), C_BG)
     draw = ImageDraw.Draw(img)
     draw_top_chapter_badge(draw, cue["chapter"])
@@ -554,46 +685,52 @@ def render_s02_architecture(cue: Dict[str, Any], progress: float) -> Image.Image
     return img
 
 def render_s03_deal_desk(cue: Dict[str, Any], progress: float) -> Image.Image:
-    """Scene 03: Live Deal Desk on Apex Global Apparel with AMD indicator spotlight."""
+    """Scene 03: Live Deal Desk on Apex Global Apparel with Institutional Dimmer on telemetry pills."""
     img = Image.new("RGB", (WIDTH, HEIGHT), C_BG)
-    draw = ImageDraw.Draw(img)
-    draw_top_chapter_badge(draw, cue["chapter"])
+    draw_top_chapter_badge(ImageDraw.Draw(img), cue["chapter"])
 
     # Draw full app screen inside studio mockup
     draw_studio_mockup(img, SCREEN_01, (0, 0, 1920, 1080))
 
-    # Spotlight on top status pills (AMD TokenFactory & Google AI Studio)
-    # Highlight area at x=640, y=145, w=840, h=65
+    # Institutional Dimmer:
+    # Highlight box strictly within top navigation bounds: x=660..1500, y=154..212
+    # Height is 58px, strictly above the metric card at y=232!
+    highlight_box = (660, 154, 1500, 212)
+    img = apply_institutional_dimmer(img, [highlight_box], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
+
+    # Clean label in studio window title bar
     draw = ImageDraw.Draw(img)
-    glow_pulse = int(180 + 75 * math.sin(progress * 2 * math.pi))
-    draw.rounded_rectangle([(640, 145), (1500, 215)], radius=8, outline=(16, 185, 129, glow_pulse), width=3)
-    draw.text((650, 225), "LIVE HARDWARE TELEMETRY · AMD TOKENFACTORY & GOOGLE GEMMA 4", fill=C_EMERALD_LIGHT, font=font_badge)
+    draw.text((670, 122), "LIVE HARDWARE TELEMETRY · AMD TOKENFACTORY & GOOGLE GEMMA 4", fill=C_EMERALD_LIGHT, font=font_badge)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
 
 def render_s04_true_leak(cue: Dict[str, Any], progress: float) -> Image.Image:
-    """Scene 04: True Leakage Catch (ORD-LEAK-4348, $1,255.00 on Stripe) & Grounded Notice."""
+    """Scene 04: True Leakage Catch (ORD-LEAK-4348, $1,255.00 on Stripe) with Ken Burns zoom."""
     img = Image.new("RGB", (WIDTH, HEIGHT), C_BG)
-    draw = ImageDraw.Draw(img)
-    draw_top_chapter_badge(draw, cue["chapter"])
+    draw_top_chapter_badge(ImageDraw.Draw(img), cue["chapter"])
 
     if cue["id"] == "b07":
         # Beat 07: Focus on the grounded action recovery notice and DuckDB evidence
         draw_studio_mockup(img, SCREEN_02, (0, 0, 1920, 1080))
+        # Smooth Ken Burns zoom into the DuckDB evidence table & action draft notice
+        img = apply_ken_burns(img, progress, target_center=(1220, 620), max_zoom=1.20)
+        # Institutional Dimmer on right inspector action notice
+        highlight_box = (775, 410, 1705, 830)
+        img = apply_institutional_dimmer(img, [highlight_box], border_color=C_CYAN, dim_factor=0.35, border_width=2)
         draw = ImageDraw.Draw(img)
-        # Highlight right inspector action box and evidence
-        draw.rounded_rectangle([(780, 420), (1700, 800)], radius=8, outline=C_CYAN, width=3)
-        draw.text((790, 815), "REGEX-SHIELDED AUDIT-READY RECOVERY NOTICE DRAFTED VIA AMD TOKENFACTORY", fill=C_CYAN, font=font_badge)
+        draw.text((790, 840), "REGEX-SHIELDED AUDIT-READY RECOVERY NOTICE DRAFTED VIA AMD TOKENFACTORY", fill=C_CYAN, font=font_badge)
     else:
         # Beat 06: Focus on Card #1 in the queue AND the formula banner
         draw_studio_mockup(img, SCREEN_01, (0, 0, 1920, 1080))
+        # Smooth Ken Burns zoom into calculation proof
+        img = apply_ken_burns(img, progress, target_center=(1220, 560), max_zoom=1.20)
+        # Institutional Dimmer on Card #1 and Formula Banner
+        box1 = (300, 410, 745, 545)
+        box2 = (775, 480, 1705, 620)
+        img = apply_institutional_dimmer(img, [box1, box2], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
         draw = ImageDraw.Draw(img)
-        # Queue Card #1: x=300, y=410, w=440, h=160
-        draw.rounded_rectangle([(300, 410), (740, 570)], radius=8, outline=(239, 68, 68), width=3)
-        # Right Inspector Formula Banner: x=780, y=530, w=880, h=130
-        draw.rounded_rectangle([(780, 520), (1700, 650)], radius=8, outline=(16, 185, 129), width=3)
-        draw.text((790, 660), "DETERMINISTIC PROOF: 1 DISPATCHED UNPAID ORDER * $1,255.00 = $1,255.00", fill=C_EMERALD_LIGHT, font=font_badge)
+        draw.text((790, 630), "DETERMINISTIC PROOF: 1 DISPATCHED UNPAID ORDER * $1,255.00 = $1,255.00", fill=C_EMERALD_LIGHT, font=font_badge)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
@@ -601,64 +738,72 @@ def render_s04_true_leak(cue: Dict[str, Any], progress: float) -> Image.Image:
 def render_s05_grounded_triage(cue: Dict[str, Any], progress: float) -> Image.Image:
     """Scene 05: Grounded Triage & Honest False Positive Handling (ORD-STRESS-DELAY-1)."""
     img = Image.new("RGB", (WIDTH, HEIGHT), C_BG)
-    draw = ImageDraw.Draw(img)
-    draw_top_chapter_badge(draw, cue["chapter"])
+    draw_top_chapter_badge(ImageDraw.Draw(img), cue["chapter"])
 
-    # Studio Mockup of SCREEN_01 showing Queue Card #2 (ORD-STRESS-DELAY-1, $850.00)
+    # Studio Mockup of SCREEN_01
     draw_studio_mockup(img, SCREEN_01, (0, 0, 1920, 1080))
 
-    # Spotlight on Card #2: x=300, y=580, w=440, h=160
+    # Institutional Dimmer on Card #2 only (y: 555..690), leaving Card #3 (y: 700..835) fully visible
+    box_card2 = (300, 555, 745, 690)
+    img = apply_institutional_dimmer(img, [box_card2], border_color=C_AMBER, dim_factor=0.35, border_width=2)
+
+    # Edge-case annotation placed safely inside Card #2 details panel without overlapping Card #3
     draw = ImageDraw.Draw(img)
-    draw.rounded_rectangle([(300, 580), (740, 730)], radius=8, outline=(245, 158, 11), width=3)
-    draw.text((310, 740), "INTENTIONAL STRESS-TEST EDGE CASE: 48H SEPA DELAY (FLAG AS FALSE POSITIVE)", fill=C_AMBER, font=font_badge)
+    draw.text((790, 560), "INTENTIONAL STRESS-TEST EDGE CASE · 48H SEPA DELAY", fill=C_AMBER, font=font_title)
+    draw.text((790, 605), "Settled 48h after order dispatch, exceeding 30-minute fuzzy reconciliation window.", fill=C_MUTED, font=font_body)
+    draw.text((790, 635), "Flagged for human operator review in 1 click · Maintains 100% audit trail transparency.", fill=C_WHITE, font=font_body)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
 
 def render_s06_objective_steering(cue: Dict[str, Any], progress: float) -> Image.Image:
-    """Scene 06: Dynamic Goal Steering (Prevent Stockouts Promotes SKU-APX-01)."""
+    """Scene 06: Dynamic Goal Steering (Prevent Stockouts Promotes SKU-APX-01 to #1)."""
     img = Image.new("RGB", (WIDTH, HEIGHT), C_BG)
-    draw = ImageDraw.Draw(img)
-    draw_top_chapter_badge(draw, cue["chapter"])
+    draw_top_chapter_badge(ImageDraw.Draw(img), cue["chapter"])
 
-    # Studio Mockup of SCREEN_03 (Stockout Promoted)
+    # Studio Mockup of genuine re-ranked screen SCREEN_03
     draw_studio_mockup(img, SCREEN_03, (0, 0, 1920, 1080))
 
-    # Spotlight on sidebar goal radio AND Card #1
+    # Institutional Dimmer:
+    # Highlight Box 1: Sidebar optimization goal radio (Prevent Stockouts): x=90..275, y=420..510
+    # Highlight Box 2: Queue Card #1 (Hero Blazer SKU-APX-01, $1,597.50): x=300..745, y=410..545
+    box_radio = (90, 420, 275, 510)
+    box_card1 = (300, 410, 745, 545)
+    img = apply_institutional_dimmer(img, [box_radio, box_card1], border_color=C_PURPLE, dim_factor=0.35, border_width=2)
+
     draw = ImageDraw.Draw(img)
-    # Sidebar Prevent Stockouts Radio: x=90, y=410, w=180, h=90
-    draw.rounded_rectangle([(90, 410), (280, 510)], radius=8, outline=(56, 189, 248), width=3)
-    # Queue Card #1 (Stockout Blazer): x=300, y=410, w=440, h=160
-    draw.rounded_rectangle([(300, 410), (740, 570)], radius=8, outline=(167, 139, 250), width=3)
-    draw.text((310, 580), "DYNAMIC RE-RANKING: HERO BLAZER (SKU-APX-01) PROMOTED TO #1 ($1,597.50)", fill=C_PURPLE, font=font_badge)
+    draw.text((310, 385), "DYNAMIC RE-RANKING: HERO BLAZER (SKU-APX-01) PROMOTED TO #1 ($1,597.50)", fill=C_PURPLE, font=font_badge)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
 
 def render_s07_benchmarks(cue: Dict[str, Any], progress: float) -> Image.Image:
-    """Scene 07: Authentic Telemetry & Stress Test Matrix."""
+    """Scene 07: Authentic Telemetry & Stress Test Matrix with Ken Burns zoom."""
     img = Image.new("RGB", (WIDTH, HEIGHT), C_BG)
-    draw = ImageDraw.Draw(img)
-    draw_top_chapter_badge(draw, cue["chapter"])
+    draw_top_chapter_badge(ImageDraw.Draw(img), cue["chapter"])
 
     if cue["id"] == "b12":
         # Beat 12: Focus on stress test split metrics and confusion matrix
         draw_studio_mockup(img, SCREEN_05, (0, 0, 1920, 1080))
+        highlight_box = (300, 310, 1705, 870)
+        img = apply_institutional_dimmer(img, [highlight_box], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
         draw = ImageDraw.Draw(img)
-        draw.rounded_rectangle([(300, 310), (1700, 860)], radius=10, outline=C_EMERALD, width=3)
         draw.text((320, 275), "STRESS TEST CONFUSION MATRIX: 28 TP · 2 FP · 2 FN · 0.933 F1 SCORE", fill=C_EMERALD_LIGHT, font=font_badge)
     else:
         # Beat 11: Focus on AMD TokenFactory throughput scaling
         draw_studio_mockup(img, SCREEN_04, (0, 0, 1920, 1080))
+        # Smooth Ken Burns zoom into throughput scaling bar chart
+        img = apply_ken_burns(img, progress, target_center=(1000, 600), max_zoom=1.20)
+        highlight_box = (300, 310, 1705, 870)
+        img = apply_institutional_dimmer(img, [highlight_box], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
         draw = ImageDraw.Draw(img)
-        draw.rounded_rectangle([(300, 470), (1700, 900)], radius=10, outline=(16, 185, 129), width=3)
-        draw.text((320, 440), "AUTHENTIC AMD TOKENFACTORY TELEMETRY · 18.2 TO 62.9 TOK/S SCALING", fill=C_EMERALD_LIGHT, font=font_badge)
+        draw.text((320, 275), "AUTHENTIC AMD TOKENFACTORY TELEMETRY · 18.2 TO 62.9 TOK/S SCALING", fill=C_EMERALD_LIGHT, font=font_badge)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
 
 def render_s08_finale(cue: Dict[str, Any], progress: float) -> Image.Image:
-    """Scene 08: Grand Finale Outro Card."""
+    """Scene 08: Grand Finale Outro Card matching Hackathon Submission specifications."""
     img = Image.new("RGB", (WIDTH, HEIGHT), C_BG)
     draw = ImageDraw.Draw(img)
     draw_top_chapter_badge(draw, cue["chapter"])
@@ -671,29 +816,29 @@ def render_s08_finale(cue: Dict[str, Any], progress: float) -> Image.Image:
 
     draw.rounded_rectangle([(cx, cy), (cx + cw, cy + ch)], radius=16, fill=C_PANEL, outline=C_BORDER_LIGHT, width=2)
 
-    draw.text((cx + 60, cy + 60), "PayLens: Reinvent Commerce on AMD", fill=C_WHITE, font=font_huge)
+    draw.text((cx + 60, cy + 50), "PayLens: Reinvent Commerce on AMD", fill=C_WHITE, font=font_huge)
     draw.text(
-        (cx + 60, cy + 130),
+        (cx + 60, cy + 115),
         "Deterministic arithmetic calculates every dollar. Grounded AMD intelligence drafts the actions.",
         fill=C_MUTED, font=font_body_lg
     )
 
-    # 4 Prize Track Badges
-    prizes = [
-        ("TRACK 3: REINVENT COMMERCE", "Autonomous Deal Desk for Multi-Rail E-Commerce", C_CYAN),
-        ("AMD INSTINCT PRIZE", "Shared AMD TokenFactory & Dedicated MI300X vLLM Recipe", C_EMERALD),
-        ("GOOGLE GEMMA PRIZE", "Gemma 4 REST Integration with Regex Numeric Shield", C_INDIGO),
-        ("EVOLUS PARTNER TRACK", "Multi-Block Workflows for Carrier Remittance Audits", C_PURPLE),
+    # 4 Verified Deliverable Cards
+    deliverables = [
+        ("TRACK 3: REINVENT COMMERCE (Vibe Generation)", "Autonomous Deal Desk for Multi-Rail E-Commerce", C_CYAN),
+        ("LIVE HARDWARE: AMD Radeon Cloud TokenFactory", "DeepSeek-V4-Flash + Dedicated ROCm MI300X vLLM Recipe", C_EMERALD),
+        ("AI REASONING: DeepSeek-V4-Flash & Google Gemma 4", "Dual-Engine Inference with 1-Click Action Dispatch", C_INDIGO),
+        ("DETERMINISTIC VERIFICATION: Zero LLM Math · 100% Regex Shield", "DuckDB Matchers + statsmodels Holt-Winters Demand Forecasting", C_PURPLE),
     ]
-    py = cy + 200
-    for p_title, p_desc, p_col in prizes:
-        draw.rounded_rectangle([(cx + 60, py), (cx + cw - 60, py + 65)], radius=8, fill=C_PANEL_ALT, outline=C_BORDER, width=1)
-        draw.text((cx + 80, py + 12), p_title, fill=p_col, font=font_card_head)
-        draw.text((cx + 80, py + 38), p_desc, fill=C_MUTED, font=font_caption)
-        py += 80
+    py = cy + 180
+    for p_title, p_desc, p_col in deliverables:
+        draw.rounded_rectangle([(cx + 60, py), (cx + cw - 60, py + 72)], radius=10, fill=C_PANEL_ALT, outline=C_BORDER, width=1)
+        draw.text((cx + 80, py + 14), p_title, fill=p_col, font=font_card_head)
+        draw.text((cx + 80, py + 42), p_desc, fill=C_MUTED, font=font_caption)
+        py += 88
 
     # GitHub link footer
-    draw.text((cx + 60, cy + 550), "Open Source & Fully Audited: https://github.com/labib-morol/paylens-amd", fill=C_WHITE, font=font_body)
+    draw.text((cx + 60, cy + 560), "Open Source & Fully Audited: https://github.com/labib-morol/paylens-amd", fill=C_WHITE, font=font_body)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
@@ -774,7 +919,7 @@ def render_full_video(cues: List[Dict[str, Any]], total_duration: float, audio_p
 # -----------------------------------------------------------------------------
 async def main():
     print("=" * 70)
-    print("PAYLENS ANIMATED PRODUCT FILM GENERATOR (HUMANPATCH & T2V STYLE)")
+    print("PAYLENS ANIMATED PRODUCT FILM GENERATOR (INSTITUTIONAL MOTION GRAPHICS)")
     print("=" * 70)
 
     # 1. Synthesize voiceover
@@ -783,14 +928,15 @@ async def main():
     # 2. Build sound design
     bg_sound_path = build_sound_design_track(cues, total_duration)
 
-    # 3. Mix audio
+    # 3. Mix audio with gentle compression and -16 LUFS broadcast normalization
     final_soundtrack_path = str(TEMP_DIR / "final_mixed_soundtrack.wav")
-    print("[3/5] Mixing voiceover and procedural soundscape via ffmpeg...")
+    print("[3/5] Mixing audio with -16 LUFS normalization and compression via ffmpeg...")
     subprocess.run([
         "ffmpeg", "-y",
         "-i", master_voice_path,
         "-i", bg_sound_path,
-        "-filter_complex", "[0:a]volume=1.0[v];[1:a]volume=0.9[bg];[v][bg]amix=inputs=2:duration=first:dropout_transition=2[out]",
+        "-filter_complex",
+        "[0:a]volume=1.0[v];[1:a]volume=0.35[bg];[v][bg]amix=inputs=2:duration=first:dropout_transition=2,acompressor=threshold=-20dB:ratio=2.5:attack=5:release=50,loudnorm=I=-16:TP=-1.5:LRA=11[out]",
         "-map", "[out]",
         "-c:a", "pcm_s16le",
         final_soundtrack_path
@@ -812,7 +958,7 @@ async def main():
 
     probe_res = subprocess.check_output([
         "ffprobe", "-v", "error", "-show_entries",
-        "format=duration:stream=width,height,r_frame_rate",
+        "format=duration,bit_rate:stream=width,height,r_frame_rate",
         "-of", "json", OUTPUT_MP4
     ]).decode()
     probe_data = json.loads(probe_res)

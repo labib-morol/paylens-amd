@@ -611,10 +611,10 @@ def render_deal_desk_workspace(
             "Checkout & Stockout Exposure",
             "All Ranked Items",
         ],
-        default="Confirmed Cash Discrepancies",
+        default="All Ranked Items",
         label_visibility="collapsed",
         key="deal_desk_queue_filter",
-    ) or "Confirmed Cash Discrepancies"
+    ) or "All Ranked Items"
 
     if queue_filter == "Confirmed Cash Discrepancies":
         display_cards = [c for c in cards_for_store if c.rec_type == RecommendationType.PAYMENT_LEAKAGE]

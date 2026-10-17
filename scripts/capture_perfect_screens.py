@@ -32,7 +32,7 @@ def main():
     )
 
     try:
-        time.sleep(6)
+        time.sleep(7)
         print("[1/3] Connecting with Playwright Chrome at 1920x1080...")
 
         with sync_playwright() as p:
@@ -43,7 +43,7 @@ def main():
             page.goto(URL, timeout=60000)
             print("  - Waiting for dashboard metrics to render...")
             page.wait_for_selector("text=CONFIRMED CASH DISCREPANCIES", timeout=60000)
-            time.sleep(6)
+            time.sleep(5)
 
             # Screen 1: Deal Desk Live with ORD-LEAK-4348 ($1,255.00) at #1
             s1_path = str(OUTPUT_DIR / "01_deal_desk_live.png")
@@ -52,27 +52,25 @@ def main():
 
             # Screen 2: Scroll Right Inspector down to show Evidence + Grounded Draft
             print("  - Scrolling right inspector to show Evidence and Grounded Action Notice...")
-            page.evaluate("() => { const el = document.querySelector('.stMain') || document.documentElement; el.scrollTop = 380; }")
+            try:
+                page.locator("text=Numeric Claim Validation Result").scroll_into_view_if_needed()
+            except Exception:
+                page.mouse.wheel(0, 450)
             time.sleep(2)
             s2_path = str(OUTPUT_DIR / "02_evidence_and_action.png")
             page.screenshot(path=s2_path, full_page=False)
             print(f"  [SAVED] {s2_path}")
 
-            # Reset scroll
-            page.evaluate("() => { const el = document.querySelector('.stMain') || document.documentElement; el.scrollTop = 0; }")
+            # Reset scroll to top
+            page.mouse.wheel(0, -1000)
             time.sleep(1)
 
-            # Screen 3: Switch Objective to Prevent Stockouts & All Ranked Items
+            # Screen 3: Switch Objective to Prevent Stockouts
             print("  - Switching Optimization Goal to 'Prevent Stockouts'...")
             page.locator("label:has-text('Prevent Stockouts')").click()
-            time.sleep(3)
-
-            print("  - Clicking 'All Ranked Items'...")
-            try:
-                page.get_by_text("All Ranked Items").click()
-            except Exception as e:
-                print("    get_by_text error:", e)
-            time.sleep(3)
+            time.sleep(4)
+            page.wait_for_selector("text=SKU-APX-01", timeout=30000)
+            time.sleep(2)
 
             s3_path = str(OUTPUT_DIR / "03_stockout_promoted.png")
             page.screenshot(path=s3_path, full_page=False)
@@ -80,10 +78,17 @@ def main():
 
             # Screen 4: Switch to Tab 2 (Live Benchmark & Confusion Matrix)
             print("  - Navigating to Tab 2 (Live Benchmark & Confusion Matrix)...")
-            tabs = page.locator("button[role='tab']").all()
-            if len(tabs) >= 2:
-                tabs[1].click()
-                time.sleep(4)
+            tab2_btn = page.locator("button[role='tab']:has-text('Live Benchmark')")
+            if tab2_btn.count() > 0:
+                tab2_btn.first.click()
+            else:
+                tabs = page.locator("button[role='tab']").all()
+                if len(tabs) >= 2:
+                    tabs[1].click()
+
+            print("  - Waiting for Tab 2 benchmark content...")
+            page.locator("text=Live AMD Radeon Cloud TokenFactory Concurrency Benchmark").wait_for(state="visible", timeout=30000)
+            time.sleep(5)
 
             s4_path = str(OUTPUT_DIR / "04_amd_benchmark_scaling.png")
             page.screenshot(path=s4_path, full_page=False)
@@ -91,8 +96,10 @@ def main():
 
             # Screen 5: Scroll down in Tab 2 to show Stress Confusion Matrix
             print("  - Scrolling down in Tab 2 to show Stress Confusion Matrix...")
-            page.evaluate("() => { const el = document.querySelector('.stMain') || document.documentElement; el.scrollTop = 700; }")
-            time.sleep(2)
+            cm_heading = page.locator("text=Realistic Stress-Test Confusion Matrix")
+            if cm_heading.count() > 0:
+                cm_heading.first.scroll_into_view_if_needed()
+            time.sleep(3)
             s5_path = str(OUTPUT_DIR / "05_stress_confusion_matrix.png")
             page.screenshot(path=s5_path, full_page=False)
             print(f"  [SAVED] {s5_path}")
