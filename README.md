@@ -48,13 +48,17 @@ flowchart TD
         Fallback["Deterministic Offline Template Fallback"]
     end
 
-    subgraph EvolusPartnerTrack["Evolus AI Partner Track"]
-        ExtrBlock["Building Block 1: Document Extractor<br/>POST /api/v1/extractors/{id}/run"]
-        WorkBlock["Building Block 2: Business Workflow<br/>POST /api/v1/workflows/{id}/execute"]
+    subgraph EvolusPartnerTrack["Evolus AI Partner Track (Multi-Block Architecture)"]
+        Tool1["Ready-Made AI Tool 1: document-to-structured-data<br/>POST /api/v1/ai-tools/document-to-structured-data/run"]
+        Tool2["Ready-Made AI Tool 2: email-writing<br/>POST /api/v1/ai-tools/email-writing/run"]
+        AgentChat["Evolus Business Agent Chat<br/>POST /v1/chat/completions + Workflow Execute"]
     end
 
-    subgraph UI["Interactive Action Centre & Deal Desk"]
-        Streamlit["Streamlit + Plotly Fintech Deal Desk"]
+    subgraph UI["Interactive Action Centre & Deal Desk (Track 3 + Vibe Generation)"]
+        Streamlit["Streamlit Dark Slate Fintech UI"]
+        Sankey["Cross-Rail Revenue Sankey Diagram (Plotly)"]
+        HWChart["Holt-Winters Stockout Forecast + Danger Zone"]
+        RedTeam["Red-Team Grounding Hallucination Stress-Test"]
         Receipts["Live Cryptographic Execution Receipts"]
     end
 
@@ -65,8 +69,8 @@ flowchart TD
     Gemma <--> Grounding
     Grounding --> Streamlit
     Fallback -.-> Grounding
-    Streamlit --> ExtrBlock & WorkBlock
-    Streamlit --> Receipts
+    Streamlit --> Tool1 & Tool2 & AgentChat
+    Streamlit --> Sankey & HWChart & RedTeam & Receipts
 ```
 
 ---
@@ -215,6 +219,7 @@ Open `http://localhost:8501` to view the interactive Deal Desk!
 | **Track 3: Reinvent Commerce** | Multi-rail reconciliation across Shopify, Stripe, PayPal, SEPA, and DHL/FedEx | `data/generate_synthetic_data.py`, `app.py` |
 | **AMD Instinct MI300X Prize** | vLLM serving with async scheduling, 192GB HBM3 KV utilization, 82,898 recs/min benchmark | `agent/gemma_agent.py`, `benchmarks/run_mi300x_benchmark.py` |
 | **Google DeepMind Gemma Prize** | `google/gemma-4-31B-it` grounded action generation & natural language goal steering | `agent/gemma_agent.py`, `agent/grounding.py` |
-| **Evolus AI Partner Track** | Document Extractor (PDF intake) + Dispute Workflow execution | `agent/evolus_bridge.py`, `app.py` Tab 2 |
+| **Evolus AI Partner Track** | Multi-Block Architecture: Ready-Made AI Tools (`document-to-structured-data`, `email-writing`) + Evolus Agent Chat (`/v1/chat/completions`) + Workflows | `agent/evolus_bridge.py`, `app.py` Tab 2 |
+| **Vibe Generation Special Prize** | High-taste Dark Slate Fintech UI, Cross-Rail Revenue Sankey Diagram, Holt-Winters Stockout danger zone, Red-Team Hallucination Stress-Test | `app.py`, `FINTECH_CSS` |
 | **Code Computes, Model Explains** | 100% deterministic math & statsmodels; zero arithmetic by LLM; 100% regex grounding | `engine/detectors.py`, `agent/grounding.py` |
 | **Global Multi-Market Scalability** | Pluggable connectors for Brazil Pix, India UPI, Kenya M-Pesa, Bangladesh MFS | `engine/connectors.py`, `app.py` Tab 4 |
