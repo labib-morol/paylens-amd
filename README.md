@@ -2,7 +2,7 @@
 
 **AMD Developer Hackathon: Act III**  
 **Track 3: Reinvent Commerce** + **AMD Instinct Prize** + **Google DeepMind Gemma Prize** + **Evolus AI Partner Track** + **Vibe Generation Special Prize**  
-Serving `google/gemma-4-31B-it` via AMD ROCm vLLM or AMD TokenFactory.
+Serving LLMs (e.g. `DeepSeek-V4-Flash`, `google/gemma-2-27b-it`) via AMD ROCm vLLM or AMD TokenFactory.
 
 ---
 
@@ -18,7 +18,7 @@ In multi-rail commerce, disconnected financial ledgers lead to silent revenue le
 
 ### Core Architectural Principle: Code Computes, Model Explains
 - **Deterministic Compute Layer**: DuckDB, pandas, and statsmodels compute all arithmetic, matching logic, Holt-Winters demand forecasting, and STL anomaly decomposition. The model never calculates numbers.
-- **Model Explanation Layer**: An LLM (such as Google Gemma-4-31B-it) contextualizes discrepancies, explains trends, and drafts outreach notices under numeric regex grounding verification.
+- **Model Explanation Layer**: An LLM on AMD TokenFactory or ROCm vLLM contextualizes discrepancies, explains trends, and drafts outreach notices under numeric regex grounding verification.
 
 ---
 

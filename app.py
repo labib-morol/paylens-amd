@@ -556,7 +556,7 @@ with st.sidebar:
         tf_url_input = st.text_input(
             "TokenFactory Base URL",
             value=st.session_state.get("override_tokenfactory_url", health.get("backup_url") or ""),
-            placeholder="https://.../v1",
+            placeholder="https://developer.amd.com.cn/radeon/api/v1",
             help="Base URL for the AMD TokenFactory OpenAI-compatible endpoint.",
         )
         tf_key_input = st.text_input(
@@ -567,17 +567,17 @@ with st.sidebar:
             help="Your AMD TokenFactory API access key.",
         )
         tf_model_input = st.text_input(
-            "Model Name",
-            value=st.session_state.get("override_model_name", target_model if target_model != "Not configured" else "google/gemma-4-31B-it"),
-            placeholder="google/gemma-4-31B-it",
-            help="Target Gemma model ID running on AMD hardware.",
+            "Model Name (leave blank to auto-detect)",
+            value=st.session_state.get("override_model_name", target_model if target_model not in ("Not configured", "google/gemma-4-31B-it") else ""),
+            placeholder="e.g. DeepSeek-V4-Flash, google/gemma-2-27b-it",
+            help="Target model ID on AMD TokenFactory. If left blank, the app auto-selects the first available model.",
         )
         if st.button("Connect & Test TokenFactory", use_container_width=True):
             if tf_url_input:
                 st.session_state["override_tokenfactory_url"] = tf_url_input.strip()
             if tf_key_input:
                 st.session_state["override_tokenfactory_key"] = tf_key_input.strip()
-            if tf_model_input:
+            if tf_model_input is not None:
                 st.session_state["override_model_name"] = tf_model_input.strip()
             st.rerun()
 
@@ -924,7 +924,7 @@ with tab_deal_desk:
                 "Formal Carrier Dispute",
             ],
             index=0,
-            help="Instructs Google Gemma-4-31B-it to draft the customer or carrier message under strict deterministic numeric grounding verification.",
+            help="Instructs the AMD GPU model to draft the customer or carrier message under strict deterministic numeric grounding verification.",
         )
         st.session_state.last_tone = selected_tone
 
@@ -1124,7 +1124,7 @@ with tab_deal_desk:
                             enrich_card_with_agent(card, tone=selected_tone)
                             st.rerun()
                     else:
-                        st.markdown(f"**Gemma-4-31B-it Explanation ({card.execution_source}):**")
+                        st.markdown(f"**Model Explanation ({card.model_name or 'AMD GPU'} — {card.execution_source}):**")
                         st.info(card.explanation_en)
 
                     st.markdown("**Editable Action Dispatch Draft:**")
