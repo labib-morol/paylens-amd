@@ -34,7 +34,8 @@ dist/
 .ruff_cache/
 
 # Streamlit
-.streamlit/
+.streamlit/*
+!.streamlit/config.toml
 
 # OS Specific
 .DS_Store

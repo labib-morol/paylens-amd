@@ -9,6 +9,7 @@ import os
 import sys
 import time
 import json
+import html
 import hashlib
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -40,7 +41,7 @@ from agent.gemma_agent import (
 from agent.grounding import verify_numeric_grounding, build_fallback_template
 
 # -----------------------------------------------------------------------------
-# Streamlit Page Configuration
+# Streamlit Page Configuration & Native Theming
 # -----------------------------------------------------------------------------
 st.set_page_config(
     page_title="PayLens // Revenue Recovery Deal Desk",
@@ -49,17 +50,53 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Clean CSS to hide default header/footer and ensure dark fintech tone
-st.markdown(
+# Clean CSS to hide default header/footer and enforce tabular numeric rhythm
+st.html(
     """
     <style>
     #MainMenu {visibility: hidden;}
     header {visibility: hidden;}
     footer {visibility: hidden;}
-    .block-container {padding-top: 1.5rem; padding-bottom: 2rem;}
+    .block-container {padding-top: 1.25rem; padding-bottom: 2.5rem; max-width: 96rem;}
+
+    /* Tabular numeric alignment for financial values and tables */
+    [data-testid="stMetricValue"], [data-testid="stDataFrame"], code {
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* Subtle semantic status badges */
+    .badge-leak {
+        background: rgba(239, 68, 68, 0.15);
+        color: #FCA5A5;
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+    }
+    .badge-recovery {
+        background: rgba(245, 158, 11, 0.15);
+        color: #FDE68A;
+        border: 1px solid rgba(245, 158, 11, 0.35);
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+    }
+    .badge-stockout {
+        background: rgba(167, 139, 250, 0.15);
+        color: #DDD6FE;
+        border: 1px solid rgba(167, 139, 250, 0.35);
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+    }
     </style>
-    """,
-    unsafe_allow_html=True,
+    """
 )
 
 # -----------------------------------------------------------------------------
@@ -75,6 +112,115 @@ if "live_enriched_cards" not in st.session_state:
     st.session_state.live_enriched_cards = {}
 if "benchmark_run_history" not in st.session_state:
     st.session_state.benchmark_run_history = None
+
+# -----------------------------------------------------------------------------
+# Cached Helper Routines
+# -----------------------------------------------------------------------------
+@st.cache_data(ttl=300)
+def cached_get_merchant_names() -> Dict[str, str]:
+    return get_merchant_names()
+
+
+@st.cache_data(ttl=60, show_spinner=False)
+def cached_run_pipeline(weights_tuple: tuple, r_rate: float, lead_time: int) -> Dict[str, Any]:
+    weights = GoalWeights(
+        cash_now_weight=weights_tuple[0],
+        margin_protection_weight=weights_tuple[1],
+        stock_availability_weight=weights_tuple[2],
+    )
+    return run_pipeline(
+        goal_weights=weights,
+        recovery_rate=r_rate,
+        supplier_lead_time_override=lead_time,
+    )
+
+
+@st.cache_data(ttl=120)
+def build_reconciliation_comparison_bar(card: RecommendationCard):
+    """Builds a clean horizontal financial breakdown chart for the selected card."""
+    fig = go.Figure()
+    if card.rec_type == RecommendationType.PAYMENT_LEAKAGE:
+        fig.add_trace(go.Bar(
+            y=["Ledger Reconciliation"],
+            x=[card.impact_usd],
+            name="Unsettled Discrepancy",
+            orientation="h",
+            marker=dict(color="#EF4444"),
+        ))
+    elif card.rec_type == RecommendationType.FAILED_PAYMENT_RECOVERY:
+        fig.add_trace(go.Bar(
+            y=["Checkout Recovery"],
+            x=[card.impact_usd],
+            name="Projected Recovery",
+            orientation="h",
+            marker=dict(color="#F59E0B"),
+        ))
+    else:
+        fig.add_trace(go.Bar(
+            y=["Stockout Margin Risk"],
+            x=[card.impact_usd],
+            name="Margin at Risk",
+            orientation="h",
+            marker=dict(color="#A78BFA"),
+        ))
+
+    fig.update_layout(
+        template="plotly_dark",
+        height=130,
+        margin=dict(l=10, r=10, t=10, b=10),
+        xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.06)", tickprefix="$"),
+        yaxis=dict(showticklabels=False),
+        plot_bgcolor="rgba(17, 24, 39, 0.5)",
+        paper_bgcolor="rgba(17, 24, 39, 0.5)",
+        legend=dict(orientation="h", y=1.25, x=0),
+    )
+    return fig
+
+
+@st.cache_data(ttl=120)
+def build_stockout_forecast_chart(duckdb_path: str, sku: str):
+    """Builds historical stock and 7-day lead-time cover forecast chart."""
+    if not os.path.exists(duckdb_path):
+        return None
+    con = duckdb.connect(duckdb_path, read_only=True)
+    try:
+        df = con.execute(
+            "SELECT snapshot_date, current_stock, units_sold_today FROM inventory_daily WHERE sku = ? ORDER BY snapshot_date ASC",
+            [sku],
+        ).df()
+    finally:
+        con.close()
+
+    if df.empty:
+        return None
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=df["snapshot_date"],
+        y=df["current_stock"],
+        mode="lines+markers",
+        name="Stock On Hand (Units)",
+        line=dict(color="#A78BFA", width=2),
+    ))
+    fig.add_trace(go.Bar(
+        x=df["snapshot_date"],
+        y=df["units_sold_today"],
+        name="Daily Demand",
+        marker=dict(color="rgba(99, 102, 241, 0.4)"),
+    ))
+
+    fig.update_layout(
+        template="plotly_dark",
+        height=220,
+        margin=dict(l=10, r=10, t=25, b=10),
+        plot_bgcolor="rgba(17, 24, 39, 0.5)",
+        paper_bgcolor="rgba(17, 24, 39, 0.5)",
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.06)"),
+        legend=dict(orientation="h", y=1.15, x=0),
+    )
+    return fig
+
 
 # -----------------------------------------------------------------------------
 # Live Runtime Hardware & Endpoint Health Check
@@ -96,7 +242,7 @@ st.sidebar.title("🛡️ PayLens Deal Desk")
 st.sidebar.caption("Deterministic Multi-Rail Capital Recovery")
 
 # Merchant Selector
-merchant_map = get_merchant_names()
+merchant_map = cached_get_merchant_names()
 merchant_ids = sorted(list(merchant_map.keys()))
 default_merch_idx = 1 if "MERCH_02" in merchant_ids else 0
 selected_merchant = st.sidebar.selectbox(
@@ -178,16 +324,16 @@ with st.sidebar.expander("📄 Courier Settlement PDF Intake", expanded=False):
     st.caption("Upload carrier remittance PDF or parse sample statement.")
     sample_pdf_path = os.path.join(ROOT_DIR, "data", "generated", "sample_courier_settlement.pdf")
     if os.path.exists(sample_pdf_path):
-        if st.button("Parse sample_courier_settlement.pdf"):
+        if st.button("Parse sample_courier_settlement.pdf", width="stretch"):
             st.success("Parsed sample statement: Found $295.00 shortfall across 3 consignments.")
 
 # -----------------------------------------------------------------------------
 # Execute Deterministic Pipeline
 # -----------------------------------------------------------------------------
-pipeline_data = run_pipeline(
-    goal_weights=active_weights,
-    recovery_rate=recovery_rate_input,
-    supplier_lead_time_override=lead_time_override,
+pipeline_data = cached_run_pipeline(
+    (active_weights.cash_now_weight, active_weights.margin_protection_weight, active_weights.stock_availability_weight),
+    recovery_rate_input,
+    lead_time_override,
 )
 all_cards: List[RecommendationCard] = pipeline_data["cards"]
 all_store_cards = all_cards
@@ -212,7 +358,7 @@ except Exception:
     std_split = {}
     stress_split = {}
 
-# Compute Separated Financial Risk Buckets (Do NOT sum into one misleading number!)
+# Compute Separated Financial Risk Buckets (Strict financial separation)
 # Bucket 1: Confirmed Cash Discrepancies (Unpaid Dispatched + Courier Shortfalls)
 confirmed_cards_store = [
     c for c in store_cards
@@ -313,16 +459,17 @@ tab1, tab2 = st.tabs([
 # TAB 1: REVENUE RECONCILIATION & DEAL DESK (MASTER-DETAIL WORKSPACE)
 # =============================================================================
 with tab1:
-    # Filter pill defaulting to Flagship Confirmed Cash Discrepancies
-    queue_filter = st.radio(
-        "Queue Filter",
+    # Filter using segmented control defaulting to Flagship Confirmed Cash Discrepancies
+    queue_filter = st.segmented_control(
+        "Queue Filter:",
         options=[
-            "🔥 Flagship: Confirmed Cash Discrepancies (Unpaid Dispatched & Courier COD Shortfalls)",
-            "📦 Supporting: Checkout Recovery & Stockout Forecasts",
-            "🌐 All Ranked Recovery Recommendations",
+            "🔥 Flagship: Confirmed Cash Discrepancies",
+            "📦 Supporting: Recovery & Stockouts",
+            "🌐 All Ranked Recommendations",
         ],
-        horizontal=True,
-    )
+        default="🔥 Flagship: Confirmed Cash Discrepancies",
+        label_visibility="collapsed",
+    ) or "🔥 Flagship: Confirmed Cash Discrepancies"
 
     if "Flagship" in queue_filter:
         display_cards = [c for c in store_cards if c.rec_type == RecommendationType.PAYMENT_LEAKAGE]
@@ -347,7 +494,7 @@ with tab1:
     # LEFT COLUMN: Compact Priority Queue
     with left_col:
         st.markdown(f"### Priority Action Queue ({len(display_cards)} Items)")
-        st.caption(f"Ranked by impact, confidence, and business objective: '{current_goal_text}'")
+        st.caption(f"Ranked by impact, confidence, and objective: '{current_goal_text}'")
 
         for idx, card in enumerate(display_cards, start=1):
             is_selected = (card.card_id == st.session_state.selected_card_id)
@@ -375,7 +522,7 @@ with tab1:
                         st.caption(f"Score: `{card.ranking_score:.2f}` · Conf: `{card.confidence:.2f}`")
                 with c_stat2:
                     btn_label = "Active 👁️" if is_selected else "Inspect →"
-                    if st.button(btn_label, key=f"btn_select_{card.card_id}", use_container_width=True):
+                    if st.button(btn_label, key=f"btn_select_{card.card_id}", width="stretch", disabled=is_selected):
                         st.session_state.selected_card_id = card.card_id
                         st.rerun()
 
@@ -405,7 +552,20 @@ with tab1:
                 st.code(selected_card.formula_display, language="text")
                 st.caption(f"Allowed Grounding Numbers: `{selected_card.allowed_numbers}`")
 
-            # 2. Source Evidence Table
+            # 2. Visual Financial Evidence Chart
+            st.markdown(f"**Visual Evidence Breakdown for `{selected_card.entity_id}`:**")
+            if selected_card.rec_type == RecommendationType.STOCKOUT_RISK:
+                chart_fig = build_stockout_forecast_chart(os.path.join(ROOT_DIR, "data", "generated", "paylens.duckdb"), selected_card.entity_id)
+                if chart_fig:
+                    st.plotly_chart(chart_fig, width="stretch")
+                else:
+                    rec_bar = build_reconciliation_comparison_bar(selected_card)
+                    st.plotly_chart(rec_bar, width="stretch")
+            else:
+                rec_bar = build_reconciliation_comparison_bar(selected_card)
+                st.plotly_chart(rec_bar, width="stretch")
+
+            # 3. Source Evidence Table
             with st.container(border=True):
                 st.markdown("**Source Evidence Records (DuckDB)**")
                 evidence_list = selected_card.evidence_rows
@@ -418,30 +578,30 @@ with tab1:
                             "Summary": ev.summary,
                             **{f"data_{k}": v for k, v in ev.raw_data.items() if k not in ("customer_email", "customer_phone")},
                         })
-                    st.dataframe(pd.DataFrame(ev_rows), use_container_width=True, hide_index=True)
+                    st.dataframe(pd.DataFrame(ev_rows), width="stretch", hide_index=True)
                 else:
                     st.info("No raw evidence rows attached to card.")
 
-            # 3. Live AI Explanation & Action Draft
+            # 4. Live AI Explanation & Action Draft
             with st.container(border=True):
                 st.markdown("**Live AI Explanation & Action Draft**")
 
-                tone_choice = st.selectbox(
-                    "Action Tone / Strategy",
+                tone_choice = st.segmented_control(
+                    "Action Strategy & Tone",
                     options=[
                         "Polite Payment Reminder",
                         "VIP 5% Instant-Pay Discount",
                         "Formal Courier Dispute",
                         "Supplier Expedited PO",
                     ],
-                    index=0,
-                )
+                    default="Polite Payment Reminder",
+                ) or "Polite Payment Reminder"
 
                 gen_col1, gen_col2 = st.columns([1.5, 1.0])
                 with gen_col1:
-                    run_ai_btn = st.button("✨ Run Live AI Explanation & Action Draft", type="primary", use_container_width=True)
+                    run_ai_btn = st.button("✨ Run Live AI Explanation & Action Draft", type="primary", width="stretch")
                 with gen_col2:
-                    test_hallucination_btn = st.button("🛡️ Test Red-Team Hallucination ($9,999.00)", use_container_width=True)
+                    test_hallucination_btn = st.button("🛡️ Test Red-Team Hallucination ($9,999.00)", width="stretch")
 
                 # Check if card has already been enriched in session state
                 card_key = f"{selected_card.card_id}_{tone_choice}_{engine_choice}"
@@ -505,15 +665,15 @@ with tab1:
                 # Grounding Trace Table (Itemized verification)
                 if active_enriched.grounding_trace:
                     with st.expander("🔍 View Numeric Grounding Trace Table", expanded=False):
-                        st.dataframe(pd.DataFrame(active_enriched.grounding_trace), use_container_width=True, hide_index=True)
+                        st.dataframe(pd.DataFrame(active_enriched.grounding_trace), width="stretch", hide_index=True)
 
-            # 4. Human-Reviewed Simulated Action Execution
+            # 5. Human-Reviewed Simulated Action Execution
             with st.container(border=True):
                 st.markdown("**Human Operator Action Approval**")
                 act_col1, act_col2 = st.columns(2)
 
                 with act_col1:
-                    if st.button("✅ Approve & Dispatch Action", key=f"appr_{selected_card.card_id}", use_container_width=True):
+                    if st.button("✅ Approve & Dispatch Action", key=f"appr_{selected_card.card_id}", width="stretch", type="primary"):
                         receipt_id = hashlib.sha256(f"{selected_card.card_id}_{time.time()}".encode()).hexdigest()[:16]
                         st.session_state.approved_actions[selected_card.card_id] = {
                             "amount": selected_card.impact_usd,
@@ -525,7 +685,7 @@ with tab1:
                         st.rerun()
 
                 with act_col2:
-                    if st.button("❌ Reject / Flag False Positive", key=f"rej_{selected_card.card_id}", use_container_width=True):
+                    if st.button("❌ Reject / Flag False Positive", key=f"rej_{selected_card.card_id}", width="stretch"):
                         st.session_state.rejected_actions[selected_card.card_id] = {
                             "timestamp": datetime.now().isoformat(),
                             "entity": selected_card.entity_id,
@@ -607,10 +767,15 @@ with tab2:
                 y="Tokens/Sec",
                 title="AMD TokenFactory Throughput Scaling (Tokens/Sec vs Concurrency)",
                 text="Tokens/Sec",
-                color_discrete_sequence=["#6366F1"],
+                color_discrete_sequence=["#10B981"],
             )
-            fig_tok.update_layout(template="plotly_dark", height=320)
-            st.plotly_chart(fig_tok, use_container_width=True)
+            fig_tok.update_layout(
+                template="plotly_dark",
+                height=320,
+                plot_bgcolor="rgba(17, 24, 39, 0.5)",
+                paper_bgcolor="rgba(17, 24, 39, 0.5)",
+            )
+            st.plotly_chart(fig_tok, width="stretch")
 
     # Section 2: Realistic Stress-Test Confusion Matrix
     with st.container(border=True):
@@ -621,7 +786,7 @@ with tab2:
         with cm_col1:
             st.markdown("**Standard Baseline Split (Clean Synthetic)**")
             if std_split:
-                st.dataframe(pd.DataFrame([std_split]), use_container_width=True, hide_index=True)
+                st.dataframe(pd.DataFrame([std_split]), width="stretch", hide_index=True)
             else:
                 st.info("Baseline split not available.")
 
@@ -635,7 +800,7 @@ with tab2:
                     "True Positives": tp_cnt,
                     "False Positives": fp_cnt,
                     "False Negatives": fn_cnt,
-                }]), use_container_width=True, hide_index=True)
+                }]), width="stretch", hide_index=True)
             else:
                 st.info("Stress-test split not available.")
 
@@ -644,12 +809,12 @@ with tab2:
         fp_details = stress_split.get("false_positive_details", [])
         if fp_details:
             st.markdown("**False Positives (Legitimate Transactions Flagged for Review):**")
-            st.dataframe(pd.DataFrame(fp_details), use_container_width=True, hide_index=True)
+            st.dataframe(pd.DataFrame(fp_details), width="stretch", hide_index=True)
 
         fn_details = stress_split.get("false_negative_details", [])
         if fn_details:
             st.markdown("**False Negatives (Edge Cases Missed by Deterministic Matcher):**")
-            st.dataframe(pd.DataFrame(fn_details), use_container_width=True, hide_index=True)
+            st.dataframe(pd.DataFrame(fn_details), width="stretch", hide_index=True)
 
     # Section 3: DuckDB Raw Tables Explorer
     with st.container(border=True):
@@ -658,6 +823,14 @@ with tab2:
         con = duckdb.connect(os.path.join(ROOT_DIR, "data", "generated", "paylens.duckdb"), read_only=True)
         try:
             sample_df = con.execute(f"SELECT * FROM {duck_table} LIMIT 100").df()
-            st.dataframe(sample_df, use_container_width=True)
+            st.dataframe(sample_df, width="stretch")
         finally:
             con.close()
+
+# -----------------------------------------------------------------------------
+# Persistent Footer Notice
+# -----------------------------------------------------------------------------
+st.divider()
+st.caption(
+    "PayLens · Multi-Rail Revenue Recovery Engine on AMD Hardware · Demonstrated on illustrative synthetic data modeled on global commerce rails."
+)

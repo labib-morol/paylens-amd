@@ -31,7 +31,7 @@ from engine.evaluator import evaluate_recommendations
 load_dotenv()
 
 
-def get_merchant_names(con: duckdb.DuckDBPyConnection) -> Dict[str, str]:
+def get_merchant_names(con: Optional[duckdb.DuckDBPyConnection] = None) -> Dict[str, str]:
     """Retrieve mapping of merchant IDs to human-readable business names."""
     name_map = {
         "MERCH_01": "Apex Global Apparel",
