@@ -5,6 +5,10 @@
 Serving LLMs (e.g. `DeepSeek-V4-Flash`, `google/gemma-2-27b-it`) via AMD ROCm vLLM or AMD TokenFactory.
 
 <p align="center">
+  <img src="docs/demo.gif" alt="PayLens Solo Live Interactive Deal Desk" width="960">
+</p>
+
+<p align="center">
   <img src="docs/architecture.svg" alt="PayLens Solo Architecture on AMD Hardware" width="960">
 </p>
 
