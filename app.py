@@ -266,6 +266,18 @@ gemma_lat = endpoint_status["gemma_status"]["ping_latency_ms"]
 st.sidebar.title("PayLens Deal Desk")
 st.sidebar.caption("Deterministic Multi-Rail Capital Recovery")
 
+# Merchant Selector
+merchant_map = cached_get_merchant_names()
+merchant_ids = sorted(list(merchant_map.keys())) if merchant_map else ["MERCH_01"]
+default_merch_idx = merchant_ids.index("MERCH_02") if "MERCH_02" in merchant_ids else 0
+selected_merchant = st.sidebar.selectbox(
+    "Active Storefront",
+    options=merchant_ids,
+    index=default_merch_idx,
+    format_func=lambda m: f"{m} — {merchant_map.get(m, m)}",
+)
+st.session_state.selected_merchant = selected_merchant
+
 # Business Priority / Objective
 st.sidebar.subheader("Business Objective")
 goal_preset = st.sidebar.radio(
@@ -460,22 +472,13 @@ with st.container(border=True):
             )
 
     with hdr_col4:
-        merch_idx = merchant_ids.index(st.session_state.selected_merchant) if st.session_state.selected_merchant in merchant_ids else 0
-        selected_merchant = st.selectbox(
-            "Storefront Selector",
-            options=merchant_ids,
-            index=merch_idx,
-            format_func=lambda m: f"{m} — {merchant_map.get(m, m)}",
-            key="top_storefront_selector",
-            label_visibility="collapsed",
-        )
-        st.session_state.selected_merchant = selected_merchant
         approved_total = sum(v.get("amount", 0.0) for v in st.session_state.approved_actions.values())
         appr_count = len(st.session_state.approved_actions)
         st.markdown(
             f"""
-            <div style="font-family: monospace; font-size: 0.72rem; color: #10B981; padding-top: 2px;">
-                SIMULATED APPROVALS: ${approved_total:,.2f} ({appr_count})
+            <div class="top-status-pill" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); flex-direction: column; align-items: flex-start; justify-content: center; padding: 6px 12px;">
+                <div style="font-size: 0.72rem; color: #94A3B8; font-weight: 600; letter-spacing: 0.02em;">Approved Recovery Actions (Simulated)</div>
+                <div style="font-family: monospace; font-size: 0.85rem; color: #10B981; font-weight: 700;">${approved_total:,.2f} ({appr_count} actions)</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -640,7 +643,6 @@ def render_deal_desk_workspace(
     # LEFT COLUMN: Compact Priority Queue
     with left_col:
         st.markdown(f"### Priority Action Queue ({len(display_cards)} Items)")
-        st.caption(f"Ranked by impact, confidence, and objective: '{goal_label}'")
 
         for idx, card in enumerate(display_cards, start=1):
             is_selected = (card.card_id == st.session_state.selected_card_id)
@@ -656,7 +658,8 @@ def render_deal_desk_workspace(
                         else ("RECOVERY" if card.rec_type == RecommendationType.FAILED_PAYMENT_RECOVERY else "STOCKOUT")
                     )
                     st.markdown(f"**#{idx} · `{card.entity_id}`** <span style='font-size:0.70rem; color:#94A3B8;'>[{type_label}]</span>", unsafe_allow_html=True)
-                    st.caption(card.title)
+                    clean_title = re.sub(rf"\s*\(\s*{re.escape(card.entity_id)}\s*\)\s*$", "", card.title, flags=re.IGNORECASE).strip()
+                    st.caption(clean_title)
                 with c_head2:
                     st.markdown(f"### `${card.impact_usd:,.2f}`")
 
@@ -684,29 +687,18 @@ def render_deal_desk_workspace(
         if selected_card:
             st.markdown(f"### Deal Desk Inspector: {selected_card.title}")
 
-            # Top Metadata Strip (Institutional Container without Truncation)
-            with st.container(border=True):
-                m_col1, m_col2, m_col3, m_col4 = st.columns([1.3, 1.1, 0.8, 0.8])
-                with m_col1:
-                    st.caption("ENTITY ID")
-                    st.markdown(f"**`{selected_card.entity_id}`**")
-                with m_col2:
-                    st.caption("CATEGORY / IMPACT")
-                    cat_name = (
-                        "Cash Discrepancy" if selected_card.rec_type == RecommendationType.PAYMENT_LEAKAGE
-                        else ("Checkout Recovery" if selected_card.rec_type == RecommendationType.FAILED_PAYMENT_RECOVERY else "Stockout Risk")
-                    )
-                    st.markdown(f"**${selected_card.impact_usd:,.2f}** &middot; <span style='font-size:0.75rem; color:#94A3B8;'>{cat_name}</span>", unsafe_allow_html=True)
-                with m_col3:
-                    st.caption("CONFIDENCE")
-                    st.markdown(f"**`{selected_card.confidence:.2f}`**")
-                with m_col4:
-                    st.caption("RANKING SCORE")
-                    st.markdown(f"**`{selected_card.ranking_score:.2f}`**")
+            # Top Metrics Row
+            m_col1, m_col2, m_col3 = st.columns(3)
+            with m_col1:
+                st.metric("Impact", f"${selected_card.impact_usd:,.2f}", delta_color="off")
+            with m_col2:
+                st.metric("Confidence", f"{selected_card.confidence:.0%}", delta_color="off")
+            with m_col3:
+                st.metric("Priority Score", f"{selected_card.ranking_score:.1f}", delta_color="off")
 
             # 1. Deterministic Calculation Formula Banner
             with st.container(border=True):
-                st.markdown("**Deterministic Math Formula (DuckDB Ledger Verification)**")
+                st.markdown("**Calculation & Ledger Evidence**")
                 st.code(selected_card.formula_display, language="text")
                 st.caption(f"Allowed Grounding Numbers: `{selected_card.allowed_numbers}`")
 
