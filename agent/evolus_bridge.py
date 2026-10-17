@@ -35,8 +35,12 @@ def get_config_val(key: str) -> Optional[str]:
     val = None
     try:
         import streamlit as st
-        if hasattr(st, "secrets") and key in st.secrets:
-            val = str(st.secrets[key])
+        if hasattr(st, "secrets"):
+            try:
+                if key in st.secrets:
+                    val = str(st.secrets[key])
+            except Exception:
+                pass
     except Exception:
         pass
     if val is None or val == "":
@@ -86,6 +90,7 @@ def get_evolus_status() -> Dict[str, Any]:
             "active": False,
             "badge": "Evolus: NOT ACTIVE (sandbox)",
             "details": "Missing EVOLUS_API_KEY or EVOLUS_APP_ID in environment or secrets.",
+            "reason": "Missing EVOLUS_API_KEY or EVOLUS_APP_ID in environment or secrets.",
             "last_status": None,
             "last_timestamp": None,
         }
@@ -96,6 +101,7 @@ def get_evolus_status() -> Dict[str, Any]:
             "active": True,
             "badge": f"Evolus: ACTIVE (HTTP {code})",
             "details": f"Last verified call at {ts}",
+            "reason": f"Last verified call at {ts}",
             "last_status": code,
             "last_timestamp": ts,
         }
@@ -104,6 +110,7 @@ def get_evolus_status() -> Dict[str, Any]:
         "active": False,
         "badge": "Evolus: NOT ACTIVE (sandbox)",
         "details": f"Configured, but last call returned {code}",
+        "reason": f"Configured, but last call returned {code}",
         "last_status": code,
         "last_timestamp": _LAST_EVOLUS_CALL_STATUS.get("timestamp") if _LAST_EVOLUS_CALL_STATUS else None,
     }

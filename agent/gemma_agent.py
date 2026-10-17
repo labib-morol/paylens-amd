@@ -41,8 +41,12 @@ def get_config_val(key: str) -> Optional[str]:
     val = None
     try:
         import streamlit as st
-        if hasattr(st, "secrets") and key in st.secrets:
-            val = str(st.secrets[key])
+        if hasattr(st, "secrets"):
+            try:
+                if key in st.secrets:
+                    val = str(st.secrets[key])
+            except Exception:
+                pass
     except Exception:
         pass
     if val is None or val == "":
@@ -50,11 +54,44 @@ def get_config_val(key: str) -> Optional[str]:
     return val if val != "" else None
 
 
+def get_endpoint_config() -> Dict[str, Optional[str]]:
+    """Retrieve active AMD endpoint configuration with alias support and session overrides."""
+    primary = get_config_val("AMD_VLLM_BASE_URL")
+    backup = get_config_val("AMD_TOKENFACTORY_BASE_URL")
+    api_key = get_config_val("AMD_API_KEY") or get_config_val("AMD_TOKENFACTORY_API_KEY")
+    model_name = (
+        get_config_val("MODEL_NAME")
+        or get_config_val("AMD_TOKENFACTORY_MODEL")
+        or get_config_val("AMD_MODEL_NAME")
+    )
+    try:
+        import streamlit as st
+        if hasattr(st, "session_state"):
+            if st.session_state.get("override_tokenfactory_url"):
+                backup = st.session_state["override_tokenfactory_url"]
+            if st.session_state.get("override_tokenfactory_key"):
+                api_key = st.session_state["override_tokenfactory_key"]
+            if st.session_state.get("override_model_name"):
+                model_name = st.session_state["override_model_name"]
+    except Exception:
+        pass
+    return {
+        "primary_url": primary,
+        "backup_url": backup,
+        "api_key": api_key,
+        "model_name": model_name,
+    }
+
+
 # Environment variables with NO defaults
 PRIMARY_URL = get_config_val("AMD_VLLM_BASE_URL")
 BACKUP_URL = get_config_val("AMD_TOKENFACTORY_BASE_URL")
-API_KEY = get_config_val("AMD_API_KEY")
-MODEL_NAME = get_config_val("MODEL_NAME")
+API_KEY = get_config_val("AMD_API_KEY") or get_config_val("AMD_TOKENFACTORY_API_KEY")
+MODEL_NAME = (
+    get_config_val("MODEL_NAME")
+    or get_config_val("AMD_TOKENFACTORY_MODEL")
+    or get_config_val("AMD_MODEL_NAME")
+)
 
 
 def log_inference_entry(
@@ -95,22 +132,41 @@ def get_recent_inference_logs(limit: int = 10) -> List[Dict[str, Any]]:
         return []
 
 
+def import_vllm_bench_serve_json(filepath: Optional[str] = None) -> Dict[str, Any]:
+    """Safely return reference benchmark telemetry if available."""
+    ref_path = filepath or os.path.join(ROOT_DIR, "benchmarks", "UNVERIFIED_reference.json")
+    if os.path.exists(ref_path):
+        try:
+            with open(ref_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {}
+
+
 def check_endpoint_health() -> Dict[str, Any]:
     """Check health and model list of configured AMD GPU endpoints."""
+    cfg = get_endpoint_config()
+    primary_url = cfg["primary_url"]
+    backup_url = cfg["backup_url"]
+    api_key = cfg["api_key"]
+    model_name = cfg["model_name"]
+
     offline_override = (get_config_val("OFFLINE_MODE") or "false").lower() in ("true", "1", "yes")
 
     result = {
-        "primary_url": PRIMARY_URL,
+        "primary_url": primary_url,
         "primary_active": False,
-        "backup_url": BACKUP_URL,
+        "backup_url": backup_url,
         "backup_active": False,
         "active_endpoint_name": "Offline deterministic mode",
         "active_url": None,
-        "model_served": MODEL_NAME or "Not configured",
+        "model_served": model_name or "Not configured",
         "available_models": [],
         "model_valid": True,
         "execution_source": ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value,
         "is_offline": True,
+        "latency_ms": 0.0,
         "latency_display": "-",
         "status_note": "",
     }
@@ -120,29 +176,30 @@ def check_endpoint_health() -> Dict[str, Any]:
         return result
 
     # 1. Test Primary (AMD Instinct vLLM server) if configured
-    if PRIMARY_URL:
+    if primary_url:
         t0 = time.perf_counter()
         try:
             with httpx.Client(timeout=5.0) as client:
-                resp = client.get(f"{PRIMARY_URL.rstrip('/')}/models", timeout=5.0)
+                resp = client.get(f"{primary_url.rstrip('/')}/models", timeout=5.0)
                 if resp.status_code == 200:
                     lat = round((time.perf_counter() - t0) * 1000, 1)
                     data = resp.json()
                     models = [m.get("id") for m in data.get("data", [])]
                     result["primary_active"] = True
                     result["active_endpoint_name"] = "AMD vLLM Endpoint"
-                    result["active_url"] = PRIMARY_URL
+                    result["active_url"] = primary_url
                     result["execution_source"] = ExecutionSource.LIVE_AMD_MI300X_VLLM.value
                     result["is_offline"] = False
+                    result["latency_ms"] = lat
                     result["latency_display"] = f"{lat} ms"
                     result["available_models"] = models
-                    if MODEL_NAME:
-                        if models and MODEL_NAME not in models:
+                    if model_name:
+                        if models and model_name not in models:
                             result["model_valid"] = False
-                            result["status_note"] = f"Model '{MODEL_NAME}' not found in endpoint models: {models}"
-                            result["model_served"] = models[0] if models else MODEL_NAME
+                            result["status_note"] = f"Model '{model_name}' not found in endpoint models: {models}"
+                            result["model_served"] = models[0] if models else model_name
                         else:
-                            result["model_served"] = MODEL_NAME
+                            result["model_served"] = model_name
                     else:
                         result["model_served"] = models[0] if models else "unknown"
                     return result
@@ -150,36 +207,44 @@ def check_endpoint_health() -> Dict[str, Any]:
             result["status_note"] = f"vLLM connection failed: {str(e)[:60]}"
 
     # 2. Test Backup (AMD TokenFactory) if configured
-    if BACKUP_URL and API_KEY:
+    if backup_url and api_key:
         t0 = time.perf_counter()
-        try:
-            headers = {"Authorization": f"Bearer {API_KEY}"}
-            with httpx.Client(timeout=5.0) as client:
-                resp = client.get(f"{BACKUP_URL.rstrip('/')}/models", headers=headers, timeout=5.0)
-                if resp.status_code == 200:
-                    lat = round((time.perf_counter() - t0) * 1000, 1)
-                    data = resp.json()
-                    models = [m.get("id") for m in data.get("data", [])]
-                    result["backup_active"] = True
-                    result["active_endpoint_name"] = "AMD TokenFactory GPU Cloud"
-                    result["active_url"] = BACKUP_URL
-                    result["execution_source"] = ExecutionSource.LIVE_AMD_TOKENFACTORY.value
-                    result["is_offline"] = False
-                    result["latency_display"] = f"{lat} ms"
-                    result["available_models"] = models
-                    if MODEL_NAME:
-                        if models and MODEL_NAME not in models:
-                            result["model_valid"] = False
-                            result["status_note"] = f"Model '{MODEL_NAME}' not in TokenFactory model list: {models}"
-                            result["model_served"] = models[0] if models else MODEL_NAME
+        headers = {"Authorization": f"Bearer {api_key}"}
+        # Try both /models and /v1/models if base url doesn't have /v1
+        target_urls = [f"{backup_url.rstrip('/')}/models"]
+        if not backup_url.rstrip("/").endswith("/v1"):
+            target_urls.append(f"{backup_url.rstrip('/')}/v1/models")
+
+        for test_url in target_urls:
+            try:
+                with httpx.Client(timeout=5.0) as client:
+                    resp = client.get(test_url, headers=headers, timeout=5.0)
+                    if resp.status_code == 200:
+                        lat = round((time.perf_counter() - t0) * 1000, 1)
+                        data = resp.json()
+                        models = [m.get("id") for m in data.get("data", [])]
+                        resolved_url = backup_url if test_url.endswith("/models") and not test_url.endswith("/v1/models") else f"{backup_url.rstrip('/')}/v1"
+                        result["backup_active"] = True
+                        result["active_endpoint_name"] = "AMD TokenFactory GPU Cloud"
+                        result["active_url"] = resolved_url
+                        result["execution_source"] = ExecutionSource.LIVE_AMD_TOKENFACTORY.value
+                        result["is_offline"] = False
+                        result["latency_ms"] = lat
+                        result["latency_display"] = f"{lat} ms"
+                        result["available_models"] = models
+                        if model_name:
+                            if models and model_name not in models:
+                                result["model_valid"] = False
+                                result["status_note"] = f"Model '{model_name}' not in TokenFactory model list: {models}"
+                                result["model_served"] = models[0] if models else model_name
+                            else:
+                                result["model_served"] = model_name
                         else:
-                            result["model_served"] = MODEL_NAME
-                    else:
-                        result["model_served"] = models[0] if models else "unknown"
-                    return result
-        except Exception as e:
-            result["status_note"] = f"TokenFactory connection failed: {str(e)[:60]}"
-    elif not BACKUP_URL or not API_KEY or not MODEL_NAME:
+                            result["model_served"] = models[0] if models else "unknown"
+                        return result
+            except Exception as e:
+                result["status_note"] = f"TokenFactory connection failed: {str(e)[:60]}"
+    elif not backup_url or not api_key or not model_name:
         result["status_note"] = "TokenFactory not configured"
 
     return result
@@ -341,8 +406,9 @@ def enrich_card_with_agent(
 
     # Live Online Path with AMD Endpoint
     t_start = time.perf_counter()
-    api_key_val = API_KEY or "EMPTY"
-    client = OpenAI(base_url=endpoint, api_key=api_key_val, timeout=5.0)
+    cfg = get_endpoint_config()
+    api_key_val = cfg["api_key"] or API_KEY or "EMPTY"
+    client = OpenAI(base_url=endpoint, api_key=api_key_val, timeout=10.0)
 
     system_prompt = (
         "You are PayLens AI explaining merchant capital recovery. "
@@ -369,22 +435,37 @@ Write concise English explanations and action drafts.
     while retries < 2 and not grounded:
         try:
             t_call_start = time.perf_counter()
-            response = client.chat.completions.create(
-                model=model_to_use,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ],
-                temperature=0.1,
-                response_format={"type": "json_object"},
-            )
+            try:
+                response = client.chat.completions.create(
+                    model=model_to_use,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    temperature=0.1,
+                    response_format={"type": "json_object"},
+                )
+            except Exception:
+                response = client.chat.completions.create(
+                    model=model_to_use,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    temperature=0.1,
+                )
             call_lat_ms = round((time.perf_counter() - t_call_start) * 1000.0, 1)
 
             prompt_toks = response.usage.prompt_tokens if response.usage else 0
             comp_toks = response.usage.completion_tokens if response.usage else 0
             log_inference_entry(exec_source, model_to_use, call_lat_ms, prompt_toks, comp_toks)
 
-            raw_content = response.choices[0].message.content or "{}"
+            raw_content = (response.choices[0].message.content or "{}").strip()
+            if "```" in raw_content:
+                import re
+                fence_match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", raw_content, re.DOTALL)
+                if fence_match:
+                    raw_content = fence_match.group(1).strip()
             parsed = json.loads(raw_content)
 
             exp_en = parsed.get("explanation_en", "")
@@ -512,7 +593,8 @@ def run_mi300x_parallel_burst(
     exec_source = health["execution_source"]
     model_to_use = health["model_served"]
 
-    api_key_val = API_KEY or "EMPTY"
+    cfg = get_endpoint_config()
+    api_key_val = cfg["api_key"] or API_KEY or "EMPTY"
     async_client = None if is_offline or not endpoint else AsyncOpenAI(base_url=endpoint, api_key=api_key_val)
 
     async def _runner():

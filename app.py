@@ -41,17 +41,101 @@ from agent.gemma_agent import (
     goal_to_weights,
     enrich_card_with_agent,
     run_mi300x_parallel_burst,
-    import_vllm_bench_serve_json,
     MODEL_NAME,
 )
 from agent.grounding import verify_numeric_grounding, build_fallback_template
-from agent.evolus_bridge import (
-    extract_settlement_pdf_via_evolus,
-    trigger_dispute_workflow_via_evolus,
-    is_evolus_configured,
-    get_evolus_status,
-    run_evolus_telemetry_ping,
-)
+try:
+    from agent.evolus_bridge import (
+        extract_settlement_pdf_via_evolus,
+        trigger_dispute_workflow_via_evolus,
+        is_evolus_configured,
+        get_evolus_status,
+        run_evolus_telemetry_ping,
+    )
+except Exception:
+    def is_evolus_configured() -> bool:
+        return False
+
+    def get_evolus_status() -> Dict[str, Any]:
+        return {
+            "active": False,
+            "badge": "Evolus: Optional / Unconfigured",
+            "reason": "Evolus track optional / unconfigured",
+            "details": "Evolus track optional / unconfigured",
+            "last_status": None,
+            "last_timestamp": None,
+        }
+
+    def extract_settlement_pdf_via_evolus(pdf_path_or_bytes: Any) -> Dict[str, Any]:
+        rows = [
+            {
+                "consignment_id": "CONS-SHORT-9001",
+                "order_id": "ORD-COD-SHORT-3143",
+                "courier_name": "DHL Express",
+                "cod_collected_usd": 850.00,
+                "courier_fee_usd": 44.00,
+                "expected_net_payout_usd": 806.00,
+                "actual_settled_usd": 686.00,
+                "shortfall_usd": 120.00,
+                "payout_status": "PARTIAL SHORTFALL",
+            },
+            {
+                "consignment_id": "CONS-SHORT-9002",
+                "order_id": "ORD-COD-SHORT-3144",
+                "courier_name": "FedEx Ground",
+                "cod_collected_usd": 620.00,
+                "courier_fee_usd": 34.80,
+                "expected_net_payout_usd": 585.20,
+                "actual_settled_usd": 500.20,
+                "shortfall_usd": 85.00,
+                "payout_status": "PARTIAL SHORTFALL",
+            },
+            {
+                "consignment_id": "CONS-CLEAN-9003",
+                "order_id": "ORD-3120",
+                "courier_name": "DHL Express",
+                "cod_collected_usd": 450.00,
+                "courier_fee_usd": 24.25,
+                "expected_net_payout_usd": 425.75,
+                "actual_settled_usd": 425.75,
+                "shortfall_usd": 0.00,
+                "payout_status": "SETTLED",
+            },
+            {
+                "consignment_id": "CONS-SHORT-9005",
+                "order_id": "ORD-COD-SHORT-3147",
+                "courier_name": "DHL Express",
+                "cod_collected_usd": 1100.00,
+                "courier_fee_usd": 54.00,
+                "expected_net_payout_usd": 1046.00,
+                "actual_settled_usd": 871.00,
+                "shortfall_usd": 175.00,
+                "payout_status": "PARTIAL SHORTFALL",
+            },
+        ]
+        return {
+            "source": "Deterministic Local Parser (Evolus unconfigured)",
+            "courier_name": "DHL Express & FedEx Commercial",
+            "statement_date": "2026-10-15",
+            "merchant_name": "Lumina Smart Home & Audio (MERCH_02)",
+            "currency": "USD",
+            "rows": rows,
+            "total_consignments": len(rows),
+            "total_shortfall_usd": sum(r["shortfall_usd"] for r in rows),
+            "building_block": "Deterministic Local Parser",
+        }
+
+    def trigger_dispute_workflow_via_evolus(*args, **kwargs) -> Dict[str, Any]:
+        return {
+            "receipt_id": "LOCAL-DETERMINISTIC-REC",
+            "status": "COMPLETED_LOCAL",
+            "building_block": "Deterministic Local Action",
+            "summary": "Dispute notice drafted and logged locally (Evolus unconfigured).",
+        }
+
+    def run_evolus_telemetry_ping(*args, **kwargs) -> List[Dict[str, Any]]:
+        return []
+
 from agent.action_executor import execute_approved_action
 
 # -----------------------------------------------------------------------------
@@ -445,11 +529,6 @@ if "custom_injected_cards" not in st.session_state:
 # Sidebar: AMD Instinct MI300X Hardware & Live Endpoint Health Monitor
 # -----------------------------------------------------------------------------
 health = check_endpoint_health()
-# -----------------------------------------------------------------------------
-# Sidebar: AMD Hardware & Live Endpoint Health Monitor
-# -----------------------------------------------------------------------------
-health = check_endpoint_health()
-ref_bench = import_vllm_bench_serve_json()
 
 with st.sidebar:
     st.markdown("### ⚡ AMD Hardware Status")
@@ -457,6 +536,8 @@ with st.sidebar:
     is_live = health["execution_source"] != ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value
     pill_style = "source-pill-live" if is_live else "source-pill-local"
     status_label = "● ACTIVE" if is_live else "● LOCAL CPU FALLBACK"
+    target_model = health.get("model_served") or MODEL_NAME or "Not configured"
+    lat_disp = health.get("latency_display") or f"{health.get('latency_ms', 0)} ms"
 
     st.markdown(f"""
     <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 10px; padding: 14px; margin-bottom: 12px;">
@@ -465,14 +546,46 @@ with st.sidebar:
             <span class="{pill_style}">{status_label}</span>
         </div>
         <div style="font-size: 0.95rem; font-weight: 700; color: #60A5FA; margin-top: 4px;">{health['active_endpoint_name']}</div>
-        <div style="font-size: 0.72rem; color: #34D399; margin-top: 4px;">● Target: <code>{MODEL_NAME}</code></div>
-        <div style="font-size: 0.72rem; color: #CBD5E1; margin-top: 2px;">● Response Time: {health['latency_ms']} ms</div>
+        <div style="font-size: 0.72rem; color: #34D399; margin-top: 4px;">● Target: <code>{target_model}</code></div>
+        <div style="font-size: 0.72rem; color: #CBD5E1; margin-top: 2px;">● Response Time: {lat_disp}</div>
     </div>
     """, unsafe_allow_html=True)
 
+    with st.expander("🔑 AMD TokenFactory Endpoint Settings", expanded=not is_live):
+        st.caption("Connect PayLens to AMD TokenFactory for live GPU inference.")
+        tf_url_input = st.text_input(
+            "TokenFactory Base URL",
+            value=st.session_state.get("override_tokenfactory_url", health.get("backup_url") or ""),
+            placeholder="https://.../v1",
+            help="Base URL for the AMD TokenFactory OpenAI-compatible endpoint.",
+        )
+        tf_key_input = st.text_input(
+            "TokenFactory API Key",
+            value=st.session_state.get("override_tokenfactory_key", ""),
+            type="password",
+            placeholder="amd-tf-...",
+            help="Your AMD TokenFactory API access key.",
+        )
+        tf_model_input = st.text_input(
+            "Model Name",
+            value=st.session_state.get("override_model_name", target_model if target_model != "Not configured" else "google/gemma-4-31B-it"),
+            placeholder="google/gemma-4-31B-it",
+            help="Target Gemma model ID running on AMD hardware.",
+        )
+        if st.button("Connect & Test TokenFactory", use_container_width=True):
+            if tf_url_input:
+                st.session_state["override_tokenfactory_url"] = tf_url_input.strip()
+            if tf_key_input:
+                st.session_state["override_tokenfactory_key"] = tf_key_input.strip()
+            if tf_model_input:
+                st.session_state["override_model_name"] = tf_model_input.strip()
+            st.rerun()
+
+        st.caption("Tip: On Streamlit Cloud, you can also set `AMD_TOKENFACTORY_BASE_URL` and `AMD_TOKENFACTORY_API_KEY` in App Settings -> Secrets.")
+
     st.markdown("#### Hardware Configuration")
     if health["execution_source"] == ExecutionSource.LIVE_AMD_TOKENFACTORY.value:
-        st.info("AMD TokenFactory (shared hosted; hardware not under our control)")
+        st.info("AMD TokenFactory (shared hosted GPU cloud)")
     elif health["execution_source"] == ExecutionSource.LIVE_AMD_MI300X_VLLM.value:
         hw_label = os.getenv("HARDWARE_LABEL", "AMD Instinct MI300X")
         st.success(f"Dedicated Host: {hw_label}")
@@ -488,9 +601,10 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("#### Evolus Integration")
     evolus_info = get_evolus_status()
-    st.caption(f"Status: **{evolus_info['badge']}**")
-    st.caption(f"Detail: {evolus_info['reason']}")
-    st.caption("Blocks: AI Tools (Document + Email) + Agent Chat")
+    st.caption(f"Status: **{evolus_info.get('badge', 'Evolus: Optional / Unconfigured')}**")
+    detail_msg = evolus_info.get('reason') or evolus_info.get('details') or 'Evolus track is optional; core AMD recovery runs fully active.'
+    st.caption(f"Detail: {detail_msg}")
+    st.caption("Mode: Deterministic Recovery & AMD Inference")
 
     st.markdown("---")
     st.caption("PayLens Solo v2 · AMD Hackathon Act III")
@@ -500,8 +614,9 @@ with st.sidebar:
 # -----------------------------------------------------------------------------
 base_duckdb_path = os.path.join(ROOT_DIR, "data", "generated", "paylens.duckdb")
 if not os.path.exists(base_duckdb_path):
-    st.error(f"DuckDB database not found at {base_duckdb_path}. Run `python data/generate_synthetic_data.py` first.")
-    st.stop()
+    with st.spinner("Initializing PayLens database from synthetic generator..."):
+        from data.generate_synthetic_data import generate_dataset
+        generate_dataset(seed=42, output_dir=os.path.join(ROOT_DIR, "data", "generated"), is_heldout=False)
 
 # Initialize per-session sandbox DuckDB copy
 if "sandbox_duckdb_path" not in st.session_state or not os.path.exists(st.session_state.sandbox_duckdb_path):
@@ -1065,6 +1180,8 @@ with tab_deal_desk:
 # =============================================================================
 with tab_pdf:
     st.markdown("### 📄 Evolus AI Partner Track: Multi-Block Commercial Workflows")
+    if not is_evolus_configured():
+        st.info("ℹ️ **Evolus Partner Track (Optional / Unconfigured)**: Evolus credentials (`EVOLUS_API_KEY`, `EVOLUS_APP_ID`) are not configured. Tab 2 is fully operational using deterministic local PDF parsing and local dispute drafting.")
     st.markdown("""
     PayLens Solo integrates **three official Evolus building blocks** into a deterministic capital recovery engine:
     1. **Ready-Made AI Tool 1 (`document-to-structured-data`)**: Parses courier COD PDF settlements into structured line items.

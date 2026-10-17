@@ -22,7 +22,16 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 from engine.schema import RecommendationCard, RecommendationType, LeakSubType
-from agent.evolus_bridge import trigger_dispute_workflow_via_evolus
+try:
+    from agent.evolus_bridge import trigger_dispute_workflow_via_evolus
+except Exception:
+    def trigger_dispute_workflow_via_evolus(*args, **kwargs):
+        return {
+            "receipt_id": "LOCAL-DETERMINISTIC-REC",
+            "status": "COMPLETED_LOCAL",
+            "building_block": "Deterministic Local Action",
+            "summary": "Action drafted and logged locally (Evolus unconfigured).",
+        }
 
 load_dotenv()
 

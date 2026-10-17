@@ -10,8 +10,8 @@ logs/
 *.jsonl
 
 # Databases
-*.duckdb
 *.duckdb.wal
+*sandbox*.duckdb
 
 # Python & Virtual Environments
 .venv/
