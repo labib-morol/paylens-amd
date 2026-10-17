@@ -63,8 +63,15 @@ def run_pipeline(
     goal_weights: Optional[GoalWeights] = None,
     recovery_rate: float = 0.35,
     ground_truth_path: Optional[str] = None,
+    checkout_recovery_rate: Optional[float] = None,
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Execute complete deterministic detection, forecasting, and ranking pipeline."""
+    if checkout_recovery_rate is not None:
+        recovery_rate = checkout_recovery_rate
+    elif "checkout_recovery_rate" in kwargs:
+        recovery_rate = kwargs["checkout_recovery_rate"]
+
     if duckdb_path is None:
         duckdb_path = os.getenv("DUCKDB_PATH", "data/generated/paylens.duckdb")
 

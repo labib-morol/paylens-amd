@@ -290,7 +290,7 @@ def cached_run_pipeline(db_path: str, weights_tuple: tuple, r_rate: float):
             margin_protection_weight=weights_tuple[1],
             stock_availability_weight=weights_tuple[2],
         ),
-        checkout_recovery_rate=r_rate,
+        recovery_rate=r_rate,
     )
 
 @st.cache_data(ttl=300, show_spinner=False)
