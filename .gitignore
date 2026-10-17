@@ -44,3 +44,7 @@ Thumbs.db
 # Untracked Skills & Third-Party Caches
 .agents/skills/
 skills-lock.json
+
+# Temporary video build assets
+temp_video_build/
+submission_demo_animated.mp4

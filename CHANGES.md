@@ -265,3 +265,10 @@ Before submitting or presenting to judges, the following actions require your cr
      ```bash
      docker compose up --build
      ```
+
+6. **Generate 1080p Animated Demo Film:**
+   - Run the automated demo generator:
+     ```bash
+     python scripts/generate_animated_demo_video.py
+     ```
+   - Automatically synthesizes 23 prosody-modulated neural voiceover beats (`edge-tts`), generates procedural stereo synth bed and SFX triggers (`numpy`, `scipy`), captures live UI frames, applies Ken-Burns camera animations and formula spotlight callouts, and pipes 1920x1080 @ 30fps frames directly into `ffmpeg` producing `submission_demo_animated.mp4` (~171s, 41 MB).
