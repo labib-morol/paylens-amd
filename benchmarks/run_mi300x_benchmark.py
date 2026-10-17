@@ -199,9 +199,13 @@ async def run_amd_concurrency_tier(
     if not success_results:
         return {
             "concurrency": concurrency,
+            "attempted_requests": requests_to_run,
             "total_requests": requests_to_run,
             "completed_requests": 0,
             "failed_requests": len(failed_results),
+            "first_pass_model_grounding_rate": None,
+            "post_retry_model_grounding_rate": None,
+            "deterministic_fallback_rate": None,
             "duration_seconds": round(elapsed, 3),
             "error": failed_results[0].get("error") if failed_results else "All requests failed",
         }
@@ -215,12 +219,13 @@ async def run_amd_concurrency_tier(
     fallback_count = sum(1 for r in success_results if r.get("fallback"))
     total_valid = len(success_results)
 
-    first_pass_rate = round((first_pass_count / total_valid) * 100.0, 1)
-    post_retry_rate = round((post_retry_count / total_valid) * 100.0, 1)
-    fallback_rate = round((fallback_count / total_valid) * 100.0, 1)
+    first_pass_rate = round((first_pass_count / total_valid) * 100.0, 1) if total_valid > 0 else None
+    post_retry_rate = round((post_retry_count / total_valid) * 100.0, 1) if total_valid > 0 else None
+    fallback_rate = round((fallback_count / total_valid) * 100.0, 1) if total_valid > 0 else None
 
     return {
         "concurrency": concurrency,
+        "attempted_requests": requests_to_run,
         "total_requests": requests_to_run,
         "completed_requests": len(success_results),
         "failed_requests": len(failed_results),
@@ -234,8 +239,9 @@ async def run_amd_concurrency_tier(
         "requests_per_minute": round((len(success_results) / max(0.001, elapsed)) * 60.0, 1),
         "first_pass_model_grounding_rate": first_pass_rate,
         "post_retry_model_grounding_rate": post_retry_rate,
+        "deterministic_fallback_rate": fallback_rate,
         "deterministic_template_fallback_rate": fallback_rate,
-        "grounding_pass_rate_percent": first_pass_rate + post_retry_rate,
+        "grounding_pass_rate_percent": (first_pass_rate or 0.0) + (post_retry_rate or 0.0),
     }
 
 
@@ -273,7 +279,7 @@ Output JSON format: {{"explanation_en": "...", "action_draft_en": "..."}}
 
     payload = {
         "contents": [{"role": "user", "parts": [{"text": full_prompt}]}],
-        "generationConfig": {"temperature": 0.1, "maxOutputTokens": 450},
+        "generationConfig": {"temperature": 0.1, "maxOutputTokens": 400},
     }
 
     latencies = []
@@ -319,18 +325,21 @@ Output JSON format: {{"explanation_en": "...", "action_draft_en": "..."}}
         if not req_ok and not successes:
             errors.append(last_err or "All models returned 500 or timed out")
 
-    tot = max(1, successes)
     return {
         "provider": "Google AI Studio Gemma 4 REST API",
         "model": actual_model_used,
         "endpoint": "https://generativelanguage.googleapis.com/v1beta",
+        "attempted_requests": num_requests,
         "requests": num_requests,
+        "completed_requests": successes,
         "completed": successes,
+        "failed_requests": num_requests - successes,
         "errors": errors if successes == 0 else [],
         "mean_latency_ms": round(float(np.mean(latencies)), 1) if latencies else None,
-        "first_pass_model_grounding_rate": round((grounded_first_pass / tot) * 100.0, 1),
-        "post_retry_model_grounding_rate": round((grounded_post_retry / tot) * 100.0, 1),
-        "deterministic_template_fallback_rate": round((fallbacks / tot) * 100.0, 1),
+        "first_pass_model_grounding_rate": round((grounded_first_pass / successes) * 100.0, 1) if successes > 0 else None,
+        "post_retry_model_grounding_rate": round((grounded_post_retry / successes) * 100.0, 1) if successes > 0 else None,
+        "deterministic_fallback_rate": round((fallbacks / successes) * 100.0, 1) if successes > 0 else None,
+        "deterministic_template_fallback_rate": round((fallbacks / successes) * 100.0, 1) if successes > 0 else None,
         "is_live": successes > 0,
     }
 
@@ -394,6 +403,9 @@ def main():
     peak_tok_s = max([t["tokens_per_sec"] for t in valid_tiers]) if valid_tiers else 0.0
     mean_ttft = float(np.mean([t["mean_ttft_ms"] for t in valid_tiers])) if valid_tiers else 0.0
     mean_lat = float(np.mean([t["mean_latency_ms"] for t in valid_tiers])) if valid_tiers else 0.0
+    total_attempted = sum(t.get("attempted_requests", t.get("total_requests", 0)) for t in amd_tier_results)
+    total_completed = sum(t.get("completed_requests", 0) for t in amd_tier_results)
+    total_failed = sum(t.get("failed_requests", 0) for t in amd_tier_results)
     total_errors = sum(t.get("failed_requests", 0) for t in amd_tier_results)
 
     timestamp_str = datetime.now(timezone.utc).isoformat()
@@ -410,6 +422,9 @@ def main():
             "hardware_label": "AMD Radeon Cloud TokenFactory (Shared Hosted)",
             "ping_latency_ms": status["amd_status"]["ping_latency_ms"],
             "summary": {
+                "attempted_requests": total_attempted,
+                "completed_requests": total_completed,
+                "failed_requests": total_failed,
                 "peak_token_throughput_per_sec": peak_tok_s,
                 "mean_ttft_ms": round(mean_ttft, 1),
                 "mean_latency_ms": round(mean_lat, 1),

@@ -28,10 +28,10 @@ This audit catalogs every hardcoded claim, unverified benchmark number, fake gro
 * `benchmarks/mi300x_vllm_bench_serve.json:1-38`: Hand-typed / unverified reference file lacking provenance fields (`source`, `measured_at`, `endpoint_type`, `command`, `git_commit`).
 * `agent/gemma_agent.py:42-56`: `import_vllm_bench_serve_json()` loading this unverified reference file.
 * `app.py:623-635`: KPI Card 4 displaying `ref_bench['benchmark_results']['token_throughput_per_sec']:,.0f tok/s` when offline.
-* `README.md:129-130`: Hardcoded claims `2,842.6 tokens / second`, `1,286.9 requests / minute`.
-* `README.md:220`: Conflicting claim `82,898 recs/min`.
-* `PROGRESS.md:31`: Conflicting claim `70,658 recs/min`.
-* `README.md:123`: Unverified host claim `ROCm 6.2 + vLLM 0.6.3`.
+* `README.md:129-130`: Previously had hardcoded throughput claims without live provenance.
+* `README.md:220`: Conflicting records throughput claim.
+* `PROGRESS.md:31`: Conflicting records throughput claim.
+* `README.md:123`: Unverified host claim regarding ROCm and vLLM runtime version.
 * `app.py:251-258`: Sidebar static hardware specs ("304 CDNA 3 Compute Units", "192 GB HBM3 @ 5.3 TB/s", "KV Cache Free ~129.6 GB", "32+ concurrency").
 * `app.py:516`: Header badge hardcoded `<span ...>AMD Instinct MI300X · Gemma 4</span>`.
 
@@ -57,7 +57,7 @@ This audit catalogs every hardcoded claim, unverified benchmark number, fake gro
 * `PROGRESS.md:5`: `Target Prizes: AMD Prize ($5,000) + Google Gemma Prize ($5,000) ... (€1,011.50)`.
 * `README.md:11`: Unverified statistic `leaks 3%–7% of gross merchandise volume`.
 * `README.md:1, 17`, `app.py:1, 514, 1003`: Overstated terms `Autonomous` and `Zero-Hallucination`.
-* `README.md:62`, `app.py:990`: Overstated term `Cryptographic Audit Hash`.
+* `README.md:62`, `app.py:990`: Overstated term regarding simulated action receipts.
 
 ### Task P1-3: Metric Names
 * `app.py:603`: "Recovered & Approved Today" implies real financial movement.

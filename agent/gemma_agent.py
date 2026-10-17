@@ -375,7 +375,7 @@ def _call_google_gemma_rest(
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{target_model}:generateContent?key={api_key}"
         payload = {
             "contents": [{"role": "user", "parts": [{"text": full_prompt}]}],
-            "generationConfig": {"temperature": 0.1, "maxOutputTokens": 450},
+            "generationConfig": {"temperature": 0.1, "maxOutputTokens": 400},
         }
         t0 = time.perf_counter()
         try:

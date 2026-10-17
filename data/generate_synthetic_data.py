@@ -92,10 +92,10 @@ def format_phone_with_noise(phone: str, noise: bool = False) -> str:
 
 # Planted Stockout SKUs
 PLANTED_STOCKOUT_CONFIGS = {
-    ("MERCH_02", "SKU-LUM-HERO-01"): {"lead_time": 7, "surge_start": 21, "surge_sales": (16, 22), "end_stock": 8, "is_hero": True},
-    ("MERCH_01", "SKU-APX-01"): {"lead_time": 6, "surge_start": 23, "surge_sales": (12, 18), "end_stock": 6, "is_hero": False},
-    ("MERCH_03", "SKU-03-A"): {"lead_time": 6, "surge_start": 23, "surge_sales": (10, 16), "end_stock": 5, "is_hero": False},
-    ("MERCH_07", "SKU-07-A"): {"lead_time": 7, "surge_start": 23, "surge_sales": (9, 15), "end_stock": 7, "is_hero": False},
+    ("MERCH_02", "SKU-LUM-HERO-01"): {"lead_time": 7, "surge_start": 21, "surge_sales": (6, 9), "end_stock": 8, "is_hero": True},
+    ("MERCH_01", "SKU-APX-01"): {"lead_time": 6, "surge_start": 23, "surge_sales": (5, 8), "end_stock": 6, "is_hero": False},
+    ("MERCH_03", "SKU-03-A"): {"lead_time": 6, "surge_start": 23, "surge_sales": (5, 8), "end_stock": 5, "is_hero": False},
+    ("MERCH_07", "SKU-07-A"): {"lead_time": 7, "surge_start": 23, "surge_sales": (4, 7), "end_stock": 7, "is_hero": False},
 }
 
 
@@ -108,9 +108,9 @@ def build_sku_catalog():
                 {
                     "sku": "SKU-LUM-HERO-01",
                     "item_name": "Aura Wireless Hi-Fi Studio Monitor (Pair)",
-                    "unit_cost_usd": 790.0,
-                    "unit_retail_price_usd": 1255.0,
-                    "unit_margin_usd": 465.0,
+                    "unit_cost_usd": 45.0,
+                    "unit_retail_price_usd": 95.0,
+                    "unit_margin_usd": 50.0,
                     "supplier_lead_time_days": 7,
                     "initial_stock": 140,
                     "is_hero": True,
@@ -118,9 +118,9 @@ def build_sku_catalog():
                 {
                     "sku": "SKU-LUM-02",
                     "item_name": "Lumina Smart Beam Ambient Projector",
-                    "unit_cost_usd": 240.0,
-                    "unit_retail_price_usd": 480.0,
-                    "unit_margin_usd": 240.0,
+                    "unit_cost_usd": 60.0,
+                    "unit_retail_price_usd": 120.0,
+                    "unit_margin_usd": 60.0,
                     "supplier_lead_time_days": 5,
                     "initial_stock": 180,
                     "is_hero": False,
@@ -128,9 +128,9 @@ def build_sku_catalog():
                 {
                     "sku": "SKU-LUM-03",
                     "item_name": "Acoustic Noise-Cancelling Soundbar",
-                    "unit_cost_usd": 350.0,
-                    "unit_retail_price_usd": 580.0,
-                    "unit_margin_usd": 230.0,
+                    "unit_cost_usd": 55.0,
+                    "unit_retail_price_usd": 110.0,
+                    "unit_margin_usd": 55.0,
                     "supplier_lead_time_days": 6,
                     "initial_stock": 160,
                     "is_hero": False,
@@ -141,9 +141,9 @@ def build_sku_catalog():
                 {
                     "sku": "SKU-APX-01",
                     "item_name": "Merino Wool Performance Blazer",
-                    "unit_cost_usd": 110.0,
-                    "unit_retail_price_usd": 275.0,
-                    "unit_margin_usd": 165.0,
+                    "unit_cost_usd": 40.0,
+                    "unit_retail_price_usd": 85.0,
+                    "unit_margin_usd": 45.0,
                     "supplier_lead_time_days": 6,
                     "initial_stock": 150,
                     "is_hero": False,
@@ -151,9 +151,9 @@ def build_sku_catalog():
                 {
                     "sku": "SKU-APX-02",
                     "item_name": "Tailored Oxford Tech Shirt",
-                    "unit_cost_usd": 35.0,
-                    "unit_retail_price_usd": 95.0,
-                    "unit_margin_usd": 60.0,
+                    "unit_cost_usd": 30.0,
+                    "unit_retail_price_usd": 65.0,
+                    "unit_margin_usd": 35.0,
                     "supplier_lead_time_days": 4,
                     "initial_stock": 250,
                     "is_hero": False,
@@ -165,8 +165,8 @@ def build_sku_catalog():
                 {
                     "sku": f"SKU-{m_id[6:]}-A",
                     "item_name": f"Premium {cat_name} Edition A",
-                    "unit_cost_usd": float(random.randint(40, 150)),
-                    "unit_retail_price_usd": float(random.randint(160, 350)),
+                    "unit_cost_usd": float(random.randint(25, 45)),
+                    "unit_retail_price_usd": float(random.randint(60, 95)),
                     "supplier_lead_time_days": 6,
                     "initial_stock": 200,
                     "is_hero": False,
@@ -174,8 +174,8 @@ def build_sku_catalog():
                 {
                     "sku": f"SKU-{m_id[6:]}-B",
                     "item_name": f"Standard {cat_name} Everyday B",
-                    "unit_cost_usd": float(random.randint(20, 60)),
-                    "unit_retail_price_usd": float(random.randint(70, 150)),
+                    "unit_cost_usd": float(random.randint(15, 30)),
+                    "unit_retail_price_usd": float(random.randint(40, 70)),
                     "supplier_lead_time_days": 4,
                     "initial_stock": 250,
                     "is_hero": False,
@@ -866,14 +866,33 @@ def generate_sample_courier_pdf(output_dir=None):
         story.append(Paragraph(f"Merchant: Lumina Smart Home & Audio (MERCH_02) | Statement Date: 2026-10-15 | Currency: USD ($)", sub_style))
         story.append(Spacer(1, 10))
 
+        real_rows = []
+        db_file = os.path.join(out_dir, "paylens.duckdb")
+        if os.path.exists(db_file):
+            import duckdb
+            c_db = duckdb.connect(db_file, read_only=True)
+            try:
+                sf = c_db.execute("SELECT consignment_id, order_id, courier_name, cod_collected_usd, courier_fee_usd, expected_net_payout_usd, actual_settled_usd, payout_status FROM courier_settlements WHERE actual_settled_usd < expected_net_payout_usd LIMIT 3").fetchall()
+                stld = c_db.execute("SELECT consignment_id, order_id, courier_name, cod_collected_usd, courier_fee_usd, expected_net_payout_usd, actual_settled_usd, payout_status FROM courier_settlements WHERE actual_settled_usd = expected_net_payout_usd LIMIT 2").fetchall()
+                for r in sf:
+                    real_rows.append([r[0], r[1], r[2], f"${r[3]:,.2f}", f"${r[4]:,.2f}", f"${r[5]:,.2f}", f"${r[6]:,.2f}", "PARTIAL SHORTFALL"])
+                for r in stld:
+                    real_rows.append([r[0], r[1], r[2], f"${r[3]:,.2f}", f"${r[4]:,.2f}", f"${r[5]:,.2f}", f"${r[6]:,.2f}", "SETTLED"])
+            finally:
+                c_db.close()
+
+        if not real_rows:
+            real_rows = [
+                ["CONS-SHORT-9001", "ORD-COD-SHORT-3143", "DHL Express", "$850.00", "$44.00", "$806.00", "$686.00", "PARTIAL SHORTFALL"],
+                ["CONS-SHORT-9002", "ORD-COD-SHORT-3144", "FedEx Ground", "$620.00", "$34.80", "$585.20", "$500.20", "PARTIAL SHORTFALL"],
+                ["CONS-CLEAN-9003", "ORD-3120", "DHL Express", "$450.00", "$24.25", "$425.75", "$425.75", "SETTLED"],
+                ["CONS-CLEAN-9004", "ORD-3121", "FedEx Ground", "$320.00", "$19.70", "$300.30", "$300.30", "SETTLED"],
+                ["CONS-SHORT-9005", "ORD-COD-SHORT-3147", "DHL Express", "$1,100.00", "$54.00", "$1,046.00", "$871.00", "PARTIAL SHORTFALL"],
+            ]
+
         data = [
-            ["Consignment ID", "Order ID", "Carrier", "COD Collected ($)", "Fee ($)", "Expected Net ($)", "Actual Settled ($)", "Status"],
-            ["CONS-SHORT-9001", "ORD-COD-SHORT-3143", "DHL Express", "$850.00", "$44.00", "$806.00", "$686.00", "PARTIAL SHORTFALL"],
-            ["CONS-SHORT-9002", "ORD-COD-SHORT-3144", "FedEx Ground", "$620.00", "$34.80", "$585.20", "$500.20", "PARTIAL SHORTFALL"],
-            ["CONS-CLEAN-9003", "ORD-3120", "DHL Express", "$450.00", "$24.25", "$425.75", "$425.75", "SETTLED"],
-            ["CONS-CLEAN-9004", "ORD-3121", "FedEx Ground", "$320.00", "$19.70", "$300.30", "$300.30", "SETTLED"],
-            ["CONS-SHORT-9005", "ORD-COD-SHORT-3147", "DHL Express", "$1,100.00", "$54.00", "$1,046.00", "$871.00", "PARTIAL SHORTFALL"],
-        ]
+            ["Consignment ID", "Order ID", "Carrier", "COD Collected ($)", "Fee ($)", "Expected Net ($)", "Actual Settled ($)", "Status"]
+        ] + real_rows
 
         t = Table(data, colWidths=[90, 95, 75, 75, 50, 75, 75, 75])
         t.setStyle(TableStyle([
@@ -886,8 +905,7 @@ def generate_sample_courier_pdf(output_dir=None):
             ('FONTSIZE', (0, 1), (-1, -1), 8),
             ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor('#1E293B')),
             ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F8FAFC')]),
-            ('TEXTCOLOR', (7, 1), (7, 2), colors.HexColor('#DC2626')),
-            ('TEXTCOLOR', (7, 5), (7, 5), colors.HexColor('#DC2626')),
+            ('TEXTCOLOR', (7, 1), (7, len(real_rows)), colors.HexColor('#DC2626')),
         ]))
 
         story.append(t)

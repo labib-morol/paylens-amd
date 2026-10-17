@@ -31,11 +31,11 @@
 - [x] **Gemma Serving Client:** `agent/gemma_agent.py` supports AMD ROCm vLLM, TokenFactory, and deterministic offline template fallback with honest latency measurement and `logs/inference_log.jsonl` audit logging.
 - [x] **Benchmarking Suite:** `benchmarks/run_benchmark.py` authentic runner with concurrency tiers [1, 4, 8, 16, 32] and strict hardware labeling.
 - [x] **Evolus AI Partner Track:** `agent/evolus_bridge.py` integrates Ready-Made AI Tools (`document-to-structured-data`, `email-writing`) and agent chat endpoint with dynamic status detection.
-- [x] **Global Multi-Rail Connectors:** `engine/connectors.py` provides normalization for Bangladesh MFS, Brazil Pix, India UPI, and Kenya M-Pesa.
-- [x] **Live Action Executor:** `agent/action_executor.py` dispatches live actions, sends webhooks, and creates SHA-256 audit receipts.
+- [x] **Global Multi-Rail Connectors (Schema Normalization Prototypes):** `engine/connectors.py` provides schema normalization prototypes for Bangladesh MFS, Brazil Pix, India UPI, and Kenya M-Pesa.
+- [x] **Live Action Executor:** `agent/action_executor.py` dispatches live actions, sends webhooks, and creates simulated action log and audit IDs.
 
 ### Checkpoint 4 — UI Deal Desk, Docker & Submission Readiness
-- [x] **Streamlit + Plotly Frontend:** `app.py` delivers a single-screen master-detail Fintech Deal Desk with `@st.dialog` modals (Courier PDF Intake, Red-Team Guardrail Demo, AMD Hardware Proof), interactive Holt-Winters / reconciliation charts, and safe HTML rendering.
+- [x] **Streamlit + Plotly Frontend:** `app.py` delivers a single-screen master-detail Fintech Deal Desk with native sidebar tools (Courier PDF Intake, Anomaly Injector), interactive Holt-Winters / reconciliation charts, and clean dark mode.
 - [x] **Per-Session Sandbox:** Live Anomaly Injector operates on an isolated temporary DuckDB copy with explicit column INSERTs and cache invalidation.
 - [x] **Containerization:** `Dockerfile` on `python:3.11-slim` and `docker-compose.yml` for 1-command startup on port 8501.
 - [x] **MIT License:** Added `LICENSE` (2026, Labib-morol).

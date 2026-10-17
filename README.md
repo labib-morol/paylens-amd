@@ -33,13 +33,14 @@ In multi-rail commerce, disconnected financial ledgers lead to silent revenue le
 
 ## 2. Modes
 
-PayLens operates across three verified execution modes:
+PayLens operates across verified execution modes:
 
 | Mode | Endpoint | Description |
 |---|---|---|
-| `LIVE_AMD_TOKENFACTORY` | AMD TokenFactory API | Shared hosted TokenFactory endpoint (`AMD_TOKENFACTORY_BASE_URL`). Hardware is shared and not under direct local control. |
-| `LIVE_AMD_MI300X_VLLM` | Dedicated ROCm Host (`AMD_VLLM_BASE_URL`) | Dedicated host running ROCm vLLM on AMD Instinct MI300X (192GB HBM3). |
-| `LOCAL_DETERMINISTIC_FALLBACK` | Local CPU / Offline Mode | Active when `OFFLINE_MODE=true` or when no remote AMD endpoint is reachable. All detectors, matchers, and templates run deterministically on CPU with zero crashes. |
+| `LIVE_AMD_TOKENFACTORY` | AMD TokenFactory API | Shared hosted TokenFactory endpoint (`AMD_TOKENFACTORY_BASE_URL`). Hardware is shared multi-tenant cloud and measured live in `benchmarks/benchmark_results.json`. |
+| `LIVE_GOOGLE_GEMMA4` | Google AI Studio REST | Google AI Studio Gemma 4 REST endpoint (`https://generativelanguage.googleapis.com/v1beta`). Measured live in `benchmarks/benchmark_results.json`. |
+| `LIVE_AMD_MI300X_VLLM` | Dedicated ROCm Host (`AMD_VLLM_BASE_URL`) | **Supported Self-Hosted Deployment Recipe (Not Measured in Committed Benchmark JSON)**. Dedicated host running ROCm 7.0+ / vLLM >= 0.8.5 on AMD Instinct MI300X (192GB HBM3). |
+| `LOCAL_DETERMINISTIC_FALLBACK` | Local CPU / Offline Mode | Active when `OFFLINE_MODE=true` or when no remote endpoint is reachable. All detectors, matchers, and templates run deterministically on CPU with zero crashes. |
 
 ---
 
@@ -52,7 +53,7 @@ PayLens routes data from multi-rail commerce sources through pluggable normaliza
 Stripe Gateway (US/EU)  ──► PaymentRailConnector ──► DuckDB           ──► 2-Pass Leak Matcher
 PayPal Commerce         ──► Normalization        ──► Orders Table     ──► Carrier Shortfall Scanner
 DHL/FedEx Courier COD   ──► Canonical Schema     ──► Payments Table   ──► Holt-Winters Forecaster
-Pix / UPI / M-Pesa      ──► Validation           ──► Inventory Table  ──► STL Anomaly Detector
+Pix / UPI / M-Pesa (Proto) ──► Normalization (Prototypes) ──► Inventory Table  ──► STL Anomaly Detector
                                                           │
                                                           ▼
                                                  [Multi-Objective Ranker]
@@ -64,8 +65,10 @@ Pix / UPI / M-Pesa      ──► Validation           ──► Inventory Table
                                                  [Human-in-the-Loop Deal Desk]
                                                           │
                                                           ▼
-                                                 [Dispatch Receipt & Audit Hash]
+                                                 [Simulated Action Log & Audit IDs]
 ```
+
+> **Note on Emerging Rails:** Global rail connectors (`Pix`, `UPI`, `M-Pesa`) are implemented as **Schema Normalization Prototypes** demonstrating unified ledger ingestion.
 
 ### Component Responsibilities
 
@@ -91,13 +94,17 @@ All financial calculations are computed deterministically before model invocatio
    Flagged when discrepancy exceeds \$5.00.
 3. **Abandoned Checkout Recovery**:
    $$\text{Impact}_{\text{USD}} = \text{Order Total} \times r$$
-   where $r \in [0.10, 0.80]$ is the configurable recovery rate (default $r = 0.35$).
+   where $r \in [0.10, 0.80]$ is an **adjustable user assumption (10%–80% slider, default $r = 0.35$, not an observed recovery rate)**.
 4. **Holt-Winters Stockout Risk**:
    $$\text{Forecast Daily Demand} = \frac{1}{L} \sum_{t=1}^{L} \hat{y}_t$$
    $$\text{Days of Cover} = \frac{\text{Current Stock}}{\text{Forecast Daily Demand}}$$
    $$\text{Impact}_{\text{USD}} = \max(0, \hat{Y}_{\text{lead}} - \text{Current Stock}) \times \text{Unit Margin}$$
    Flagged when $\text{Days of Cover} < L$ (supplier lead time).
-5. **Dynamic Multi-Objective Ranking Score**:
+5. **STL Revenue Residual Anomaly**:
+   $$\text{Residual}_t = Y_t - T_t - S_t$$
+   $$z_t = \frac{\text{Residual}_t - \mu_{\text{residual}}}{\sigma_{\text{residual}}}$$
+   Flagged when $|z_t| > 2.2$.
+6. **Dynamic Multi-Objective Ranking Score**:
    $$\text{Score} = \text{Impact} \times \text{Confidence} \times (w_{\text{cash}} \cdot \mathbf{1}_{\text{leak}} + w_{\text{margin}} \cdot \mathbf{1}_{\text{stock}} + w_{\text{recov}} \cdot \mathbf{1}_{\text{abandon}})$$
    where weights $w$ are steered dynamically by natural language merchant goals.
 
@@ -109,14 +116,48 @@ All financial calculations are computed deterministically before model invocatio
 
 Real measured telemetry recorded against AMD Radeon Cloud TokenFactory (`https://developer.amd.com.cn/radeon/api/v1`) serving `DeepSeek-V4-Flash` and Google AI Studio Gemma 4 REST API:
 
-| Concurrency Tier | Output Throughput (tok/s) | Mean TTFT (ms) | Mean Latency (ms) | 1st-Pass Model Grounding | Post-Retry Pass | Fallback Rate |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **1 (Sequential)** | 15.4 tok/s | 5,638.9 ms | 14,575.4 ms | 4 of 4 Passed | 0 Retries | 0 Fallbacks |
-| **4 (Concurrent Burst)** | 27.9 tok/s | 10,512.1 ms | 16,826.8 ms | 4 of 4 Passed | 0 Retries | 0 Fallbacks |
-| **8 (High Concurrency)** | 34.4 tok/s | 11,728.2 ms | 24,936.6 ms | 6 of 6 Passed | 0 Retries | 0 Fallbacks |
-| **Google AI Studio Gemma 4 REST** | 12.8 tok/s | 1,139.2 ms (Ping) | 19,337.0 ms | 2 of 2 Passed | 0 Retries | 0 Fallbacks |
+- **AMD TokenFactory Requests**: 16 Attempted · 16 Completed · 0 Failed
+- **Google Gemma 4 Requests**: 2 Attempted · 2 Completed · 0 Failed
 
-*Telemetry timestamp: 2026-10-17T16:18:17Z | Measured via `benchmarks/run_mi300x_benchmark.py` and saved to `benchmarks/benchmark_results.json`.*
+| Concurrency Tier | Output Throughput (tok/s) | Mean TTFT (ms) | Mean Latency (ms) | Attempted | Completed | Failed | 1st-Pass Model Grounding | Post-Retry Pass | Fallback Rate |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **1 (Sequential)** | 18.2 tok/s | 5,947.9 ms | 13,870.2 ms | 4 | 4 | 0 | 4 of 4 Passed (100.0%) | 0 Retries (0.0%) | 0 Fallbacks (0.0%) |
+| **4 (Concurrent Burst)** | 62.9 tok/s | 3,689.7 ms | 13,082.6 ms | 4 | 4 | 0 | 4 of 4 Passed (100.0%) | 0 Retries (0.0%) | 0 Fallbacks (0.0%) |
+| **8 (High Concurrency)** | 59.2 tok/s | 6,000.6 ms | 11,952.8 ms | 8 | 8 | 0 | 8 of 8 Passed (100.0%) | 0 Retries (0.0%) | 0 Fallbacks (0.0%) |
+| **Google AI Studio Gemma 4 REST** | 12.8 tok/s | 1,722.0 ms (Ping) | 23,758.5 ms | 2 | 2 | 0 | 2 of 2 Passed (100.0%) | 0 Retries (0.0%) | 0 Fallbacks (0.0%) |
+
+*Telemetry timestamp: 2026-10-17T17:29:48Z | Measured via `benchmarks/run_mi300x_benchmark.py` and saved to `benchmarks/benchmark_results.json`.*
+
+### Supported Self-Hosted Deployment Recipe (Not Measured in Committed Benchmark JSON)
+
+For dedicated on-premise or cloud bare-metal AMD Instinct MI300X systems running ROCm 7.0+ and vLLM >= 0.8.5:
+
+```bash
+docker exec -it rocm bash
+
+# Verify 192GB HBM3 visibility
+amd-smi
+
+export HF_TOKEN="hf_your_token_here"
+export VLLM_USE_V1=1
+
+# Fetch official Gemma 4 tool-calling chat template
+mkdir -p examples
+curl -sSL https://raw.githubusercontent.com/vllm-project/vllm/main/examples/tool_chat_template_gemma4.jinja -o examples/tool_chat_template_gemma4.jinja
+
+# Launch vLLM server on ROCm 7.0+ / vLLM >= 0.8.5
+vllm serve google/gemma-4-31B-it \
+  --host 0.0.0.0 \
+  --port 8000 \
+  --dtype bfloat16 \
+  --max-model-len 16384 \
+  --enable-auto-tool-choice \
+  --tool-call-parser gemma4 \
+  --reasoning-parser gemma4 \
+  --chat-template examples/tool_chat_template_gemma4.jinja \
+  --limit-mm-per-prompt '{"image": 0, "audio": 0}' \
+  --async-scheduling
+```
 
 ### Separated Commercial Risk Buckets
 
@@ -141,7 +182,7 @@ Evaluated against `ground_truth.json` across 20 stores and 30 days of multi-rail
 
 ### Scope of Numeric Regex Validation
 
-The numeric guardrail extracts all numeric tokens from LLM prose and verifies them against the deterministic DuckDB evidence numbers. If unverified numbers are detected, the system executes one retry prompt before safely reverting to the deterministic template. Notice: This mechanism validates extracted numeric tokens against permitted DuckDB evidence values; it does not certify non-numeric prose claims.
+**Deterministic regex numeric verification (validates numbers against tool outputs; falls back to a deterministic template on mismatch)**: The numeric guardrail extracts all numeric tokens from LLM prose and verifies them against the deterministic DuckDB evidence numbers. If unverified numbers are detected, the system executes one retry prompt before safely reverting to the deterministic template. Notice: This mechanism validates extracted numeric tokens against permitted DuckDB evidence values; it does not certify non-numeric prose claims.
 
 ---
 

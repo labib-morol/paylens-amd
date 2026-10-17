@@ -325,7 +325,44 @@ with st.sidebar.expander("📄 Courier Settlement PDF Intake", expanded=False):
     sample_pdf_path = os.path.join(ROOT_DIR, "data", "generated", "sample_courier_settlement.pdf")
     if os.path.exists(sample_pdf_path):
         if st.button("Parse sample_courier_settlement.pdf", width="stretch"):
-            st.success("Parsed sample statement: Found $295.00 shortfall across 3 consignments.")
+            import pypdf
+            import re
+            try:
+                reader = pypdf.PdfReader(sample_pdf_path)
+                pdf_text = "\n".join([page.extract_text() or "" for page in reader.pages])
+                cons_ids = re.findall(r"CONS-[A-Z0-9-]+", pdf_text)
+                order_ids = re.findall(r"ORD-[A-Z0-9-]+", pdf_text)
+
+                pdf_con = duckdb.connect(os.path.join(ROOT_DIR, "data", "generated", "paylens.duckdb"), read_only=True)
+                try:
+                    all_ids = list(set(cons_ids + order_ids))
+                    if all_ids:
+                        q_marks = ", ".join(["?"] * len(all_ids))
+                        query = f"""
+                            SELECT consignment_id, order_id, courier_name,
+                                   cod_collected_usd, courier_fee_usd,
+                                   expected_net_payout_usd, actual_settled_usd,
+                                   ROUND(expected_net_payout_usd - actual_settled_usd, 2) AS shortfall_usd,
+                                   payout_status
+                            FROM courier_settlements
+                            WHERE consignment_id IN ({q_marks}) OR order_id IN ({q_marks})
+                        """
+                        df_pdf = pdf_con.execute(query, all_ids + all_ids).df()
+                    else:
+                        df_pdf = pd.DataFrame()
+                finally:
+                    pdf_con.close()
+
+                if not df_pdf.empty:
+                    shortfalls = df_pdf[df_pdf["shortfall_usd"] > 0]
+                    total_shortfall = shortfalls["shortfall_usd"].sum()
+                    shortfall_cnt = len(shortfalls)
+                    st.dataframe(df_pdf, width="stretch", hide_index=True)
+                    st.success(f"Parsed sample statement: Found ${total_shortfall:,.2f} shortfall across {shortfall_cnt} consignments.")
+                else:
+                    st.info("Parsed PDF successfully, but no matching database records found.")
+            except Exception as e:
+                st.error(f"Error parsing PDF: {e}")
 
 # -----------------------------------------------------------------------------
 # Execute Deterministic Pipeline
@@ -348,12 +385,12 @@ try:
     eval_f1 = stress_split.get("f1_score")
     eval_f1_disp = f"{eval_f1:.2f} F1" if eval_f1 is not None else "N/A"
     stress_cm = stress_split.get("confusion_matrix", {})
-    tp_cnt = stress_cm.get("true_positives", 28)
-    fp_cnt = stress_cm.get("false_positives", 2)
-    fn_cnt = stress_cm.get("false_negatives", 2)
+    tp_cnt = stress_cm.get("true_positives")
+    fp_cnt = stress_cm.get("false_positives")
+    fn_cnt = stress_cm.get("false_negatives")
 except Exception:
     eval_f1_disp = "N/A"
-    tp_cnt, fp_cnt, fn_cnt = 28, 2, 2
+    tp_cnt, fp_cnt, fn_cnt = None, None, None
     eval_results = {}
     std_split = {}
     stress_split = {}
@@ -406,7 +443,11 @@ with hdr_col2:
 
 with hdr_col3:
     approved_total = sum(v.get("amount", 0.0) for v in st.session_state.approved_actions.values())
-    st.success(f"✅ **Recovered Today**\n`${approved_total:,.2f}` ({len(st.session_state.approved_actions)} approved)")
+    st.success(
+        f"✅ **Approved Recovery Actions (Simulated)**\n"
+        f"`${approved_total:,.2f}` ({len(st.session_state.approved_actions)} simulated approved)\n\n"
+        f"Simulated Session Log (No External Funds Settled)"
+    )
 
 st.divider()
 
@@ -440,10 +481,15 @@ with kpi_col3:
     )
 
 with kpi_col4:
+    cm_delta = (
+        f"{tp_cnt} TP · {fp_cnt} FP · {fn_cnt} FN"
+        if all(x is not None for x in [tp_cnt, fp_cnt, fn_cnt])
+        else "N/A"
+    )
     st.metric(
         label="4. Detector F1 (Stress-Test Split)",
         value=eval_f1_disp,
-        delta=f"{tp_cnt} TP · {fp_cnt} FP · {fn_cnt} FN",
+        delta=cm_delta,
         help="Stress-test evaluation on synthetic baseline plus 6 hard edge cases (delayed settlements, partial payments, duplicates)",
     )
 
@@ -515,7 +561,7 @@ with tab1:
                 c_stat1, c_stat2 = st.columns([1.2, 1.0])
                 with c_stat1:
                     if is_approved:
-                        st.caption("✅ Approved & Queued")
+                        st.caption("✅ Simulated Action Logged")
                     elif is_rejected:
                         st.caption("❌ Rejected / False Positive")
                     else:
@@ -669,19 +715,20 @@ with tab1:
 
             # 5. Human-Reviewed Simulated Action Execution
             with st.container(border=True):
-                st.markdown("**Human Operator Action Approval**")
+                st.markdown("**Human Operator Action Approval (Simulated)**")
+                st.caption("Simulated Session Log (No External Funds Settled)")
                 act_col1, act_col2 = st.columns(2)
 
                 with act_col1:
-                    if st.button("✅ Approve & Dispatch Action", key=f"appr_{selected_card.card_id}", width="stretch", type="primary"):
+                    if st.button("✅ Approve Simulated Action", key=f"appr_{selected_card.card_id}", width="stretch", type="primary"):
                         receipt_id = hashlib.sha256(f"{selected_card.card_id}_{time.time()}".encode()).hexdigest()[:16]
                         st.session_state.approved_actions[selected_card.card_id] = {
                             "amount": selected_card.impact_usd,
-                            "receipt": receipt_id,
+                            "simulated_log_id": receipt_id,
                             "timestamp": datetime.now().isoformat(),
                             "entity": selected_card.entity_id,
                         }
-                        st.success(f"Action approved! Audit Receipt ID: `{receipt_id}`")
+                        st.success(f"Action approved! Simulated Action Log ID: `{receipt_id}`")
                         st.rerun()
 
                 with act_col2:
@@ -733,8 +780,15 @@ with tab2:
                         tier_res = asyncio.run(run_amd_concurrency_tier(client, model_to_test, all_cards, c, max(c, 2)))
                         live_tier_results.append(tier_res)
 
-                    st.session_state.benchmark_run_history = live_tier_results
-                    st.success("Benchmark completed successfully!")
+                    tot_att = sum(t.get("attempted_requests", t.get("total_requests", 0)) for t in live_tier_results)
+                    tot_comp = sum(t.get("completed_requests", 0) for t in live_tier_results)
+                    tot_fail = sum(t.get("failed_requests", 0) for t in live_tier_results)
+                    if tot_fail == 0 and tot_comp > 0:
+                        st.markdown(f":green-badge[Benchmark Complete: {tot_comp}/{tot_att} Succeeded]")
+                    elif tot_comp > 0 and tot_fail > 0:
+                        st.markdown(f":orange-badge[Partial Completion: {tot_comp}/{tot_att} Succeeded ({tot_fail} Failed)]")
+                    else:
+                        st.markdown(f":red-badge[Benchmark Failed: 0/{tot_att} Completed]")
                 else:
                     st.error("AMD TokenFactory endpoint is currently unreachable.")
 
@@ -743,16 +797,28 @@ with tab2:
         if active_tiers:
             b_cols = st.columns(len(active_tiers))
             for i, t in enumerate(active_tiers):
+                attempted = t.get("attempted_requests", t.get("total_requests", 0))
+                completed = t.get("completed_requests", 0)
+                failed = t.get("failed_requests", 0)
+                fp_rate = t.get("first_pass_model_grounding_rate")
+                pr_rate = t.get("post_retry_model_grounding_rate")
+                fb_rate = t.get("deterministic_fallback_rate", t.get("deterministic_template_fallback_rate"))
+
                 with b_cols[i]:
                     st.metric(
                         label=f"Concurrency = {t['concurrency']}",
-                        value=f"{t.get('tokens_per_sec', 0):.1f} tok/s",
-                        delta=f"TTFT: {t.get('mean_ttft_ms', 0):.0f} ms · Lat: {t.get('mean_latency_ms', 0):.0f} ms",
+                        value=f"{t.get('tokens_per_sec', 0):.1f} tok/s" if t.get("tokens_per_sec") is not None else "N/A",
+                        delta=f"TTFT: {t.get('mean_ttft_ms', 0):.0f} ms · Lat: {t.get('mean_latency_ms', 0):.0f} ms" if t.get("mean_ttft_ms") is not None else "N/A",
                     )
+                    fp_str = f"{fp_rate:.0f}%" if fp_rate is not None else "N/A"
+                    pr_str = f"{pr_rate:.0f}%" if pr_rate is not None else "N/A"
+                    fb_str = f"{fb_rate:.0f}%" if fb_rate is not None else "N/A"
                     st.caption(
-                        f"🎯 1st Pass: **{t.get('first_pass_model_grounding_rate', 100.0):.0f}%** · "
-                        f"Retry: **{t.get('post_retry_model_grounding_rate', 0.0):.0f}%** · "
-                        f"Fallback: **{t.get('deterministic_template_fallback_rate', 0.0):.0f}%**"
+                        f"Reqs: **{completed}/{attempted}** ({failed} failed)<br>"
+                        f"🎯 1st Pass: **{fp_str}** · "
+                        f"Retry: **{pr_str}** · "
+                        f"Fallback: **{fb_str}**",
+                        unsafe_allow_html=True,
                     )
 
             # Plot interactive Plotly chart
@@ -783,20 +849,36 @@ with tab2:
             st.plotly_chart(fig_tok, width="stretch")
 
         google_data = bench_data.get("google_gemma4", {}) if bench_data else {}
-        if google_data and google_data.get("completed", 0) > 0:
+        if google_data:
+            g_att = google_data.get("attempted_requests", google_data.get("requests", 0))
+            g_comp = google_data.get("completed_requests", google_data.get("completed", 0))
+            g_fail = google_data.get("failed_requests", max(0, g_att - g_comp))
+            g_fp = google_data.get("first_pass_model_grounding_rate")
+            g_pr = google_data.get("post_retry_model_grounding_rate")
+            g_fb = google_data.get("deterministic_fallback_rate", google_data.get("deterministic_template_fallback_rate"))
+            g_lat = google_data.get("mean_latency_ms")
+
             st.markdown("##### 💎 Google AI Studio Gemma 4 REST Benchmark")
             g_col1, g_col2, g_col3 = st.columns(3)
             with g_col1:
                 st.metric("Model Served", google_data.get("model", "gemma-4-26b-a4b-it"))
             with g_col2:
-                st.metric("Mean Latency", f"{google_data.get('mean_latency_ms', 0):.0f} ms")
+                st.metric("Mean Latency", f"{g_lat:.0f} ms" if g_lat is not None else "N/A")
             with g_col3:
-                st.metric("Model Grounding", f"{google_data.get('first_pass_model_grounding_rate', 100.0):.0f}% (0% fallback)")
+                fp_disp = f"{g_fp:.0f}%" if g_fp is not None else "N/A (Not Measured / Failed)"
+                st.metric("Model Grounding", fp_disp)
+            st.caption(
+                f"Requests: **{g_comp}/{g_att}** completed ({g_fail} failed) · "
+                f"1st Pass: **{f'{g_fp:.0f}%' if g_fp is not None else 'N/A'}** · "
+                f"Retry: **{f'{g_pr:.0f}%' if g_pr is not None else 'N/A'}** · "
+                f"Fallback: **{f'{g_fb:.0f}%' if g_fb is not None else 'N/A'}**"
+            )
 
     # Section 2: Realistic Stress-Test Confusion Matrix
     with st.container(border=True):
         st.markdown("#### 2. Realistic Stress-Test Confusion Matrix (Non-1.00 Ground Truth)")
         st.caption("Evaluates detector against both clean baseline data AND 6 hard stress-test edge cases.")
+        st.markdown(":badge[Synthetic Stress-Test Split (Includes Noise & Timing Jitter — Not Live Merchant Data)]")
 
         cm_col1, cm_col2 = st.columns(2)
         with cm_col1:
@@ -809,13 +891,16 @@ with tab2:
         with cm_col2:
             st.markdown("**Stress-Test Split (Includes 6 Hard Edge Cases)**")
             if stress_split:
+                prec = stress_split.get("precision")
+                rec = stress_split.get("recall")
+                f1 = stress_split.get("f1_score")
                 st.dataframe(pd.DataFrame([{
-                    "Precision": stress_split.get("precision"),
-                    "Recall": stress_split.get("recall"),
-                    "F1 Score": stress_split.get("f1_score"),
-                    "True Positives": tp_cnt,
-                    "False Positives": fp_cnt,
-                    "False Negatives": fn_cnt,
+                    "Precision": f"{prec:.3f}" if prec is not None else "N/A",
+                    "Recall": f"{rec:.3f}" if rec is not None else "N/A",
+                    "F1 Score": f"{f1:.3f}" if f1 is not None else "N/A",
+                    "True Positives": tp_cnt if tp_cnt is not None else "N/A",
+                    "False Positives": fp_cnt if fp_cnt is not None else "N/A",
+                    "False Negatives": fn_cnt if fn_cnt is not None else "N/A",
                 }]), width="stretch", hide_index=True)
             else:
                 st.info("Stress-test split not available.")
