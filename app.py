@@ -270,7 +270,7 @@ st.sidebar.caption("Deterministic Multi-Rail Capital Recovery")
 # Merchant Selector
 merchant_map = cached_get_merchant_names()
 merchant_ids = sorted(list(merchant_map.keys())) if merchant_map else ["MERCH_01"]
-default_merch_idx = merchant_ids.index("MERCH_02") if "MERCH_02" in merchant_ids else 0
+default_merch_idx = merchant_ids.index("MERCH_01") if "MERCH_01" in merchant_ids else 0
 selected_merchant = st.sidebar.selectbox(
     "Active Storefront",
     options=merchant_ids,
@@ -297,10 +297,10 @@ if goal_preset == "Urgent Cash Recovery (High Cash)":
     active_weights = GoalWeights(cash_now_weight=0.80, margin_protection_weight=0.10, stock_availability_weight=0.10)
 elif goal_preset == "Protect Profit Margins (High Margin)":
     current_goal_text = "Protect profit margins and prevent lost revenue"
-    active_weights = GoalWeights(cash_now_weight=0.10, margin_protection_weight=0.45, stock_availability_weight=0.45)
+    active_weights = GoalWeights(cash_now_weight=0.15, margin_protection_weight=0.70, stock_availability_weight=0.15)
 elif goal_preset == "Prevent Stockouts (High Inventory Cover)":
     current_goal_text = "Prevent stockouts on high-demand hero SKUs"
-    active_weights = GoalWeights(cash_now_weight=0.10, margin_protection_weight=0.45, stock_availability_weight=0.45)
+    active_weights = GoalWeights(cash_now_weight=0.10, margin_protection_weight=0.20, stock_availability_weight=0.70)
 else:
     custom_input = st.sidebar.text_input("Enter Merchant Goal", value="Collect overdue settlements and protect stock")
     current_goal_text = custom_input
