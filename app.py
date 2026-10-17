@@ -8,6 +8,7 @@ import os
 import sys
 import time
 import json
+import html
 import shutil
 import tempfile
 import hashlib
@@ -67,11 +68,75 @@ st.set_page_config(
 )
 
 # -----------------------------------------------------------------------------
-# Linear / Stripe Dark Fintech Design System
+# Linear / Stripe Dark Fintech Design System (Tokenized & A11y Calibrated)
 # -----------------------------------------------------------------------------
 FINTECH_CSS = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+    :root {
+        --bg-app: #090D16;
+        --bg-sidebar: #0B1120;
+        --surface-card: #111827;
+        --surface-hover: #162032;
+        --surface-selected: #151F33;
+        --surface-formula: rgba(15, 23, 42, 0.95);
+
+        --border-subtle: rgba(255, 255, 255, 0.08);
+        --border-divider: rgba(255, 255, 255, 0.07);
+        --border-hover: rgba(99, 102, 241, 0.45);
+
+        --text-primary: #F8FAFC;
+        --text-secondary: #E2E8F0;
+        --text-muted: #94A3B8;
+
+        --accent-indigo: #6366F1;
+        --accent-indigo-light: #818CF8;
+        --accent-cyan: #38BDF8;
+
+        --status-leak: #EF4444;
+        --status-leak-text: #FCA5A5;
+        --status-leak-bg: rgba(239, 68, 68, 0.18);
+        --status-leak-border: rgba(239, 68, 68, 0.35);
+
+        --status-recovery: #F59E0B;
+        --status-recovery-text: #FDE68A;
+        --status-recovery-bg: rgba(245, 158, 11, 0.18);
+        --status-recovery-border: rgba(245, 158, 11, 0.35);
+
+        --status-stockout: #A78BFA;
+        --status-stockout-text: #DDD6FE;
+        --status-stockout-bg: rgba(139, 92, 246, 0.18);
+        --status-stockout-border: rgba(139, 92, 246, 0.35);
+
+        --status-success: #10B981;
+        --status-success-text: #6EE7B7;
+        --status-success-bg: rgba(16, 185, 129, 0.15);
+        --status-success-border: rgba(16, 185, 129, 0.35);
+
+        --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        --font-mono: 'JetBrains Mono', monospace;
+
+        /* Modular Type Scale */
+        --text-xs: 0.70rem;
+        --text-sm: 0.76rem;
+        --text-base: 0.86rem;
+        --text-md: 0.95rem;
+        --text-lg: 1.25rem;
+        --text-xl: 1.65rem;
+
+        /* Typographic Rhythm & Leading */
+        --leading-none: 1.0;
+        --leading-tight: 1.25;
+        --leading-normal: 1.5;
+        --leading-relaxed: 1.65;
+
+        /* Letter Spacing & Tracking */
+        --tracking-tight: -0.025em;
+        --tracking-normal: 0em;
+        --tracking-wide: 0.05em;
+        --tracking-wider: 0.08em;
+    }
 
     /* Hide default Streamlit chrome */
     #MainMenu { visibility: hidden; }
@@ -81,35 +146,64 @@ FINTECH_CSS = """
     div[data-testid="stDecoration"] { display: none; }
     div[data-testid="stStatusWidget"] { display: none; }
 
-    /* Core typography & background */
+    /* Core typography & anti-aliased rendering */
     html, body, [class*="css"] {
-        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-        background-color: #090D16;
-        color: #F8FAFC;
+        font-family: var(--font-sans);
+        background-color: var(--bg-app);
+        color: var(--text-primary);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
     }
     .stApp {
-        background-color: #090D16;
+        background-color: var(--bg-app);
+    }
+
+    /* Tabular numbers for financial and metric alignment */
+    .tabular-nums, .kpi-value, .formula-banner, [data-testid="stMetricValue"], [data-testid="stDataFrame"] {
+        font-feature-settings: "tnum" 1, "zero" 1;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* Standardized headings */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: var(--font-sans);
+        letter-spacing: var(--tracking-tight);
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    /* Code & monospace tags */
+    code {
+        font-family: var(--font-mono) !important;
+        font-size: 0.82em !important;
+        background: rgba(15, 23, 42, 0.75) !important;
+        border: 1px solid var(--border-subtle) !important;
+        padding: 2px 6px !important;
+        border-radius: 4px !important;
+        color: var(--accent-cyan) !important;
+        font-variant-numeric: tabular-nums;
     }
 
     /* Spacious sidebar */
     section[data-testid="stSidebar"] {
-        background-color: #0B1120 !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.07);
+        background-color: var(--bg-sidebar) !important;
+        border-right: 1px solid var(--border-divider);
         padding-top: 1rem;
     }
     section[data-testid="stSidebar"] .stSelectbox label,
     section[data-testid="stSidebar"] .stSlider label {
-        font-size: 0.76rem !important;
+        font-size: var(--text-sm) !important;
         font-weight: 700 !important;
         text-transform: uppercase !important;
-        letter-spacing: 0.06em !important;
-        color: #94A3B8 !important;
+        letter-spacing: var(--tracking-wide) !important;
+        color: var(--text-muted) !important;
     }
 
     /* Top Command Header */
     .top-command-bar {
-        background: #111827;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--surface-card);
+        border: 1px solid var(--border-subtle);
         border-radius: 14px;
         padding: 16px 24px;
         margin-bottom: 18px;
@@ -122,55 +216,58 @@ FINTECH_CSS = """
 
     /* Hero KPI Cards */
     .kpi-card {
-        background: #111827;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--surface-card);
+        border: 1px solid var(--border-subtle);
         border-radius: 12px;
         padding: 18px 22px;
         transition: transform 0.15s ease, border-color 0.15s ease;
     }
     .kpi-card:hover {
-        border-color: rgba(99, 102, 241, 0.4);
+        border-color: var(--border-hover);
         transform: translateY(-1px);
     }
     .kpi-label {
-        font-size: 0.72rem;
+        font-size: var(--text-sm);
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: #94A3B8;
+        letter-spacing: var(--tracking-wider);
+        color: var(--text-muted);
         font-weight: 700;
+        line-height: var(--leading-tight);
         margin-bottom: 6px;
     }
     .kpi-value {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 1.65rem;
+        font-family: var(--font-mono);
+        font-size: var(--text-xl);
         font-weight: 700;
-        color: #F8FAFC;
+        color: var(--text-primary);
+        letter-spacing: var(--tracking-tight);
+        line-height: var(--leading-tight);
     }
     .kpi-sub {
-        font-size: 0.74rem;
-        color: #64748B;
+        font-size: var(--text-sm);
+        color: var(--text-muted);
         font-weight: 600;
+        line-height: var(--leading-normal);
         margin-top: 4px;
     }
 
     /* Queue Card */
     .queue-item {
-        background: #111827;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--surface-card);
+        border: 1px solid var(--border-subtle);
         border-radius: 10px;
         padding: 14px 16px;
-        margin-bottom: 10px;
-        cursor: pointer;
+        margin-bottom: 8px;
         transition: all 0.15s ease;
     }
     .queue-item:hover {
-        border-color: rgba(99, 102, 241, 0.5);
-        background: #162032;
+        border-color: var(--border-hover);
+        background: var(--surface-hover);
     }
     .queue-item-selected {
-        background: #151F33 !important;
-        border: 1px solid #6366F1 !important;
-        box-shadow: 0 0 15px rgba(99, 102, 241, 0.15);
+        background: var(--surface-selected) !important;
+        border: 1px solid var(--accent-indigo) !important;
+        box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
     }
 
     /* Badges */
@@ -178,32 +275,35 @@ FINTECH_CSS = """
         display: inline-block;
         padding: 3px 8px;
         border-radius: 6px;
-        font-size: 0.68rem;
+        font-size: var(--text-xs);
         font-weight: 700;
-        letter-spacing: 0.05em;
+        letter-spacing: var(--tracking-wide);
+        line-height: var(--leading-none);
         text-transform: uppercase;
     }
-    .badge-leak { background: rgba(239, 68, 68, 0.18); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.35); }
-    .badge-recovery { background: rgba(245, 158, 11, 0.18); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.35); }
-    .badge-stockout { background: rgba(139, 92, 246, 0.18); color: #C084FC; border: 1px solid rgba(139, 92, 246, 0.35); }
+    .badge-leak { background: var(--status-leak-bg); color: var(--status-leak-text); border: 1px solid var(--status-leak-border); }
+    .badge-recovery { background: var(--status-recovery-bg); color: var(--status-recovery-text); border: 1px solid var(--status-recovery-border); }
+    .badge-stockout { background: var(--status-stockout-bg); color: var(--status-stockout-text); border: 1px solid var(--status-stockout-border); }
 
     /* Detail Inspector Pane */
     .inspector-pane {
-        background: #111827;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--surface-card);
+        border: 1px solid var(--border-subtle);
         border-radius: 14px;
         padding: 22px 24px;
     }
 
     /* Formula Monospace Banner */
     .formula-banner {
-        background: rgba(15, 23, 42, 0.95);
-        border: 1px dashed rgba(56, 189, 248, 0.35);
+        background: var(--surface-formula);
+        border: 1px dashed rgba(56, 189, 248, 0.4);
         border-radius: 8px;
         padding: 10px 14px;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.82rem;
-        color: #38BDF8;
+        font-family: var(--font-mono);
+        font-size: var(--text-base);
+        font-variant-numeric: tabular-nums;
+        line-height: var(--leading-normal);
+        color: var(--accent-cyan);
         margin: 12px 0;
     }
 
@@ -211,23 +311,40 @@ FINTECH_CSS = """
     .grounding-verified {
         display: inline-flex;
         align-items: center;
-        background: rgba(16, 185, 129, 0.15);
-        color: #34D399;
-        border: 1px solid rgba(16, 185, 129, 0.35);
+        background: var(--status-success-bg);
+        color: var(--status-success-text);
+        border: 1px solid var(--status-success-border);
         padding: 4px 10px;
         border-radius: 6px;
-        font-size: 0.72rem;
+        font-size: var(--text-sm);
         font-weight: 700;
+        line-height: var(--leading-none);
+    }
+
+    /* Grounded Explanation Box */
+    .explanation-box {
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin-bottom: 10px;
+        font-size: var(--text-base);
+        line-height: var(--leading-relaxed);
+        letter-spacing: var(--tracking-normal);
+        color: var(--text-primary);
+        max-width: 72ch;
     }
 
     /* Receipt Card */
     .receipt-card {
-        background: rgba(16, 185, 129, 0.07);
-        border: 1px solid rgba(16, 185, 129, 0.35);
+        background: var(--status-success-bg);
+        border: 1px solid var(--status-success-border);
         border-radius: 10px;
         padding: 16px 20px;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.80rem;
+        font-family: var(--font-mono);
+        font-size: var(--text-base);
+        font-variant-numeric: tabular-nums;
+        line-height: var(--leading-relaxed);
         color: #A7F3D0;
         margin-top: 16px;
     }
@@ -237,11 +354,11 @@ FINTECH_CSS = """
         display: inline-block;
         padding: 5px 12px;
         border-radius: 8px;
-        font-size: 0.76rem;
+        font-size: var(--text-sm);
         font-weight: 600;
         background: rgba(30, 41, 59, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        color: #94A3B8;
+        border: 1px solid var(--border-subtle);
+        color: var(--text-muted);
         margin-right: 6px;
     }
 
@@ -258,15 +375,33 @@ FINTECH_CSS = """
         height: 40px;
         border-radius: 8px;
         padding: 0 18px;
-        color: #94A3B8;
+        color: var(--text-muted);
         font-weight: 600;
-        font-size: 0.86rem;
+        font-size: var(--text-base);
+        letter-spacing: var(--tracking-tight);
         border: none !important;
     }
     .stTabs [aria-selected="true"] {
         background-color: #1F2937 !important;
         color: #FFFFFF !important;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+        .top-command-bar {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+        }
+        .kpi-card {
+            padding: 14px 16px;
+            margin-bottom: 10px;
+        }
+        .kpi-value {
+            font-size: 1.35rem;
+        }
     }
 </style>
 """
@@ -276,6 +411,13 @@ def render_html(html_str: str):
     """Safely renders HTML without Markdown interpreting indented lines as code blocks."""
     cleaned = "\n".join(line.strip() for line in html_str.strip().splitlines())
     st.markdown(cleaned, unsafe_allow_html=True)
+
+
+def esc(val: Any) -> str:
+    """Escapes user and database strings to prevent malformed HTML or injection."""
+    if val is None:
+        return ""
+    return html.escape(str(val))
 
 # -----------------------------------------------------------------------------
 # Session Sandbox & State Initialization
@@ -332,6 +474,13 @@ def cached_run_pipeline(db_path: str, weights_tuple: tuple, r_rate: float):
 def cached_goal_to_weights(text: str) -> GoalWeights:
     return goal_to_weights(text)
 
+@st.cache_data(ttl=300, show_spinner=False)
+def cached_get_merchant_names(db_path: str) -> Dict[str, str]:
+    con = duckdb.connect(db_path, read_only=True)
+    m_map = get_merchant_names(con)
+    con.close()
+    return m_map
+
 # Hardware Health Check
 health = check_endpoint_health()
 is_live = (health.get("status") == "LIVE") or (not health.get("is_offline", True))
@@ -340,6 +489,7 @@ target_model = health.get("model_served") or "Local Deterministic Fallback"
 # -----------------------------------------------------------------------------
 # Chart Helpers
 # -----------------------------------------------------------------------------
+@st.cache_data(ttl=120, show_spinner=False)
 def build_stockout_forecast_chart(duckdb_path_file: str, sku: str) -> Optional[go.Figure]:
     con = duckdb.connect(duckdb_path_file, read_only=True)
     df = con.execute("""
@@ -444,6 +594,7 @@ def build_reconciliation_comparison_bar(card: RecommendationCard) -> go.Figure:
     return fig
 
 
+@st.cache_data(show_spinner=False)
 def build_mi300x_concurrency_chart() -> go.Figure:
     """Builds 32-way async concurrency speedup chart for MI300X."""
     tiers = [
@@ -544,9 +695,7 @@ with st.sidebar:
     st.caption("Multi-Rail Revenue Recovery Deal Desk")
 
     # 1. Store Selector (MERCH_01..MERCH_20 + ALL_MERCHANTS)
-    con = duckdb.connect(active_duckdb_path, read_only=True)
-    all_merchant_map = get_merchant_names(con)
-    con.close()
+    all_merchant_map = cached_get_merchant_names(active_duckdb_path)
     merchant_opts = ["ALL_MERCHANTS"] + list(all_merchant_map.keys())
 
     selected_merchant = st.selectbox(
@@ -687,41 +836,41 @@ hardware_dot = "#34D399" if is_live else "#94A3B8"
 merchant_label = "Consolidated Portfolio (20 Stores)" if selected_merchant == "ALL_MERCHANTS" else f"{selected_merchant}: {all_merchant_map.get(selected_merchant, '')}"
 
 render_html(f"""
-<div class="top-command-bar">
+<div class="top-command-bar" role="banner" aria-label="PayLens Command Center">
     <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;">
-        <span style="font-size: 1.65rem; font-weight: 800; color: #FFFFFF; letter-spacing: -0.02em;">PayLens</span>
-        <span style="font-size: 0.85rem; font-weight: 600; color: #64748B;">// Cross-Rail Revenue Recovery Deal Desk</span>
-        <span style="background: rgba(99, 102, 241, 0.15); color: #818CF8; border: 1px solid rgba(99, 102, 241, 0.35); padding: 2px 8px; border-radius: 6px; font-size: 0.70rem; font-weight: 700;">
-            {merchant_label}
+        <span style="font-size: var(--text-xl); font-weight: 800; color: var(--text-primary); letter-spacing: var(--tracking-tight);">PayLens</span>
+        <span style="font-size: var(--text-base); font-weight: 600; color: var(--text-muted); line-height: var(--leading-normal);">// Cross-Rail Revenue Recovery Deal Desk</span>
+        <span style="background: rgba(99, 102, 241, 0.15); color: var(--accent-indigo-light); border: 1px solid rgba(99, 102, 241, 0.35); padding: 2px 8px; border-radius: 6px; font-size: var(--text-xs); font-weight: 700; letter-spacing: var(--tracking-wide);">
+            {esc(merchant_label)}
         </span>
     </div>
     <div style="display: flex; align-items: center; gap: 8px;">
-        <span style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;">
-            ● AMD Instinct MI300X · 192GB HBM3 · ROCm vLLM · google/gemma-4-31B-it
+        <span style="background: var(--status-success-bg); color: var(--status-success-text); border: 1px solid var(--status-success-border); padding: 4px 10px; border-radius: 6px; font-size: var(--text-sm); font-weight: 700; font-family: var(--font-mono); letter-spacing: var(--tracking-wide);">
+            <span aria-hidden="true" style="color: {hardware_dot}; margin-right: 4px;">●</span>AMD Instinct MI300X · 192GB HBM3 · ROCm vLLM · google/gemma-4-31B-it
         </span>
     </div>
 </div>
 """)
 
 # -----------------------------------------------------------------------------
-# ROW 2: 4 SPACIOUS HERO KPI CARDS
+# ROW 2: 3 ESSENTIAL HERO KPI METRICS (DISTILLED & HIGH-SIGNAL)
 # -----------------------------------------------------------------------------
-kpi_c1, kpi_c2, kpi_c3, kpi_c4 = st.columns(4)
+kpi_c1, kpi_c2, kpi_c3 = st.columns(3)
 
 with kpi_c1:
     render_html(f"""
-    <div class="kpi-card">
+    <div class="kpi-card" role="region" aria-label="Capital at Risk Metric" style="border-left: 3px solid var(--status-leak);">
         <div class="kpi-label">Capital at Risk (Active Store)</div>
-        <div class="kpi-value" style="color: #EF4444;">${total_capital_at_risk:,.2f}</div>
+        <div class="kpi-value" style="color: var(--status-leak);">${total_capital_at_risk:,.2f}</div>
         <div class="kpi-sub">{len(displayed_cards)} recommendations · ${total_portfolio_risk:,.2f} in 20 stores</div>
     </div>
     """)
 
 with kpi_c2:
     render_html(f"""
-    <div class="kpi-card">
+    <div class="kpi-card" role="region" aria-label="Approved & Recovered Metric" style="border-left: 3px solid var(--status-success);">
         <div class="kpi-label">Approved &amp; Recovered Today</div>
-        <div class="kpi-value" style="color: #10B981;">${st.session_state.recovered_today_usd:,.2f}</div>
+        <div class="kpi-value" style="color: var(--status-success);">${st.session_state.recovered_today_usd:,.2f}</div>
         <div class="kpi-sub">{len(st.session_state.executed_actions)} live actions dispatched</div>
     </div>
     """)
@@ -731,19 +880,10 @@ with kpi_c3:
     eval_overall = eval_dict.get("overall") or {}
     eval_f1 = eval_overall.get("f1_score", 1.0)
     render_html(f"""
-    <div class="kpi-card">
-        <div class="kpi-label">Detector Accuracy</div>
-        <div class="kpi-value" style="color: #38BDF8;">{eval_f1:.2f} F1 Score</div>
-        <div class="kpi-sub">0 False Alarms on 18 Fuzzy Matches</div>
-    </div>
-    """)
-
-with kpi_c4:
-    render_html("""
-    <div class="kpi-card">
-        <div class="kpi-label">Numeric Grounding Guardrail</div>
-        <div class="kpi-value" style="color: #A78BFA;">Regex Verified</div>
-        <div class="kpi-sub">Checked Against DuckDB Numbers</div>
+    <div class="kpi-card" role="region" aria-label="Detector Accuracy Metric" style="border-left: 3px solid var(--accent-cyan);">
+        <div class="kpi-label">Detector Accuracy &amp; Grounding</div>
+        <div class="kpi-value" style="color: var(--accent-cyan);">{eval_f1:.2f} F1 Score</div>
+        <div class="kpi-sub">0 False Alarms · Regex Grounded</div>
     </div>
     """)
 
@@ -762,7 +902,7 @@ tab_deal_desk, tab_proof = st.tabs([
 # =============================================================================
 with tab_deal_desk:
     # 1. Clean 1-Line Business Goal Switcher
-    st.markdown("**Business Goal Steerer:**")
+    st.markdown(f"**Business Goal Optimization:** `Cash {active_weights.cash_now_weight:.2f}` · `Margin {active_weights.margin_protection_weight:.2f}` · `Stock {active_weights.stock_availability_weight:.2f}`")
     goal_col1, goal_col2, goal_col3, goal_col4 = st.columns([1, 1, 1, 2.2])
 
     with goal_col1:
@@ -790,15 +930,6 @@ with tab_deal_desk:
         if custom_goal_input != active_goal_text:
             st.session_state.active_goal_preset = custom_goal_input
 
-    # Inline GoalWeights Pills
-    render_html(f"""
-    <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px; margin-bottom: 14px;">
-        <span class="goal-pill">Cash Now: {active_weights.cash_now_weight:.2f}</span>
-        <span class="goal-pill">Margin Protection: {active_weights.margin_protection_weight:.2f}</span>
-        <span class="goal-pill">Stock Availability: {active_weights.stock_availability_weight:.2f}</span>
-    </div>
-    """)
-
     # 2. Master-Detail Split Workspace
     col_queue, col_inspector = st.columns([1.05, 1.95], gap="large")
 
@@ -825,30 +956,31 @@ with tab_deal_desk:
                     b_class = "badge-stockout"
                     b_text = "STOCKOUT"
 
-                status_tag = "<span style='color: #10B981; font-size: 0.68rem; font-weight: 700; margin-left: 6px;'>✓ EXECUTED</span>" if is_done else ""
+                status_tag = "<span style='color: var(--status-success); font-size: var(--text-xs); font-weight: 700; letter-spacing: var(--tracking-wide); margin-left: 6px;'>✓ EXECUTED</span>" if is_done else ""
 
                 render_html(f"""
-                <div class="queue-item {'queue-item-selected' if is_selected else ''}">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <div>
-                            <span style="color: #64748B; font-weight: 700; font-size: 0.72rem; margin-right: 6px;">#{idx}</span>
+                <div class="queue-item {'queue-item-selected' if is_selected else ''}" role="listitem">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <div style="display: flex; align-items: center;">
+                            <span style="color: var(--text-muted); font-weight: 700; font-size: var(--text-xs); margin-right: 6px;">#{idx}</span>
                             <span class="deal-badge {b_class}">{b_text}</span>
-                            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.70rem; color: #94A3B8; margin-left: 6px;">{card.entity_id}</span>
+                            <span style="font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: var(--tracking-wide); color: var(--text-muted); margin-left: 6px;">{esc(card.entity_id)}</span>
                             {status_tag}
                         </div>
-                        <div style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: {'#10B981' if is_done else '#EF4444'}; font-size: 0.92rem;">
+                        <div style="font-family: var(--font-mono); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: var(--tracking-tight); color: {'var(--status-success)' if is_done else 'var(--status-leak)'}; font-size: var(--text-md);">
                             ${card.impact_usd:,.2f}
                         </div>
                     </div>
-                    <div style="font-size: 0.82rem; font-weight: 600; color: #F1F5F9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        {card.title}
+                    <div style="font-size: var(--text-base); font-weight: 600; line-height: var(--leading-normal); color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        {esc(card.title)}
                     </div>
                 </div>
                 """)
 
-                btn_col1, btn_col2 = st.columns([1, 1])
-                with btn_col1:
-                    if st.button("Inspect & Act →", key=f"sel_{card.card_id}", use_container_width=True):
+                if is_selected:
+                    st.button("● Active in Inspector", key=f"sel_{card.card_id}", type="primary", use_container_width=True, disabled=True)
+                else:
+                    if st.button("Inspect Item →", key=f"sel_{card.card_id}", use_container_width=True):
                         st.session_state.selected_card_id = card.card_id
                         st.rerun()
 
@@ -866,43 +998,43 @@ with tab_deal_desk:
 
             is_done = selected_card.card_id in st.session_state.executed_actions
 
-            # 1. Inspector Header Card
+            # 1. Inspector Header
             render_html(f"""
-            <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 20px 24px; margin-bottom: 16px;">
+            <div style="border-bottom: 1px solid var(--border-divider); padding-bottom: 14px; margin-bottom: 16px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
                     <div>
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
                             <span class="deal-badge {'badge-leak' if selected_card.rec_type == RecommendationType.PAYMENT_LEAKAGE else 'badge-recovery' if selected_card.rec_type == RecommendationType.FAILED_PAYMENT_RECOVERY else 'badge-stockout'}">
-                                {selected_card.rec_type.value}
+                                {esc(selected_card.rec_type.value)}
                             </span>
-                            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: #94A3B8;">
-                                Entity: {selected_card.entity_id} · Store: {selected_card.merchant_id}
+                            <span style="font-family: var(--font-mono); font-size: var(--text-sm); color: var(--text-muted); letter-spacing: var(--tracking-wide);">
+                                Entity: {esc(selected_card.entity_id)} · Store: {esc(selected_card.merchant_id)}
                             </span>
-                            <span style="background: rgba(99, 102, 241, 0.15); color: #818CF8; padding: 2px 7px; border-radius: 4px; font-size: 0.70rem; font-weight: 700;">
+                            <span style="background: rgba(99, 102, 241, 0.15); color: var(--accent-indigo-light); padding: 2px 7px; border-radius: 4px; font-size: var(--text-xs); font-weight: 700; font-family: var(--font-mono); letter-spacing: var(--tracking-wide);">
                                 Score: {selected_card.score:.3f}
                             </span>
                         </div>
-                        <div style="font-size: 1.25rem; font-weight: 700; color: #FFFFFF;">
-                            {selected_card.title}
+                        <div style="font-size: var(--text-lg); font-weight: 700; color: var(--text-primary); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight);">
+                            {esc(selected_card.title)}
                         </div>
                     </div>
                     <div style="text-align: right;">
-                        <div style="font-size: 0.72rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">
+                        <div style="font-size: var(--text-xs); color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: var(--tracking-wider); line-height: var(--leading-none); margin-bottom: 4px;">
                             {"Recovered (Simulated)" if is_done else "Capital at Risk"}
                         </div>
-                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.65rem; font-weight: 700; color: {'#10B981' if is_done else '#EF4444'};">
+                        <div style="font-family: var(--font-mono); font-size: var(--text-xl); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); color: {'var(--status-success)' if is_done else 'var(--status-leak)'};">
                             ${selected_card.impact_usd:,.2f}
                         </div>
                     </div>
                 </div>
                 <div class="formula-banner">
-                    📐 Math: {selected_card.impact_formula}
+                    📐 Math: {esc(selected_card.impact_formula)}
                 </div>
             </div>
             """)
 
             # 2. Interactive Plotly Visual for Selected Card
-            st.markdown(f"**Visual Evidence for {selected_card.entity_id}:**")
+            st.markdown(f"**Visual Evidence for {esc(selected_card.entity_id)}:**")
             if selected_card.rec_type == RecommendationType.STOCKOUT_RISK:
                 chart_fig = build_stockout_forecast_chart(active_duckdb_path, selected_card.entity_id)
                 if chart_fig:
@@ -913,23 +1045,79 @@ with tab_deal_desk:
                 chart_fig = build_reconciliation_comparison_bar(selected_card)
                 st.plotly_chart(chart_fig, use_container_width=True)
 
-            # 3. Grounded Explanation Box
+            # 3. Grounded Model Explanation
             st.markdown("**Grounded Model Explanation:**")
             render_html(f"""
-            <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 14px 18px; margin-bottom: 10px; font-size: 0.88rem; line-height: 1.6; color: #F1F5F9;">
-                {selected_card.explanation_en}
+            <div class="explanation-box">
+                {esc(selected_card.explanation_en)}
             </div>
-            """)
-
-            render_html(f"""
-            <div style="margin-bottom: 12px;">
+            <div style="margin-bottom: 14px;">
                 <span class="grounding-verified">
-                    ✓ Grounding Status: {getattr(selected_card, 'grounding_status', 'PASSED')} · Checked Against DuckDB Numbers
+                    ✓ Grounding Status: {esc(getattr(selected_card, 'grounding_status', 'PASSED'))} · Checked Against DuckDB Numbers
                 </span>
             </div>
             """)
 
-            # 4. Inline Red-Team Hallucination Trap Test
+            # 4. Action Strategy & Communication Tone
+            st.markdown("**Action Strategy & Communication Tone:**")
+            tone_options = [
+                "Polite Payment Reminder",
+                "VIP 5% Instant-Pay Discount",
+                "Formal Courier Dispute",
+            ]
+            current_tone_idx = tone_options.index(st.session_state.last_tone) if st.session_state.last_tone in tone_options else 0
+            new_tone = st.selectbox(
+                "Select Tone Strategy:",
+                options=tone_options,
+                index=current_tone_idx,
+                label_visibility="collapsed",
+            )
+            if new_tone != st.session_state.last_tone:
+                st.session_state.last_tone = new_tone
+                with st.spinner("Regenerating grounded model explanation with new tone..."):
+                    enrich_card_with_agent(selected_card, tone=new_tone, force_live=True)
+                st.rerun()
+
+            # Draft Message Area
+            draft_msg = st.text_area(
+                "Editable Action Draft:",
+                value=selected_card.action_draft or f"Payment notice for order {selected_card.entity_id}: Please settle the outstanding balance of ${selected_card.impact_usd:,.2f}.",
+                height=85,
+            )
+
+            # Action Dispatch Button
+            if is_done:
+                exec_info = st.session_state.executed_actions.get(selected_card.card_id, {})
+                dispatched_time = exec_info.get("timestamp", "-")
+                dispatched_hash = exec_info.get("audit_hash", "-")
+                render_html(f"""
+                <div class="receipt-card">
+                    <b>✓ ACTION DISPATCHED (SHA-256 VERIFIED)</b><br>
+                    Receipt ID: <code>REC-{esc(selected_card.card_id)}</code><br>
+                    Dispatched At: {esc(dispatched_time)}<br>
+                    Audit Hash: <code>{esc(dispatched_hash)}</code><br>
+                    Status: Payout recovery initiated across payment rails.
+                </div>
+                """)
+            else:
+                if st.button("⚡ Approve & Dispatch Action Now", type="primary", use_container_width=True):
+                    audit_hash = hashlib.sha256(f"{selected_card.card_id}_{draft_msg}_{time.time()}".encode()).hexdigest()[:24]
+                    st.session_state.executed_actions[selected_card.card_id] = {
+                        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "audit_hash": audit_hash,
+                        "credited_usd": selected_card.impact_usd,
+                    }
+                    st.session_state.recovered_today_usd += selected_card.impact_usd
+                    st.success("Action dispatched successfully!")
+                    st.rerun()
+
+            # 5. Diagnostic Traces & Evidence
+            with st.expander("▼ View Raw DuckDB Evidence Rows & Tool Trace", expanded=False):
+                if selected_card.evidence:
+                    st.json(selected_card.evidence)
+                else:
+                    st.caption("No custom evidence payload.")
+
             with st.expander("🛡️ Test Red-Team Hallucination Trap ($9,999.00)", expanded=False):
                 st.caption("Principle: Code Computes, Model Explains. Numeric tokens are strictly regex-audited against database allowed numbers.")
                 ht_c1, ht_c2 = st.columns(2)
@@ -952,65 +1140,6 @@ with tab_deal_desk:
                         is_valid, extracted = verify_numeric_grounding(valid_text, [selected_card.impact_usd])
                         st.success(f"✓ NUMERIC GROUNDING PASSED: Extracted {extracted} exactly matches database numbers.")
 
-            # 5. Tone Selector & Action Dispatch
-            st.markdown("**Action Strategy & Communication Tone:**")
-            tone_options = [
-                "Polite Payment Reminder",
-                "VIP 5% Instant-Pay Discount",
-                "Formal Courier Dispute",
-            ]
-            current_tone_idx = tone_options.index(st.session_state.last_tone) if st.session_state.last_tone in tone_options else 0
-            new_tone = st.selectbox(
-                "Select Tone Strategy:",
-                options=tone_options,
-                index=current_tone_idx,
-                label_visibility="collapsed",
-            )
-            if new_tone != st.session_state.last_tone:
-                st.session_state.last_tone = new_tone
-                enrich_card_with_agent(selected_card, tone=new_tone, force_live=True)
-                st.rerun()
-
-            # Draft Message Area
-            draft_msg = st.text_area(
-                "Editable Action Draft:",
-                value=selected_card.action_draft or f"Payment notice for order {selected_card.entity_id}: Please settle the outstanding balance of ${selected_card.impact_usd:,.2f}.",
-                height=85,
-            )
-
-            # Action Dispatch Button
-            if is_done:
-                exec_info = st.session_state.executed_actions.get(selected_card.card_id, {})
-                dispatched_time = exec_info.get("timestamp", "-")
-                dispatched_hash = exec_info.get("audit_hash", "-")
-                render_html(f"""
-                <div class="receipt-card">
-                    <b>✓ ACTION DISPATCHED (SHA-256 VERIFIED)</b><br>
-                    Receipt ID: <code>REC-{selected_card.card_id}</code><br>
-                    Dispatched At: {dispatched_time}<br>
-                    Audit Hash: <code>{dispatched_hash}</code><br>
-                    Status: Payout recovery initiated across payment rails.
-                </div>
-                """)
-            else:
-                if st.button("⚡ Approve & Dispatch Action Now", type="primary", use_container_width=True):
-                    audit_hash = hashlib.sha256(f"{selected_card.card_id}_{draft_msg}_{time.time()}".encode()).hexdigest()[:24]
-                    st.session_state.executed_actions[selected_card.card_id] = {
-                        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "audit_hash": audit_hash,
-                        "credited_usd": selected_card.impact_usd,
-                    }
-                    st.session_state.recovered_today_usd += selected_card.impact_usd
-                    st.success("Action dispatched successfully!")
-                    st.rerun()
-
-            # 6. Collapsible Raw DuckDB Evidence Rows
-            with st.expander("▼ View Raw DuckDB Evidence Rows & Tool Trace", expanded=False):
-                if selected_card.evidence:
-                    st.json(selected_card.evidence)
-                else:
-                    st.caption("No custom evidence payload.")
-
 
 # =============================================================================
 # TAB 2: AMD MI300X & ACCURACY PROOF (FULL-WIDTH JUDGE VERIFICATION)
@@ -1018,8 +1147,8 @@ with tab_deal_desk:
 with tab_proof:
     render_html("""
     <div style="margin-bottom: 16px;">
-        <span style="font-size: 1.15rem; font-weight: 700; color: #FFFFFF;">AMD Instinct MI300X Benchmark &amp; Ground-Truth Verification</span>
-        <div style="font-size: 0.80rem; color: #94A3B8;">Full-system hardware scalability, 32-way async inference saturation, and deterministic ground-truth audit.</div>
+        <span style="font-size: var(--text-lg); font-weight: 700; color: var(--text-primary); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight);">AMD Instinct MI300X Benchmark &amp; Ground-Truth Verification</span>
+        <div style="font-size: var(--text-sm); color: var(--text-muted); line-height: var(--leading-normal); margin-top: 2px;">Full-system hardware scalability, 32-way async inference saturation, and deterministic ground-truth audit.</div>
     </div>
     """)
 
@@ -1129,7 +1258,7 @@ vllm serve google/gemma-4-31B-it \\
 # -----------------------------------------------------------------------------
 render_html("<div style='height: 24px;'></div>")
 render_html("""
-<div style="font-size: 0.72rem; color: #475569; text-align: center;">
+<div style="font-size: var(--text-sm); color: var(--text-muted); text-align: center; letter-spacing: var(--tracking-wide); line-height: var(--leading-normal);">
     PayLens · Multi-Rail Revenue Recovery Engine on AMD Hardware · Demonstrated on illustrative synthetic data modeled on global commerce rails.
 </div>
 """)
