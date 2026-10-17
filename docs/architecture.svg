@@ -1,0 +1,217 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B0F19" />
+      <stop offset="50%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#050811" />
+    </linearGradient>
+    <linearGradient id="amdRed" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ED1C24" />
+      <stop offset="100%" stop-color="#FF4D4D" />
+    </linearGradient>
+    <linearGradient id="blueGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="indigoGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366F1" />
+      <stop offset="100%" stop-color="#4F46E5" />
+    </linearGradient>
+    <linearGradient id="emeraldGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.45" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="620" fill="url(#bgGrad)" rx="16" />
+  <rect width="1198" height="618" x="1" y="1" fill="none" stroke="#1E293B" stroke-width="2" rx="16" />
+
+  <!-- Header -->
+  <text x="50" y="55" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="24" font-weight="800" fill="#F8FAFC">
+    PayLens Solo · <tspan fill="#ED1C24">AMD Instinct &amp; TokenFactory</tspan> Architecture
+  </text>
+  <text x="50" y="82" font-family="'JetBrains Mono', monospace" font-size="12" fill="#94A3B8">
+    MANDATORY INTEGRITY SPEC: CODE COMPUTES, MODEL EXPLAINS · STRICT ZERO-HALLUCINATION GROUNDING
+  </text>
+
+  <!-- Horizontal Divider -->
+  <line x1="50" y1="102" x2="1150" y2="102" stroke="#1E293B" stroke-width="1.5" />
+
+  <!-- Column 1: Multi-Rail Ingestion -->
+  <g transform="translate(50, 125)" filter="url(#shadow)">
+    <rect width="250" height="445" rx="12" fill="#0F172A" stroke="#334155" stroke-width="1.5" />
+    <rect width="250" height="42" rx="12" fill="#1E293B" />
+    <text x="18" y="27" font-family="'Plus Jakarta Sans', sans-serif" font-size="13" font-weight="700" fill="#94A3B8">1. MULTI-RAIL COMMERCE</text>
+
+    <!-- Rail Items -->
+    <g transform="translate(16, 58)">
+      <rect width="218" height="68" rx="8" fill="#182234" stroke="#2563EB" stroke-width="1" />
+      <text x="14" y="24" font-family="'Plus Jakarta Sans', sans-serif" font-size="13" font-weight="700" fill="#60A5FA">Shopify &amp; WooCommerce</text>
+      <text x="14" y="44" font-family="'JetBrains Mono', monospace" font-size="10" fill="#94A3B8">Orders, Dispatches, SKUs</text>
+      <text x="14" y="58" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#38BDF8">20 Global Multi-Tenant Merch</text>
+    </g>
+
+    <g transform="translate(16, 138)">
+      <rect width="218" height="68" rx="8" fill="#182234" stroke="#475569" stroke-width="1" />
+      <text x="14" y="24" font-family="'Plus Jakarta Sans', sans-serif" font-size="13" font-weight="700" fill="#F8FAFC">Payment Gateways</text>
+      <text x="14" y="44" font-family="'JetBrains Mono', monospace" font-size="10" fill="#94A3B8">Stripe &amp; PayPal Webhooks</text>
+      <text x="14" y="58" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#CBD5E1">Captured vs Dropped Txns</text>
+    </g>
+
+    <g transform="translate(16, 218)">
+      <rect width="218" height="68" rx="8" fill="#182234" stroke="#475569" stroke-width="1" />
+      <text x="14" y="24" font-family="'Plus Jakarta Sans', sans-serif" font-size="13" font-weight="700" fill="#F8FAFC">Banking Rails</text>
+      <text x="14" y="44" font-family="'JetBrains Mono', monospace" font-size="10" fill="#94A3B8">SEPA / Wire Direct Bank</text>
+      <text x="14" y="58" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#CBD5E1">Batch Settlement Statements</text>
+    </g>
+
+    <g transform="translate(16, 298)">
+      <rect width="218" height="68" rx="8" fill="#182234" stroke="#F59E0B" stroke-width="1" />
+      <text x="14" y="24" font-family="'Plus Jakarta Sans', sans-serif" font-size="13" font-weight="700" fill="#FBBF24">Courier COD Delivery</text>
+      <text x="14" y="44" font-family="'JetBrains Mono', monospace" font-size="10" fill="#94A3B8">DHL Express &amp; FedEx COD</text>
+      <text x="14" y="58" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#FDE68A">PDF Statements &amp; Remittances</text>
+    </g>
+
+    <text x="125" y="405" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" fill="#64748B">Continuous Async Ingestion</text>
+  </g>
+
+  <!-- Arrow 1 -> 2 -->
+  <path d="M 305 347 L 340 347" stroke="#475569" stroke-width="2.5" stroke-dasharray="4,4" />
+  <polygon points="345,347 337,342 337,352" fill="#60A5FA" />
+
+  <!-- Column 2: Deterministic Compute Engine -->
+  <g transform="translate(350, 125)" filter="url(#shadow)">
+    <rect width="270" height="445" rx="12" fill="#0F172A" stroke="#2563EB" stroke-width="1.5" />
+    <rect width="270" height="42" rx="12" fill="url(#blueGlow)" />
+    <text x="18" y="27" font-family="'Plus Jakarta Sans', sans-serif" font-size="13" font-weight="700" fill="#FFFFFF">2. DETERMINISTIC COMPUTE</text>
+
+    <!-- Detectors -->
+    <g transform="translate(16, 58)">
+      <rect width="238" height="74" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1" />
+      <text x="12" y="22" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="700" fill="#38BDF8">2-Pass Multi-Rail Leak Matcher</text>
+      <text x="12" y="40" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#94A3B8">Pass 1: Exact Txn Reference</text>
+      <text x="12" y="54" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#94A3B8">Pass 2: Fuzzy 30-min + amount</text>
+      <text x="12" y="68" font-family="'JetBrains Mono', monospace" font-size="9" fill="#10B981">● Dispatched-Unpaid / COD Shortfall</text>
+    </g>
+
+    <g transform="translate(16, 144)">
+      <rect width="238" height="66" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1" />
+      <text x="12" y="22" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="700" fill="#38BDF8">Checkout Recovery Scanner</text>
+      <text x="12" y="40" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#94A3B8">Basket USD × Recov Rate (18%)</text>
+      <text x="12" y="56" font-family="'JetBrains Mono', monospace" font-size="9" fill="#FBBF24">● Abandoned Cart Reclaim</text>
+    </g>
+
+    <g transform="translate(16, 222)">
+      <rect width="238" height="74" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1" />
+      <text x="12" y="22" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="700" fill="#38BDF8">Holt-Winters Demand Forecaster</text>
+      <text x="12" y="40" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#94A3B8">7-Day Exponential Smoothing (s=7)</text>
+      <text x="12" y="54" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#94A3B8">Days of Cover &lt; Supplier Lead Time</text>
+      <text x="12" y="68" font-family="'JetBrains Mono', monospace" font-size="9" fill="#EF4444">● Hero SKU Stockout Margin Risk</text>
+    </g>
+
+    <g transform="translate(16, 308)">
+      <rect width="238" height="54" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1" />
+      <text x="12" y="20" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="700" fill="#38BDF8">STL Revenue Decomposition</text>
+      <text x="12" y="38" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#94A3B8">Residual &gt; 2.2σ Macro Flags</text>
+    </g>
+
+    <g transform="translate(16, 374)">
+      <rect width="238" height="52" rx="8" fill="#0284C7" />
+      <text x="119" y="22" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-size="11" font-weight="700" fill="#FFFFFF">DuckDB Seed Engine</text>
+      <text x="119" y="40" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" fill="#E0F2FE">100% Deterministic Arithmetic</text>
+    </g>
+  </g>
+
+  <!-- Arrow 2 -> 3 -->
+  <path d="M 625 347 L 660 347" stroke="#475569" stroke-width="2.5" stroke-dasharray="4,4" />
+  <polygon points="665,347 657,342 657,352" fill="#ED1C24" />
+
+  <!-- Column 3: AMD Hardware & Agent -->
+  <g transform="translate(670, 125)" filter="url(#shadow)">
+    <rect width="265" height="445" rx="12" fill="#0F172A" stroke="#ED1C24" stroke-width="1.8" />
+    <rect width="265" height="42" rx="12" fill="url(#amdRed)" />
+    <text x="18" y="27" font-family="'Plus Jakarta Sans', sans-serif" font-size="13" font-weight="800" fill="#FFFFFF">3. AMD INFERENCE LAYER</text>
+
+    <!-- Content -->
+    <g transform="translate(16, 58)">
+      <rect width="233" height="76" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1" />
+      <text x="12" y="22" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="700" fill="#FCA5A5">AMD TokenFactory GPU Cloud</text>
+      <text x="12" y="40" font-family="'JetBrains Mono', monospace" font-size="10" fill="#94A3B8">DeepSeek-V4-Flash / Gemma-4-31B-IT</text>
+      <text x="12" y="56" font-family="'JetBrains Mono', monospace" font-size="9" fill="#CBD5E1">HTTP 200 · OpenAI-Compatible API</text>
+      <text x="12" y="70" font-family="'JetBrains Mono', monospace" font-size="9" fill="#34D399">developer.amd.com.cn/radeon</text>
+    </g>
+
+    <g transform="translate(16, 146)">
+      <rect width="233" height="74" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1" />
+      <text x="12" y="22" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="700" fill="#FCA5A5">Tool-Calling Agent</text>
+      <text x="12" y="40" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#94A3B8">get_order(), get_payments()</text>
+      <text x="12" y="54" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#94A3B8">get_settlement(), get_forecast()</text>
+      <text x="12" y="68" font-family="'JetBrains Mono', monospace" font-size="9" fill="#60A5FA">● Live Tool Execution Traces</text>
+    </g>
+
+    <g transform="translate(16, 232)">
+      <rect width="233" height="96" rx="8" fill="#1E293B" stroke="#059669" stroke-width="1.2" />
+      <text x="12" y="22" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="700" fill="#34D399">Strict Numeric Grounding Check</text>
+      <text x="12" y="40" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#94A3B8">Regex extract all digits in output</text>
+      <text x="12" y="54" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#94A3B8">Compare against card.allowed_numbers</text>
+      <text x="12" y="70" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#EF4444">Reject &amp; Retry if ungrounded</text>
+      <text x="12" y="86" font-family="'JetBrains Mono', monospace" font-size="9" fill="#10B981">✓ Zero Hallucination Guarantee</text>
+    </g>
+
+    <g transform="translate(16, 340)">
+      <rect width="233" height="86" rx="8" fill="#182234" stroke="#334155" stroke-width="1" />
+      <text x="12" y="22" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="700" fill="#F8FAFC">Dedicated MI300X Host Ready</text>
+      <text x="12" y="40" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#94A3B8">ROCm vLLM Async Pipeline</text>
+      <text x="12" y="54" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#94A3B8">192 GB HBM3 High Concurrency</text>
+      <text x="12" y="72" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748B">Automatic Dual-Endpoint Fallback</text>
+    </g>
+  </g>
+
+  <!-- Arrow 3 -> 4 -->
+  <path d="M 940 347 L 975 347" stroke="#475569" stroke-width="2.5" stroke-dasharray="4,4" />
+  <polygon points="980,347 972,342 972,352" fill="#10B981" />
+
+  <!-- Column 4: Deal Desk & Recovery Action -->
+  <g transform="translate(985, 125)" filter="url(#shadow)">
+    <rect width="165" height="445" rx="12" fill="#0F172A" stroke="#10B981" stroke-width="1.5" />
+    <rect width="165" height="42" rx="12" fill="url(#emeraldGlow)" />
+    <text x="14" y="27" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">4. RECOVERY DISPATCH</text>
+
+    <!-- Actions -->
+    <g transform="translate(12, 58)">
+      <rect width="141" height="74" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1" />
+      <text x="10" y="22" font-family="'Plus Jakarta Sans', sans-serif" font-size="11" font-weight="700" fill="#F8FAFC">Payment Re-link</text>
+      <text x="10" y="40" font-family="'JetBrains Mono', monospace" font-size="9" fill="#94A3B8">Stripe checkout</text>
+      <text x="10" y="54" font-family="'JetBrains Mono', monospace" font-size="9" fill="#94A3B8">re-issue link</text>
+      <text x="10" y="68" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#34D399">+ Cash Reclaimed</text>
+    </g>
+
+    <g transform="translate(12, 144)">
+      <rect width="141" height="74" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1" />
+      <text x="10" y="22" font-family="'Plus Jakarta Sans', sans-serif" font-size="11" font-weight="700" fill="#F8FAFC">Carrier Dispute</text>
+      <text x="10" y="40" font-family="'JetBrains Mono', monospace" font-size="9" fill="#94A3B8">DHL/FedEx formal</text>
+      <text x="10" y="54" font-family="'JetBrains Mono', monospace" font-size="9" fill="#94A3B8">shortfall notice</text>
+      <text x="10" y="68" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#F59E0B">+ Remittance Claim</text>
+    </g>
+
+    <g transform="translate(12, 230)">
+      <rect width="141" height="74" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1" />
+      <text x="10" y="22" font-family="'Plus Jakarta Sans', sans-serif" font-size="11" font-weight="700" fill="#F8FAFC">Cart Incentive</text>
+      <text x="10" y="40" font-family="'JetBrains Mono', monospace" font-size="9" fill="#94A3B8">5% VIP discount</text>
+      <text x="10" y="54" font-family="'JetBrains Mono', monospace" font-size="9" fill="#94A3B8">recovery SMS</text>
+      <text x="10" y="68" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#38BDF8">+ Reclaimed GMV</text>
+    </g>
+
+    <g transform="translate(12, 316)">
+      <rect width="141" height="110" rx="8" fill="#047857" />
+      <text x="70" y="24" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-size="11" font-weight="800" fill="#FFFFFF">Audit Trail</text>
+      <text x="70" y="46" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#D1FAE5">SHA-256 Receipt</text>
+      <text x="70" y="66" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#A7F3D0">Webhook Dispatch</text>
+      <text x="70" y="86" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" fill="#ECFDF5">Slack / Discord / ERP</text>
+    </g>
+  </g>
+</svg>

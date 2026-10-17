@@ -4,6 +4,10 @@
 **Track 3: Reinvent Commerce** + **AMD Instinct Prize** + **Google DeepMind Gemma Prize** + **Evolus AI Partner Track** + **Vibe Generation Special Prize**  
 Serving LLMs (e.g. `DeepSeek-V4-Flash`, `google/gemma-2-27b-it`) via AMD ROCm vLLM or AMD TokenFactory.
 
+<p align="center">
+  <img src="docs/architecture.svg" alt="PayLens Solo Architecture on AMD Hardware" width="960">
+</p>
+
 ---
 
 ## 1. What It Does
