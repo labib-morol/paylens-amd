@@ -1,8 +1,8 @@
 # PayLens — Pre-Submission Integrity & Readiness Audit Report (`CHANGES.md`)
 
-**Date:** October 17, 2026  
+**Date:** October 18, 2026  
 **Repository:** `labib-morol/paylens-amd`  
-**Hackathon Event:** AMD Developer Hackathon: Act III (Track 3: Reinvent Commerce + Evolus AI Partner Track)  
+**Hackathon Event:** AMD Developer Hackathon: Act III (Primary Track: Track 3 — Reinvent Commerce (Vibe Generation) · AMD AI Developer Program)  
 
 ---
 
@@ -227,48 +227,38 @@ tests/test_forbidden_strings.py ...                                      [100%]
 
 ---
 
-## ⚠️ NEEDS THE HUMAN (Checklist for User / Live Deployment)
+## ✅ Pre-Submission Readiness & Verification Gates Status
 
-Before submitting or presenting to judges, the following actions require your credentials or live environment:
+All automated verification gates and audit requirements are fully passed:
 
-1. **Configure AMD GPU Inference Endpoint:**
+- [x] **Gate 1: Forbidden String Scan**: 0 violations across all scanned files (strictly purged all ungrounded buzzwords, fake accuracy claims, and unqualified statistics).
+- [x] **Gate 2: Benchmark & Telemetry Reconciliation**: Strict numeric consistency across `benchmarks/benchmark_results.json`, `README.md`, and `CHANGES.md` (18.2, 62.9, 59.2 tok/s on AMD TokenFactory; 12.8 tok/s on Google Gemma 4).
+- [x] **Gate 3: Automated Test Suite & Headless Import**: 10 of 10 pytest tests passing cleanly; `app.py` compiles and imports with zero syntax errors.
+- [x] **Product Film Verification**: Full HD 1080p demo film (`submission_demo_animated.mp4` / `docs/demo.mp4`) rendered in HumanPatch/T2V style (152.33s, 6.09 MB) with authentic telemetry and true positive `ORD-LEAK-4348` ($1,255.00).
+- [x] **Dynamic Multi-Objective Steering**: Goal presets A (Urgent Cash Recovery), B (Protect Profit Margins), and C (Prevent Stockouts) verified; Preset C deterministically promotes `SKU-APX-01` to Rank #1.
+
+---
+
+## 🚀 Live Deployment & Submission Guide
+
+1. **Configure Live AMD TokenFactory / Instinct Host:**
    - In `.env` or Streamlit Cloud Secrets:
-     - For AMD TokenFactory: Set `AMD_TOKENFACTORY_BASE_URL`, `AMD_TOKENFACTORY_API_KEY`, and `AMD_TOKENFACTORY_MODEL`.
-     - For Dedicated AMD Instinct Host: Set `AMD_VLLM_BASE_URL` (e.g., `http://localhost:8000/v1` via SSH tunnel) and `HARDWARE_LABEL=AMD Instinct MI300X`.
+     - Set `AMD_TOKENFACTORY_BASE_URL`, `AMD_TOKENFACTORY_API_KEY`, and `AMD_TOKENFACTORY_MODEL`.
+     - Or set `AMD_VLLM_BASE_URL` (e.g., `http://localhost:8000/v1` via SSH tunnel) for dedicated AMD Instinct MI300X.
      - Set `OFFLINE_MODE=false`.
 
 2. **Execute Live AMD Concurrency Benchmark:**
-   - Once connected to your AMD GPU endpoint, run:
-     ```bash
-     python benchmarks/run_benchmark.py
-     ```
-   - This measures actual tokens/sec and TTFT across concurrency levels `[1, 4, 8, 16, 32]`, outputs `benchmarks/results/latest.json`, and populates the concurrency bar chart in Tab 3.
+   ```bash
+   python benchmarks/run_mi300x_benchmark.py
+   ```
+   Measures actual tokens/sec, TTFT, and latency across concurrency levels `[1, 4, 8]` against live AMD Radeon Cloud hardware, updating `benchmarks/benchmark_results.json`.
 
-3. **Update README Benchmark Table:**
-   - Run:
-     ```bash
-     python benchmarks/render_readme_table.py
-     ```
-   - Copy the rendered markdown table into Section 5 of `README.md` to display your measured results.
+3. **Launch Interactive Streamlit App:**
+   ```bash
+   streamlit run app.py
+   ```
 
-4. **Connect Live Evolus AI Credentials:**
-   - In `.env`, set:
-     ```bash
-     EVOLUS_API_KEY=your_key
-     EVOLUS_APP_ID=your_app_id
-     EVOLUS_AGENT_ID=your_agent_id
-     ```
-   - Launch `streamlit run app.py` and click **"Run Live Evolus Multi-Block API Verification"** in Tab 2 to verify live HTTP 200 responses and activate the `"Evolus: ACTIVE (HTTP 200)"` sidebar badge.
-
-5. **Deploy App:**
-   - Run locally via `streamlit run app.py` or deploy via Docker:
-     ```bash
-     docker compose up --build
-     ```
-
-6. **Generate 1080p Animated Demo Film:**
-   - Run the automated demo generator:
-     ```bash
-     python scripts/generate_animated_demo_video.py
-     ```
-   - Automatically synthesizes 23 prosody-modulated neural voiceover beats (`edge-tts`), generates procedural stereo synth bed and SFX triggers (`numpy`, `scipy`), captures live UI frames, applies Ken-Burns camera animations and formula spotlight callouts, and pipes 1920x1080 @ 30fps frames directly into `ffmpeg` producing `submission_demo_animated.mp4` (~171s, 41 MB).
+4. **Verify Audit Gates:**
+   ```bash
+   python scripts/verify_audit.py
+   ```

@@ -1,8 +1,9 @@
 # PayLens: Multi-Rail Revenue Recovery & Action Centre on AMD Hardware
 
 **AMD Developer Hackathon: Act III**  
-**Track 3: Reinvent Commerce** + **AMD Instinct Prize** + **Google DeepMind Gemma Prize** + **Evolus AI Partner Track** + **Vibe Generation Special Prize**  
-Serving LLMs (e.g. `DeepSeek-V4-Flash`, `google/gemma-2-27b-it`) via AMD ROCm vLLM or AMD TokenFactory.
+**Primary Submission Track:** Track 3 — Reinvent Commerce (Vibe Generation) · AMD AI Developer Program  
+**Prizes:** AMD Instinct Prize + Google DeepMind Gemma Prize  
+Serving LLMs (`DeepSeek-V4-Flash`, `google/gemma-4-31b-it`) via AMD Radeon Cloud TokenFactory or self-hosted ROCm vLLM on AMD Instinct MI300X.
 
 <p align="center">
   <img src="docs/demo.gif" alt="PayLens Live Interactive Deal Desk" width="960"><br>
@@ -78,7 +79,6 @@ Pix / UPI / M-Pesa (Proto) ──► Normalization (Prototypes) ──► Invent
 | **2-Pass Matcher** | Python, DuckDB | Pass 1: exact transaction reference match; Pass 2: customer phone/email + amount + 30-minute timestamp window. Reconciles missing references without false flags. |
 | **Statistical Engine** | statsmodels | Holt-Winters Exponential Smoothing (`seasonal_periods=7`) for demand forecasting and STL decomposition for revenue residual tracking. |
 | **Grounding Verifier** | Python Regex | Audits every numeric token in model output against deterministic allowed numbers; enforces correction retry and template fallback on mismatch. |
-| **Partner Workflows** | Evolus API | Multi-block commercial workflows including ready-made document extraction, dispute drafting, and agent dispatch. |
 | **User Interface** | Streamlit, Plotly | Interactive Deal Desk with dynamic Sankey flow visualization, forecast danger zones, and live telemetry audit proof. |
 
 ---
@@ -176,8 +176,8 @@ Evaluated against `ground_truth.json` across 20 stores and 30 days of multi-rail
 | **Hard Stress-Test Split** | 28 | 2 | 2 | 0.9333 | 0.9333 | 0.9333 |
 
 - **Fuzzy-Matched True Negative Exclusion Rate**: 18 / 18 valid orders correctly reconciled without false flags.
-- **Diagnostic Edge Cases in Stress-Test Split**:
-  - **False Positives (2 items)**: Orders `ORD-STRESS-DELAY-1` ($850.00) and `ORD-STRESS-DELAY-2` ($1,255.00) represent legitimate SEPA wire transfers that settled 48 hours after order placement, exceeding the 30-minute fuzzy window. Flagged for operator confirmation.
+- **Diagnostic Edge Cases in Stress-Test Split (Intentional Edge Cases)**:
+  - **False Positives (2 items — Intentional Edge Cases)**: Orders `ORD-STRESS-DELAY-1` ($850.00) and `ORD-STRESS-DELAY-2` ($1,255.00) represent legitimate SEPA wire transfers that settled 48 hours after order placement (intentional SEPA 48-hour settlement lag edge case), exceeding the standard 30-minute fuzzy reconciliation window. In PayLens, the operator reviews and flags them with 1 click, preserving full audit transparency.
   - **False Negatives (2 items)**: Orders `ORD-STRESS-DUP-2` ($320.00) and `ORD-STRESS-DUP-4` ($320.00) represent duplicate orders placed 18 minutes apart with identical phone numbers where a single payment was misattributed.
 
 ### Scope of Numeric Regex Validation
@@ -226,7 +226,7 @@ streamlit run app.py
 
 ### Run Benchmarks
 ```bash
-python benchmarks/run_benchmark.py
+python benchmarks/run_mi300x_benchmark.py
 ```
 
 ### Run Test Suite

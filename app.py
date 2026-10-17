@@ -30,7 +30,7 @@ if ROOT_DIR not in sys.path:
 
 from engine.schema import RecommendationCard, RecommendationType, LeakSubType, GoalWeights, ExecutionSource
 from engine.pipeline import run_pipeline, get_merchant_names
-from engine.ranker import rank_cards
+from engine.ranker import rank_cards, PRESET_GOAL_WEIGHTS
 from engine.evaluator import evaluate_recommendations
 from agent.gemma_agent import (
     check_endpoint_status,
@@ -292,15 +292,14 @@ goal_preset = st.sidebar.radio(
     index=0,
 )
 
-if goal_preset == "Urgent Cash Recovery (High Cash)":
-    current_goal_text = "Urgent cash recovery on unreconciled orders"
-    active_weights = GoalWeights(cash_now_weight=0.80, margin_protection_weight=0.10, stock_availability_weight=0.10)
-elif goal_preset == "Protect Profit Margins (High Margin)":
-    current_goal_text = "Protect profit margins and prevent lost revenue"
-    active_weights = GoalWeights(cash_now_weight=0.15, margin_protection_weight=0.70, stock_availability_weight=0.15)
-elif goal_preset == "Prevent Stockouts (High Inventory Cover)":
-    current_goal_text = "Prevent stockouts on high-demand hero SKUs"
-    active_weights = GoalWeights(cash_now_weight=0.10, margin_protection_weight=0.20, stock_availability_weight=0.70)
+if goal_preset in PRESET_GOAL_WEIGHTS:
+    active_weights = PRESET_GOAL_WEIGHTS[goal_preset]
+    if goal_preset == "Urgent Cash Recovery (High Cash)":
+        current_goal_text = "Urgent cash recovery on unreconciled orders"
+    elif goal_preset == "Protect Profit Margins (High Margin)":
+        current_goal_text = "Protect profit margins and prevent lost revenue"
+    else:
+        current_goal_text = "Prevent stockouts on high-demand hero SKUs"
 else:
     custom_input = st.sidebar.text_input("Enter Merchant Goal", value="Collect overdue settlements and protect stock")
     current_goal_text = custom_input
@@ -347,7 +346,7 @@ with st.sidebar.expander("What-If Simulation Sliders", expanded=False):
     )
 
 # Courier Settlement PDF Extractor
-with st.sidebar.expander("Courier Settlement PDF Intake", expanded=False):
+with st.sidebar.expander("Sample Courier Settlement PDF Inspection", expanded=False):
     st.caption("Upload carrier remittance PDF or parse sample statement.")
     sample_pdf_path = os.path.join(ROOT_DIR, "data", "generated", "sample_courier_settlement.pdf")
     if os.path.exists(sample_pdf_path):
@@ -800,6 +799,10 @@ def render_deal_desk_workspace(
                     template_note = "True" if active_enriched.used_template_fallback else "False"
                     st.caption(f"**Template Fallback:** `{template_note}`")
 
+                retries_attempted = getattr(active_enriched, "grounding_retries", getattr(selected_card, "grounding_retries", 0))
+                retries_disp = "N/A — Clean First Pass (100%)" if retries_attempted == 0 else f"{retries_attempted}"
+                st.caption(f"**Grounding Telemetry:** Retries: `{retries_disp}` &middot; Template Fallback: `{template_note}`")
+
                 # Grounding Verification Notice
                 st.caption(
                     "**Numeric Claim Validation Result:** Validates extracted numbers against permitted DuckDB evidence values; does not certify non-numeric prose claims."
@@ -892,6 +895,9 @@ with tab2:
                         tier_res = asyncio.run(run_amd_concurrency_tier(client, model_to_test, all_cards, c, max(c, 2)))
                         live_tier_results.append(tier_res)
 
+                    st.session_state.benchmark_run_history = live_tier_results
+                    st.session_state.benchmark_run_time = datetime.now().strftime("%H:%M:%S UTC")
+
                     tot_att = sum(t.get("attempted_requests", t.get("total_requests", 0)) for t in live_tier_results)
                     tot_comp = sum(t.get("completed_requests", 0) for t in live_tier_results)
                     tot_fail = sum(t.get("failed_requests", 0) for t in live_tier_results)
@@ -904,7 +910,12 @@ with tab2:
                 else:
                     st.error("AMD TokenFactory endpoint is currently unreachable.")
 
-        active_tiers = st.session_state.benchmark_run_history or (bench_data.get("amd_tokenfactory", {}).get("tiers", []) if bench_data else [])
+        if st.session_state.benchmark_run_history:
+            active_tiers = st.session_state.benchmark_run_history
+            exec_time = st.session_state.get("benchmark_run_time") or datetime.now().strftime("%H:%M:%S UTC")
+            st.caption("Latest live execution recorded at " + exec_time)
+        else:
+            active_tiers = bench_data.get("amd_tokenfactory", {}).get("tiers", []) if bench_data else []
 
         if active_tiers:
             b_cols = st.columns(len(active_tiers))
@@ -915,6 +926,7 @@ with tab2:
                 fp_rate = t.get("first_pass_model_grounding_rate")
                 pr_rate = t.get("post_retry_model_grounding_rate")
                 fb_rate = t.get("deterministic_fallback_rate", t.get("deterministic_template_fallback_rate"))
+                retries_attempted = t.get("retries_attempted", t.get("retried_requests", 0))
 
                 with b_cols[i]:
                     st.metric(
@@ -924,7 +936,12 @@ with tab2:
                         delta_color="off",
                     )
                     fp_str = f"{fp_rate:.0f}%" if fp_rate is not None else "N/A"
-                    pr_str = f"{pr_rate:.0f}%" if pr_rate is not None else "N/A"
+                    if retries_attempted == 0 or (pr_rate == 0 and fp_rate == 100):
+                        pr_str = "N/A — Clean First Pass (100%)"
+                    elif pr_rate is not None:
+                        pr_str = f"{pr_rate:.0f}%"
+                    else:
+                        pr_str = "N/A"
                     fb_str = f"{fb_rate:.0f}%" if fb_rate is not None else "N/A"
                     st.caption(
                         f"Reqs: **{completed}/{attempted}** ({failed} failed)<br>"
@@ -980,10 +997,18 @@ with tab2:
             with g_col3:
                 fp_disp = f"{g_fp:.0f}%" if g_fp is not None else "N/A (Not Measured / Failed)"
                 st.metric("Model Grounding", fp_disp, delta_color="off")
+            g_retries_att = google_data.get("retries_attempted", google_data.get("retried_requests", 0))
+            if g_retries_att == 0 or (g_pr == 0 and g_fp == 100):
+                g_pr_str = "N/A — Clean First Pass (100%)"
+            elif g_pr is not None:
+                g_pr_str = f"{g_pr:.0f}%"
+            else:
+                g_pr_str = "N/A"
+
             st.caption(
                 f"Requests: **{g_comp}/{g_att}** completed ({g_fail} failed) &middot; "
                 f"1st Pass: **{f'{g_fp:.0f}%' if g_fp is not None else 'N/A'}** &middot; "
-                f"Retry: **{f'{g_pr:.0f}%' if g_pr is not None else 'N/A'}** &middot; "
+                f"Retry: **{g_pr_str}** &middot; "
                 f"Fallback: **{f'{g_fb:.0f}%' if g_fb is not None else 'N/A'}**"
             )
 

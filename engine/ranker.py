@@ -14,6 +14,18 @@ if ROOT_DIR not in sys.path:
 
 from engine.schema import RecommendationCard, RecommendationType, GoalWeights
 
+PRESET_GOAL_WEIGHTS = {
+    "Urgent Cash Recovery (High Cash)": GoalWeights(
+        cash_now_weight=0.80, margin_protection_weight=0.10, stock_availability_weight=0.10
+    ),
+    "Protect Profit Margins (High Margin)": GoalWeights(
+        cash_now_weight=0.15, margin_protection_weight=0.70, stock_availability_weight=0.15
+    ),
+    "Prevent Stockouts (High Inventory Cover)": GoalWeights(
+        cash_now_weight=0.10, margin_protection_weight=0.20, stock_availability_weight=0.70
+    ),
+}
+
 
 def get_applicable_weight(card: RecommendationCard, goal_weights: GoalWeights) -> float:
     """Determine the applicable goal weight based on recommendation category."""
