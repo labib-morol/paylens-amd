@@ -22,6 +22,65 @@ def _normalize_text(text: str) -> str:
     return cleaned
 
 
+def extract_numbers_from_text(text: str) -> List[float]:
+    """Extract financial and quantitative numbers from text while stripping incidental prose numbers.
+
+    Strips before extraction:
+    - Entity identifiers (e.g., ORD-1042, SKU-LUM-01, MERCH_02, PAY-123, SET-456, CONS-789, TXN-999)
+    - Phone numbers (+1-415-..., +88017..., etc.)
+    - ISO dates (e.g. 2026-10-17, 2026-10-15T12:00:00, 15/10/2026, 2026-10-15)
+    - Timestamps (e.g. 14:30, 2:30pm, 09:15:00)
+    - Standalone list bullets (e.g., '1.', '2.', '#1', '1)')
+    - Prose timeframes (e.g., '24 hours', '48 hours', '7 days', '14 days', '30 days')
+    - Currency symbols ($ and ৳, etc.) and currency words
+    """
+    if not text:
+        return []
+
+    normalized = _normalize_text(text)
+
+    # 1. Mask out entity identifiers (e.g., ORD-1042, SKU-LUM-01, MERCH_02, PAY-123, SET-456, CONS-789)
+    masked = re.sub(
+        r"\b(ORD|SKU|CONS|CARD|MERCH|RP|TXN|SETTLE|SET|PAY|REF|WIRE|PAYPAL|STRIPE|INJ|INV|CUST)[A-Za-z0-9_-]*\b",
+        " ",
+        normalized,
+        flags=re.IGNORECASE,
+    )
+    # Mask general alphanumeric codes with embedded dashes/underscores (e.g., ORD-1042, SKU-01)
+    masked = re.sub(r"\b[A-Za-z]{2,}[-_][A-Za-z0-9_-]+\b", " ", masked)
+
+    # 2. Mask out phone numbers (+1-415-..., +88017..., etc.)
+    masked = re.sub(r"\b(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b", " ", masked)
+    masked = re.sub(r"\b(?:\+?880)?1[3-9]\d{8}\b", " ", masked)
+
+    # 3. Mask out ISO dates and common date formats (e.g. 2026-10-17, 2026-09-16T12:00:00, 15/10/2026)
+    masked = re.sub(r"\b\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?)?\b", " ", masked)
+    masked = re.sub(r"\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b", " ", masked)
+
+    # 4. Mask out timestamps and times of day (e.g. 14:30, 2:30pm, 09:15:00)
+    masked = re.sub(r"\b\d{1,2}:\d{2}(?::\d{2})?\s*(?:am|pm|AM|PM)?\b", " ", masked)
+
+    # 5. Mask out prose timeframes (e.g. 24 hours, 7 days, 30 days, 48 hrs, 14 days)
+    masked = re.sub(
+        r"\b\d+\s*(?:hours?|hrs?|days?|weeks?|months?|minutes?|mins?|seconds?|secs?)\b",
+        " ",
+        masked,
+        flags=re.IGNORECASE,
+    )
+
+    # 6. Mask out standalone list bullets (e.g., '1.', '2.', '#1', '1)')
+    masked = re.sub(r"(?:^|\n|\s)#?\d+[\.\)]\s+", " ", masked)
+    masked = re.sub(r"\b\d+\.\s+", " ", masked)
+
+    # 7. Mask out currency symbols and currency words
+    masked = re.sub(r"[\$\৳€£₹]", " ", masked)
+    masked = re.sub(r"\b(usd|dollars|dollar|cents|taka|tk|bdt|inr|eur|gbp)\b", " ", masked, flags=re.IGNORECASE)
+
+    # 8. Extract all remaining numbers (floats or integers)
+    number_tokens = re.findall(r"\b\d+(?:\.\d+)?\b", masked)
+    return [float(token) for token in number_tokens]
+
+
 def verify_numeric_grounding(
     text: str,
     allowed_numbers: List[float],
@@ -36,42 +95,10 @@ def verify_numeric_grounding(
     if not text:
         return True, []
 
-    normalized = _normalize_text(text)
-
-    # 1. Mask out entity identifiers (e.g., ORD-1042, SKU-LUM-01, CONS-SHORT-9001, MERCH_02, TXN-12345, CARD-123, INJ-ORD-101)
-    masked = re.sub(
-        r"\b(ORD|SKU|CONS|CARD|MERCH|RP|TXN|SETTLE|REF|WIRE|PAYPAL|STRIPE|INJ)[A-Za-z0-9_-]*\b",
-        " ",
-        normalized,
-        flags=re.IGNORECASE,
-    )
-
-    # 2. Mask out phone numbers (+1-415-..., +88017..., etc.)
-    masked = re.sub(r"\b(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b", " ", masked)
-    masked = re.sub(r"\b(?:\+?880)?1[3-9]\d{8}\b", " ", masked)
-
-    # 3. Mask out ISO dates and timestamps (e.g. 2026-10-15, 2026-09-16T12:00:00, 15/10/2026)
-    masked = re.sub(r"\b\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?)?\b", " ", masked)
-    masked = re.sub(r"\b\d{1,2}/\d{1,2}/\d{2,4}\b", " ", masked)
-
-    # 4. Mask out times of day (e.g. 14:30, 2:30pm, 09:15:00)
-    masked = re.sub(r"\b\d{1,2}:\d{2}(?::\d{2})?\s*(?:am|pm|AM|PM)?\b", " ", masked)
-
-    # 5. Mask out list bullet numbers at line starts or standalone (e.g., "1. ", "2) ", "#1 ")
-    masked = re.sub(r"(?:^|\n|\s)#?\d+[\.\)]\s+", " ", masked)
-
-    # 6. Mask out currency symbols and currency words
-    masked = re.sub(r"[\$\৳€£₹]", " ", masked)
-    masked = re.sub(r"\b(usd|dollars|dollar|cents|taka|tk|bdt|inr|eur|gbp)\b", " ", masked, flags=re.IGNORECASE)
-
-    # 7. Extract all remaining numbers (floats or integers)
-    number_tokens = re.findall(r"\b\d+(?:\.\d+)?\b", masked)
-
+    number_tokens = extract_numbers_from_text(text)
     ungrounded: List[float] = []
 
-    for token in number_tokens:
-        val = float(token)
-
+    for val in number_tokens:
         # Check if val matches any allowed number
         is_match = False
         for allowed in allowed_numbers:

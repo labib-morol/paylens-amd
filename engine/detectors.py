@@ -46,6 +46,46 @@ def _clean_email(email: Optional[str]) -> str:
     return str(email).strip().lower()
 
 
+def populate_exhaustive_allowed_numbers(card: RecommendationCard) -> None:
+    """Ensure card.allowed_numbers includes all numbers from impact, confidence, formula, and evidence."""
+    numbers = set(card.allowed_numbers if card.allowed_numbers else [])
+
+    # Impact
+    if card.impact_usd is not None:
+        numbers.add(float(card.impact_usd))
+        numbers.add(round(float(card.impact_usd), 2))
+    if hasattr(card, "impact_taka") and card.impact_taka is not None:
+        numbers.add(float(card.impact_taka))
+        numbers.add(round(float(card.impact_taka), 2))
+
+    # Confidence
+    if card.confidence is not None:
+        numbers.add(float(card.confidence))
+        numbers.add(round(float(card.confidence) * 100.0, 1))
+        numbers.add(float(round(card.confidence * 100)))
+
+    # Formula display numbers
+    if card.formula_display:
+        formula_clean = re.sub(r"(?<=\d),(?=\d)", "", card.formula_display)
+        for tok in re.findall(r"\b\d+(?:\.\d+)?\b", formula_clean):
+            numbers.add(float(tok))
+
+    # Evidence rows
+    for ev in card.evidence_rows:
+        for n in ev.numbers:
+            numbers.add(float(n))
+            numbers.add(round(float(n), 2))
+        for k, v in ev.raw_data.items():
+            if isinstance(v, (int, float)) and not isinstance(v, bool):
+                numbers.add(float(v))
+                numbers.add(round(float(v), 2))
+                if "rate" in k.lower() or "percent" in k.lower():
+                    numbers.add(round(float(v) * 100.0, 1))
+                    numbers.add(float(round(v * 100)))
+
+    card.allowed_numbers = sorted(list(numbers))
+
+
 def run_stl_anomaly_detector(
     con: duckdb.DuckDBPyConnection,
     sigma_threshold: float = 2.2,
@@ -258,6 +298,7 @@ def run_leak_matcher(
                 ),
                 action_type="RECONCILE_DISPATCH",
             )
+            populate_exhaustive_allowed_numbers(card)
             leak_cards.append(card)
 
     # -------------------------------------------------------------------------
@@ -324,6 +365,7 @@ def run_leak_matcher(
             ),
             action_type="DEMAND_SHORTFALL",
         )
+        populate_exhaustive_allowed_numbers(card)
         leak_cards.append(card)
 
     telemetry = {
@@ -445,6 +487,7 @@ def run_failed_payment_scanner(
             ),
             action_type="RECOVER_ABANDONED_CHECKOUT",
         )
+        populate_exhaustive_allowed_numbers(card)
         cards.append(card)
 
     return cards
@@ -578,6 +621,7 @@ def run_stockout_forecaster(
                     ),
                     action_type="REORDER_INVENTORY",
                 )
+                populate_exhaustive_allowed_numbers(card)
                 cards.append(card)
 
     return cards

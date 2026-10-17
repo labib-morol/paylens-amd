@@ -340,6 +340,7 @@ def _call_amd_tokenfactory_chat(
             {"role": "user", "content": prompt},
         ],
         "temperature": 0.1,
+        "max_tokens": 300,
     }
     t0 = time.perf_counter()
     with httpx.Client(timeout=timeout) as client:
@@ -363,7 +364,7 @@ def _call_google_gemma_rest(
     api_key: str,
     timeout: float = 20.0,
 ) -> Tuple[Optional[str], float, int, int]:
-    """Call Google AI Studio Gemma 4 REST API."""
+    """Call Google AI Studio Gemma 4 REST API with strict payload format."""
     full_prompt = f"{system_prompt}\n\nTask:\n{prompt}"
     models_to_try = [model]
     if model != "gemma-4-26b-a4b-it":
@@ -374,7 +375,7 @@ def _call_google_gemma_rest(
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{target_model}:generateContent?key={api_key}"
         payload = {
             "contents": [{"role": "user", "parts": [{"text": full_prompt}]}],
-            "generationConfig": {"temperature": 0.2, "maxOutputTokens": 600},
+            "generationConfig": {"temperature": 0.1, "maxOutputTokens": 450},
         }
         t0 = time.perf_counter()
         try:
@@ -388,7 +389,7 @@ def _call_google_gemma_rest(
                         text = candidates[0]["content"]["parts"][0]["text"]
                         return text, lat, len(full_prompt.split()), len(text.split())
                 elif resp.status_code == 500:
-                    # Google preview server error, try next fallback model
+                    # Google preview server error, try fallback model
                     last_err = f"Google 500 on {target_model}"
                     continue
                 else:
@@ -597,22 +598,26 @@ def enrich_card_with_agent(
         card.grounding_trace = _generate_grounding_trace(card, card.explanation_en + " " + card.action_draft_en)
         return card
 
-    # Construct strict grounding prompt
+    # Construct strict grounding single-turn prompt with evidence rows
+    evidence_text = "\n".join([f"- [{ev.source_table}] {ev.summary}" for ev in card.evidence_rows]) if card.evidence_rows else "- No auxiliary evidence rows."
+
     system_prompt = (
         "You are PayLens AI explaining merchant capital recovery. "
         "MANDATORY ARCHITECTURE RULE: CODE COMPUTES, MODEL EXPLAINS. "
-        "You must NEVER calculate numbers. You may ONLY mention numbers from the ALLOWED_NUMBERS list below. "
-        "Output valid JSON with exactly two keys: 'explanation_en' and 'action_draft_en'."
+        "You must NEVER calculate numbers. Output valid JSON with exactly two keys: 'explanation_en' and 'action_draft_en'."
     )
 
-    user_prompt = f"""
-Merchant: {card.merchant_name}
+    user_prompt = f"""Merchant: {card.merchant_name}
 Recommendation Type: {card.rec_type.value}
 Entity ID: {card.entity_id}
 Tone: {tone}
 Impact (USD): ${card.impact_usd:,.2f}
 Formula: {card.formula_display}
+Evidence Rows:
+{evidence_text}
 ALLOWED_NUMBERS: {card.allowed_numbers}
+
+CRITICAL RULE: Every single number or currency figure you write MUST come verbatim from ALLOWED_NUMBERS: {card.allowed_numbers}. Do NOT write any other digits in your text—write general timeframes in words (e.g., 'twenty-four hours', 'seven days') so no unverified numbers appear.
 
 Write concise English explanations and action drafts. Output JSON format: {{"explanation_en": "...", "action_draft_en": "..."}}
 """
@@ -680,7 +685,8 @@ Write concise English explanations and action drafts. Output JSON format: {{"exp
                 card.grounding_trace = _generate_grounding_trace(card, exp_en + " " + act_en)
                 grounded = True
 
-                log_inference_entry(exec_source_enum, served_model_name, measured_lat_ms, p_toks, c_toks, "PASSED")
+                outcome = "FIRST_PASS_PASSED" if retries == 0 else "POST_RETRY_PASSED"
+                log_inference_entry(exec_source_enum, served_model_name, measured_lat_ms, p_toks, c_toks, outcome)
                 return card
             else:
                 retries += 1
@@ -689,7 +695,7 @@ Write concise English explanations and action drafts. Output JSON format: {{"exp
                     f"\n\nERROR: The numbers {ungrounded} were not in ALLOWED_NUMBERS. "
                     f"Rewrite immediately using ONLY numbers in: {card.allowed_numbers}"
                 )
-        except Exception as e:
+        except Exception:
             retries += 1
 
     total_elapsed_ms = round((time.perf_counter() - t_start) * 1000.0, 1)
@@ -712,6 +718,7 @@ Write concise English explanations and action drafts. Output JSON format: {{"exp
     card.execution_source = exec_source_enum if served_model_name else ExecutionSource.LOCAL_DETERMINISTIC_FALLBACK.value
     card.used_template_fallback = True
     card.grounding_trace = _generate_grounding_trace(card, card.explanation_en + " " + card.action_draft_en)
+    log_inference_entry(card.execution_source, card.model_name, measured_lat_ms, 0, 0, "TEMPLATE_FALLBACK")
     return card
 
 
@@ -739,8 +746,26 @@ async def _enrich_card_async(
             await asyncio.sleep(0.005)
             return card
 
-        system_prompt = "You are PayLens AI explaining merchant capital recovery. CODE COMPUTES, MODEL EXPLAINS."
-        user_prompt = f"Merchant: {card.merchant_name}\nImpact: ${card.impact_usd:,.2f}\nALLOWED: {card.allowed_numbers}"
+        evidence_text = "\n".join([f"- [{ev.source_table}] {ev.summary}" for ev in card.evidence_rows]) if card.evidence_rows else "- No auxiliary evidence rows."
+        system_prompt = (
+            "You are PayLens AI explaining merchant capital recovery. "
+            "MANDATORY ARCHITECTURE RULE: CODE COMPUTES, MODEL EXPLAINS. "
+            "You must NEVER calculate numbers. Output valid JSON with exactly two keys: 'explanation_en' and 'action_draft_en'."
+        )
+        user_prompt = f"""Merchant: {card.merchant_name}
+Recommendation Type: {card.rec_type.value}
+Entity ID: {card.entity_id}
+Tone: {tone}
+Impact (USD): ${card.impact_usd:,.2f}
+Formula: {card.formula_display}
+Evidence Rows:
+{evidence_text}
+ALLOWED_NUMBERS: {card.allowed_numbers}
+
+CRITICAL RULE: Every single number or currency figure you write MUST come verbatim from ALLOWED_NUMBERS: {card.allowed_numbers}. Do NOT write any other digits in your text—write general timeframes in words (e.g., 'twenty-four hours', 'seven days') so no unverified numbers appear.
+
+Write concise English explanations and action drafts. Output JSON format: {{"explanation_en": "...", "action_draft_en": "..."}}
+"""
 
         t0 = time.perf_counter()
         try:
@@ -751,7 +776,8 @@ async def _enrich_card_async(
                     {"role": "user", "content": user_prompt},
                 ],
                 temperature=0.1,
-                timeout=8.0,
+                max_tokens=300,
+                timeout=12.0,
             )
             raw = resp.choices[0].message.content or "{}"
             parsed = _extract_json_response(raw)
@@ -759,12 +785,14 @@ async def _enrich_card_async(
             act_en = parsed.get("action_draft_en", "")
 
             allowed = card.allowed_numbers + [card.impact_usd]
-            ok, _ = verify_numeric_grounding(exp_en + " " + act_en, allowed)
-            if ok:
+            ok_exp, _ = verify_numeric_grounding(exp_en, allowed)
+            ok_act, _ = verify_numeric_grounding(act_en, allowed)
+            if ok_exp and ok_act:
                 card.explanation_en = exp_en
                 card.action_draft_en = act_en
                 card.grounding_passed = True
                 card.grounding_status = "PASSED"
+                card.used_template_fallback = False
                 card.http_latency_ms = round((time.perf_counter() - t0) * 1000, 1)
                 card.tool_calls_trace = _generate_tool_calls_trace(card)
                 card.grounding_trace = _generate_grounding_trace(card, exp_en + " " + act_en)
@@ -777,10 +805,40 @@ async def _enrich_card_async(
         card.action_draft_en = fallback["action_draft_en"]
         card.grounding_passed = True
         card.grounding_status = "TEMPLATE_FALLBACK"
+        card.used_template_fallback = True
         card.http_latency_ms = round((time.perf_counter() - t0) * 1000, 1)
         card.tool_calls_trace = _generate_tool_calls_trace(card)
         card.grounding_trace = _generate_grounding_trace(card, card.explanation_en + " " + card.action_draft_en)
         return card
+
+
+def get_grounding_telemetry(limit: int = 100) -> Dict[str, float]:
+    """Calculate the three separated grounding metrics from recent live inferences.
+
+    Returns:
+    - first_pass_model_grounding_rate: % of live LLM responses that passed on the first attempt.
+    - post_retry_model_grounding_rate: % of live LLM responses that passed after 1 retry.
+    - deterministic_template_fallback_rate: % of requests that fell back to build_fallback_template.
+    """
+    entries = get_recent_inference_logs(limit=limit)
+    if not entries:
+        return {
+            "first_pass_model_grounding_rate": 0.0,
+            "post_retry_model_grounding_rate": 0.0,
+            "deterministic_template_fallback_rate": 0.0,
+            "total_calls": 0,
+        }
+    total = len(entries)
+    first_pass = sum(1 for e in entries if e.get("status") in ("PASSED", "FIRST_PASS_PASSED"))
+    post_retry = sum(1 for e in entries if e.get("status") in ("RETRIED_PASSED", "POST_RETRY_PASSED"))
+    fallback = sum(1 for e in entries if e.get("status") in ("TEMPLATE_FALLBACK", "FALLBACK"))
+
+    return {
+        "first_pass_model_grounding_rate": round((first_pass / total) * 100.0, 1),
+        "post_retry_model_grounding_rate": round((post_retry / total) * 100.0, 1),
+        "deterministic_template_fallback_rate": round((fallback / total) * 100.0, 1),
+        "total_calls": total,
+    }
 
 
 def run_mi300x_parallel_burst(
@@ -788,7 +846,7 @@ def run_mi300x_parallel_burst(
     max_concurrency: int = 8,
     tone: str = "Polite Payment Reminder",
 ) -> Dict[str, Any]:
-    """Execute parallel burst across cards, honestly reporting execution source and metrics."""
+    """Execute parallel burst across cards, honestly reporting execution source and separated metrics."""
     status = check_endpoint_status()
     cfg = get_endpoint_config()
 
@@ -819,8 +877,15 @@ def run_mi300x_parallel_burst(
 
     total_cards = len(processed_cards)
     cards_per_sec = round(total_cards / max(0.001, wall_clock_seconds), 1)
-    grounded_count = sum(1 for c in processed_cards if c.grounding_passed)
-    pass_rate = round((grounded_count / max(1, total_cards)) * 100.0, 1)
+
+    first_pass_count = sum(1 for c in processed_cards if c.grounding_status == "PASSED" and not getattr(c, "used_template_fallback", False))
+    post_retry_count = sum(1 for c in processed_cards if c.grounding_status == "RETRIED_PASSED" and not getattr(c, "used_template_fallback", False))
+    fallback_count = sum(1 for c in processed_cards if getattr(c, "used_template_fallback", False))
+    total_count = max(1, total_cards)
+
+    first_pass_rate = round((first_pass_count / total_count) * 100.0, 1)
+    post_retry_rate = round((post_retry_count / total_count) * 100.0, 1)
+    fallback_rate = round((fallback_count / total_count) * 100.0, 1)
 
     result = {
         "execution_source": exec_source,
@@ -830,7 +895,10 @@ def run_mi300x_parallel_burst(
         "total_cards": total_cards,
         "wall_clock_seconds": round(wall_clock_seconds, 3),
         "max_concurrency": max_concurrency,
-        "grounding_pass_rate": pass_rate,
+        "first_pass_model_grounding_rate": first_pass_rate,
+        "post_retry_model_grounding_rate": post_retry_rate,
+        "deterministic_template_fallback_rate": fallback_rate,
+        "grounding_pass_rate": first_pass_rate + post_retry_rate,
         "cards": processed_cards,
     }
 

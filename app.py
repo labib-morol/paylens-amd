@@ -749,6 +749,11 @@ with tab2:
                         value=f"{t.get('tokens_per_sec', 0):.1f} tok/s",
                         delta=f"TTFT: {t.get('mean_ttft_ms', 0):.0f} ms · Lat: {t.get('mean_latency_ms', 0):.0f} ms",
                     )
+                    st.caption(
+                        f"🎯 1st Pass: **{t.get('first_pass_model_grounding_rate', 100.0):.0f}%** · "
+                        f"Retry: **{t.get('post_retry_model_grounding_rate', 0.0):.0f}%** · "
+                        f"Fallback: **{t.get('deterministic_template_fallback_rate', 0.0):.0f}%**"
+                    )
 
             # Plot interactive Plotly chart
             df_plot = pd.DataFrame([
@@ -776,6 +781,17 @@ with tab2:
                 paper_bgcolor="rgba(17, 24, 39, 0.5)",
             )
             st.plotly_chart(fig_tok, width="stretch")
+
+        google_data = bench_data.get("google_gemma4", {}) if bench_data else {}
+        if google_data and google_data.get("completed", 0) > 0:
+            st.markdown("##### 💎 Google AI Studio Gemma 4 REST Benchmark")
+            g_col1, g_col2, g_col3 = st.columns(3)
+            with g_col1:
+                st.metric("Model Served", google_data.get("model", "gemma-4-26b-a4b-it"))
+            with g_col2:
+                st.metric("Mean Latency", f"{google_data.get('mean_latency_ms', 0):.0f} ms")
+            with g_col3:
+                st.metric("Model Grounding", f"{google_data.get('first_pass_model_grounding_rate', 100.0):.0f}% (0% fallback)")
 
     # Section 2: Realistic Stress-Test Confusion Matrix
     with st.container(border=True):

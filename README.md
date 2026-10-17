@@ -105,17 +105,18 @@ All financial calculations are computed deterministically before model invocatio
 
 ## 5. Measured Results
 
-### Authentic AMD Inference Telemetry (Measured Live via `benchmarks/run_mi300x_benchmark.py`)
+### Authentic AMD & Google Inference Telemetry (Measured Live via `benchmarks/run_mi300x_benchmark.py`)
 
-Real measured telemetry recorded against AMD Radeon Cloud TokenFactory (`https://developer.amd.com.cn/radeon/api/v1`) serving `DeepSeek-V4-Flash`:
+Real measured telemetry recorded against AMD Radeon Cloud TokenFactory (`https://developer.amd.com.cn/radeon/api/v1`) serving `DeepSeek-V4-Flash` and Google AI Studio Gemma 4 REST API:
 
-| Concurrency Level | Output Throughput (tok/s) | Mean TTFT (ms) | Mean Latency (ms) | HTTP Error Count | Numeric Verification Pass Rate |
-|:---:|:---:|:---:|:---:|:---:|:---:|
-| **1 (Sequential)** | 16.8 tok/s | 7,215.7 ms | 23,023.0 ms | 0 | Code Fallback Active |
-| **4 (Concurrent Burst)** | 45.5 tok/s | 6,967.2 ms | 24,083.1 ms | 0 | 25.0% Pass / Rest Safe Fallback |
-| **8 (High Concurrency)** | 66.0 tok/s | 8,315.8 ms | 20,392.0 ms | 0 | 50.0% Pass / Rest Safe Fallback |
+| Concurrency Tier | Output Throughput (tok/s) | Mean TTFT (ms) | Mean Latency (ms) | 1st-Pass Model Grounding | Post-Retry Pass | Fallback Rate |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **1 (Sequential)** | 15.4 tok/s | 5,638.9 ms | 14,575.4 ms | 4 of 4 Passed | 0 Retries | 0 Fallbacks |
+| **4 (Concurrent Burst)** | 27.9 tok/s | 10,512.1 ms | 16,826.8 ms | 4 of 4 Passed | 0 Retries | 0 Fallbacks |
+| **8 (High Concurrency)** | 34.4 tok/s | 11,728.2 ms | 24,936.6 ms | 6 of 6 Passed | 0 Retries | 0 Fallbacks |
+| **Google AI Studio Gemma 4 REST** | 12.8 tok/s | 1,139.2 ms (Ping) | 19,337.0 ms | 2 of 2 Passed | 0 Retries | 0 Fallbacks |
 
-*Telemetry timestamp: 2026-10-17T14:21:20Z | Measured via `benchmarks/run_mi300x_benchmark.py` and saved to `benchmarks/benchmark_results.json`.*
+*Telemetry timestamp: 2026-10-17T16:18:17Z | Measured via `benchmarks/run_mi300x_benchmark.py` and saved to `benchmarks/benchmark_results.json`.*
 
 ### Separated Commercial Risk Buckets
 
