@@ -32,10 +32,10 @@
 
   <!-- Header -->
   <text x="50" y="55" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="24" font-weight="800" fill="#F8FAFC">
-    PayLens Solo · <tspan fill="#ED1C24">AMD Instinct &amp; TokenFactory</tspan> Architecture
+    PayLens · <tspan fill="#ED1C24">AMD Instinct &amp; TokenFactory</tspan> Architecture
   </text>
   <text x="50" y="82" font-family="'JetBrains Mono', monospace" font-size="12" fill="#94A3B8">
-    MANDATORY INTEGRITY SPEC: CODE COMPUTES, MODEL EXPLAINS · STRICT ZERO-HALLUCINATION GROUNDING
+    MANDATORY INTEGRITY SPEC: CODE COMPUTES, MODEL EXPLAINS · STRICT REGEX-GROUNDED AUDITING
   </text>
 
   <!-- Horizontal Divider -->

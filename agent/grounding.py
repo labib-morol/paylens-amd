@@ -1,4 +1,4 @@
-"""Deterministic Numeric Grounding Verification and Templating Engine for PayLens Solo.
+"""Deterministic Numeric Grounding Verification and Templating Engine for PayLens.
 
 Architecture Rule 2: GROUNDING CHECK.
 Every number in the LLM's English or multilingual output must be regex-extracted

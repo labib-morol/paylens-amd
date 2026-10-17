@@ -1,6 +1,6 @@
 # Team Progress Tracker & Verification Checkpoints
 
-**Project:** PayLens Solo — Multi-Rail Revenue Recovery & Action Centre on AMD Hardware  
+**Project:** PayLens — Multi-Rail Revenue Recovery & Action Centre on AMD Hardware  
 **Event:** AMD Developer Hackathon: Act III (Track 3: Reinvent Commerce + Evolus AI Partner Track)  
 **Hardware & Models:** AMD Instinct MI300X / AMD TokenFactory / Google Gemma-4-31B-it  
 

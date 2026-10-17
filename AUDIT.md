@@ -1,4 +1,4 @@
-# AUDIT.md — PayLens Solo Pre-Submission Audit
+# AUDIT.md — PayLens Pre-Submission Audit
 
 **Repository:** `labib-morol/paylens-amd`  
 **Audit Timestamp:** 2026-10-17T09:20:00+06:00  

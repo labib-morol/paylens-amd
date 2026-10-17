@@ -1,4 +1,4 @@
-"""Deterministic Multi-Objective Card Ranker for PayLens Solo.
+"""Deterministic Multi-Objective Card Ranker for PayLens.
 
 Architecture Rule 1: CODE COMPUTES, MODEL EXPLAINS.
 Ranking scores (impact * confidence * goal_weight) are computed purely in Python.

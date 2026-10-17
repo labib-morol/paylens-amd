@@ -1,4 +1,4 @@
-"""Synthetic Data Generator for PayLens Solo.
+"""Synthetic Data Generator for PayLens.
 
 Generates 30 days of realistic multi-rail global commerce data for 20 international merchants:
 - E-commerce platforms: Shopify, WooCommerce, Magento
@@ -709,7 +709,7 @@ def generate_sample_courier_pdf(output_dir=None):
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description="Synthetic Data Generator for PayLens Solo")
+    parser = argparse.ArgumentParser(description="Synthetic Data Generator for PayLens")
     parser.add_argument("--seed", type=int, default=42, help="Random seed (default 42)")
     parser.add_argument("--noise", action="store_true", help="Inject realistic noise cases")
     parser.add_argument("--output-dir", type=str, default=None, help="Output directory")

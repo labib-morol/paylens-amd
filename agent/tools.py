@@ -1,4 +1,4 @@
-"""OpenAI Tool Schemas and Execution Helpers for PayLens Solo.
+"""OpenAI Tool Schemas and Execution Helpers for PayLens.
 
 Backed by DuckDB and engine/pipeline data sources.
 Provides ground-truth retrieval tools for the Gemma agent on AMD Instinct.

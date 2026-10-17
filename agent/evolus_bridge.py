@@ -1,4 +1,4 @@
-"""Evolus AI Partner Track Bridge for PayLens Solo (optional / in progress).
+"""Evolus AI Partner Track Bridge for PayLens (optional / in progress).
 
 Architecture & Official REST Endpoints:
 1. Base URL: https://api.evolus.ai/api/v1 with headers X-ApiKey and X-Application-Id.

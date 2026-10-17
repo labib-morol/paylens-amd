@@ -1,4 +1,4 @@
-"""Deterministic End-to-End Pipeline for PayLens Solo.
+"""Deterministic End-to-End Pipeline for PayLens.
 
 Architecture Rule 1: CODE COMPUTES, AMD GPU MODEL EXPLAINS.
 Coordinates data ingestion, anomaly detection, statistical forecasting,

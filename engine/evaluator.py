@@ -1,4 +1,4 @@
-"""Deterministic Evaluator for PayLens Solo.
+"""Deterministic Evaluator for PayLens.
 
 Evaluates detector accuracy against planted ground_truth.json:
 - Exact Precision, Recall, and F1 scores per recommendation category

@@ -1,4 +1,4 @@
-"""PayLens Solo: Multi-Rail Revenue Recovery & Action Centre on AMD Hardware.
+"""PayLens: Multi-Rail Revenue Recovery & Action Centre on AMD Hardware.
 
 AMD Developer Hackathon: Act III — Track 3: Reinvent Commerce + Evolus AI Partner Track
 Architecture Guardrails:
@@ -142,7 +142,7 @@ from agent.action_executor import execute_approved_action
 # Streamlit Page Config & High-Taste Dark Slate Fintech CSS
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="PayLens Solo · AMD Instinct MI300X",
+    page_title="PayLens · AMD Instinct MI300X",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -607,7 +607,7 @@ with st.sidebar:
     st.caption("Mode: Deterministic Recovery & AMD Inference")
 
     st.markdown("---")
-    st.caption("PayLens Solo v2 · AMD Hackathon Act III")
+    st.caption("PayLens v2 · AMD Hackathon Act III")
 
 # -----------------------------------------------------------------------------
 # Top Command Bar: Merchant Selector & Natural Language Goal Steerer
@@ -655,7 +655,7 @@ st.markdown(f"""
         <div>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; color: #FFFFFF;">
-                    PayLens <span style="color: #6366F1;">Solo</span>
+                    PayLens
                 </span>
                 <span style="background: rgba(99, 102, 241, 0.15); color: #818CF8; border: 1px solid rgba(99, 102, 241, 0.35); padding: 3px 9px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;">
                     {header_badge}
@@ -1186,7 +1186,7 @@ with tab_pdf:
     if not is_evolus_configured():
         st.info("ℹ️ **Evolus Partner Track (Optional / Unconfigured)**: Evolus credentials (`EVOLUS_API_KEY`, `EVOLUS_APP_ID`) are not configured. Tab 2 is fully operational using deterministic local PDF parsing and local dispute drafting.")
     st.markdown("""
-    PayLens Solo integrates **three official Evolus building blocks** into a deterministic capital recovery engine:
+    PayLens integrates **three official Evolus building blocks** into a deterministic capital recovery engine:
     1. **Ready-Made AI Tool 1 (`document-to-structured-data`)**: Parses courier COD PDF settlements into structured line items.
     2. **Ready-Made AI Tool 2 (`email-writing`)**: Generates legally-grounded carrier remittance shortfall dispute notices & high-converting customer cart recovery offers.
     3. **Evolus Business Agent (`/v1/chat/completions` & `/workflows/{id}/execute`)**: Dispatches reconciliation workflows with SHA-256 audit receipts.
@@ -1283,7 +1283,7 @@ with tab_pdf:
 # =============================================================================
 with tab_proof:
     st.markdown("### ⚡ AMD Hardware Proof & Ground-Truth Verification")
-    st.info("ℹ️ **Notice**: PayLens Solo is demonstrated on illustrative synthetic data modeled on international commerce (Shopify, Stripe, PayPal, SEPA, and DHL/FedEx COD).")
+    st.info("ℹ️ **Notice**: PayLens is demonstrated on illustrative synthetic data modeled on international commerce (Shopify, Stripe, PayPal, SEPA, and DHL/FedEx COD).")
 
     eval_data = pipeline_result.get("evaluation", {})
     if eval_data:

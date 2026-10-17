@@ -1,4 +1,4 @@
-# PayLens Solo — Pre-Submission Integrity & Readiness Audit Report (`CHANGES.md`)
+# PayLens — Pre-Submission Integrity & Readiness Audit Report (`CHANGES.md`)
 
 **Date:** October 17, 2026  
 **Repository:** `labib-morol/paylens-amd`  
@@ -8,7 +8,7 @@
 
 ## 🎯 Executive Summary of Audit & Upgrades
 
-This integrity and readiness pass completely purged all unverified marketing claims, fake static numbers, hardcoded benchmark values, and artificial metrics from the PayLens Solo repository. Every metric displayed in the user interface or documented in the repository is now either **computed dynamically in-run** by the deterministic compute layer or loaded from a **verifiable, provenance-tagged measurement file**. Where values have not yet been measured against a live cluster, the system transparently reports **"Not measured yet"** or **"N/A (offline)"**.
+This integrity and readiness pass completely purged all unverified marketing claims, fake static numbers, hardcoded benchmark values, and artificial metrics from the PayLens repository. Every metric displayed in the user interface or documented in the repository is now either **computed dynamically in-run** by the deterministic compute layer or loaded from a **verifiable, provenance-tagged measurement file**. Where values have not yet been measured against a live cluster, the system transparently reports **"Not measured yet"** or **"N/A (offline)"**.
 
 ---
 
@@ -80,7 +80,7 @@ This integrity and readiness pass completely purged all unverified marketing cla
   - When in offline mode (`OFFLINE_MODE=true` or no GPU endpoint reachable), a bold red banner appears at the top:
     `⚠️ RUNNING IN OFFLINE MODE: LLM inference disabled. Deterministic engine active.`
   - Added clear synthetic data disclaimer banner in Tab 3 and README:
-    `Notice: PayLens Solo is demonstrated on illustrative synthetic data modeled on international commerce (Shopify, Stripe, PayPal, SEPA, and DHL/FedEx COD).`
+    `Notice: PayLens is demonstrated on illustrative synthetic data modeled on international commerce (Shopify, Stripe, PayPal, SEPA, and DHL/FedEx COD).`
 
 #### Task P1-6: Streamlit Performance Caching & On-Demand Cards
 - **Files Modified:** `app.py`.

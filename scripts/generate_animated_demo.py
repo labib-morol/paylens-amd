@@ -1,4 +1,4 @@
-"""Generates an authentic, high-resolution animated visual demo GIF for PayLens Solo."""
+"""Generates an authentic, high-resolution animated visual demo GIF for PayLens."""
 import os
 import math
 from PIL import Image, ImageDraw, ImageFont
@@ -54,7 +54,6 @@ def draw_header(d: ImageDraw.ImageDraw, frame_idx: int):
     # Top Bar
     d.rounded_rectangle([(30, 20), (970, 72)], radius=10, fill=C_PANEL, outline=C_BORDER, width=1)
     d.text((48, 32), "PayLens", font=font_title, fill=C_WHITE)
-    d.text((140, 32), "Solo", font=font_title, fill=C_INDIGO)
     d.text((48, 54), "Deterministic Multi-Rail Capital Recovery Deal Desk", font=font_subtitle, fill=C_MUTED)
 
     # Active TokenFactory Badge

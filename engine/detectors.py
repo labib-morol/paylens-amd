@@ -1,4 +1,4 @@
-"""Deterministic Detectors and Statistical Forecasters for PayLens Solo.
+"""Deterministic Detectors and Statistical Forecasters for PayLens.
 
 Architecture Rule 1: CODE COMPUTES, AMD GPU MODEL EXPLAINS.
 All mathematical computations, matching logic, Holt-Winters forecasting,

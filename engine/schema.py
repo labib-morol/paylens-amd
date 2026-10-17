@@ -1,4 +1,4 @@
-"""Pydantic v2 schemas for PayLens Solo.
+"""Pydantic v2 schemas for PayLens.
 
 Architecture Rule 1: CODE COMPUTES, AMD GPU MODEL EXPLAINS.
 All mathematical computations, matching logic, and forecasts are strictly deterministic.

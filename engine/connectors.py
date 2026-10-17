@@ -1,4 +1,4 @@
-"""Pluggable Global Payment-Rail Connectors for PayLens Solo.
+"""Pluggable Global Payment-Rail Connectors for PayLens.
 
 Decouples fragmented regional and global payment rails from the core accounting & reconciliation engine.
 Maps raw export rows from Stripe, PayPal, DHL/FedEx COD, Brazil Pix, India UPI, Kenya M-Pesa,

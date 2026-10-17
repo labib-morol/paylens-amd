@@ -1,22 +1,23 @@
-# PayLens Solo: Multi-Rail Revenue Recovery & Action Centre on AMD Hardware
+# PayLens: Multi-Rail Revenue Recovery & Action Centre on AMD Hardware
 
 **AMD Developer Hackathon: Act III**  
 **Track 3: Reinvent Commerce** + **AMD Instinct Prize** + **Google DeepMind Gemma Prize** + **Evolus AI Partner Track** + **Vibe Generation Special Prize**  
 Serving LLMs (e.g. `DeepSeek-V4-Flash`, `google/gemma-2-27b-it`) via AMD ROCm vLLM or AMD TokenFactory.
 
 <p align="center">
-  <img src="docs/demo.gif" alt="PayLens Solo Live Interactive Deal Desk" width="960">
+  <img src="docs/demo.gif" alt="PayLens Live Interactive Deal Desk" width="960"><br>
+  🎥 <b><a href="docs/demo.mp4">Watch Full HD Video Walkthrough with Audio Narration (docs/demo.mp4)</a></b>
 </p>
 
 <p align="center">
-  <img src="docs/architecture.svg" alt="PayLens Solo Architecture on AMD Hardware" width="960">
+  <img src="docs/architecture.svg" alt="PayLens Architecture on AMD Hardware" width="960">
 </p>
 
 ---
 
 ## 1. What It Does
 
-PayLens Solo is a multi-rail capital recovery engine and human-in-the-loop deal desk for international e-commerce merchants operating across Shopify, WooCommerce, Stripe, PayPal, SEPA bank transfers, and DHL/FedEx cash-on-delivery (COD).
+PayLens is a multi-rail capital recovery engine and human-in-the-loop deal desk for international e-commerce merchants operating across Shopify, WooCommerce, Stripe, PayPal, SEPA bank transfers, and DHL/FedEx cash-on-delivery (COD).
 
 In multi-rail commerce, disconnected financial ledgers lead to silent revenue leakage:
 - **Dispatched-Unpaid Orders**: Orders marked fulfilled and dispatched on digital rails without verified settlement.
@@ -32,7 +33,7 @@ In multi-rail commerce, disconnected financial ledgers lead to silent revenue le
 
 ## 2. Modes
 
-PayLens Solo operates across three verified execution modes:
+PayLens operates across three verified execution modes:
 
 | Mode | Endpoint | Description |
 |---|---|---|
@@ -44,7 +45,7 @@ PayLens Solo operates across three verified execution modes:
 
 ## 3. Architecture
 
-PayLens Solo routes data from multi-rail commerce sources through pluggable normalization connectors into a unified DuckDB database:
+PayLens routes data from multi-rail commerce sources through pluggable normalization connectors into a unified DuckDB database:
 
 ```
 [Raw Payment Rails]       [Connectors]          [Unified Store]       [Deterministic Detectors]
@@ -173,9 +174,9 @@ pytest -q
 
 ## 7. Limitations
 
-1. **Synthetic Data**: PayLens Solo is demonstrated on illustrative synthetic data modeled on global commerce rails. Real merchant deployments require production API tokens and live webhooks.
+1. **Synthetic Data**: PayLens is demonstrated on illustrative synthetic data modeled on global commerce rails. Real merchant deployments require production API tokens and live webhooks.
 2. **Shared vs Dedicated Hardware**: Performance measured on AMD TokenFactory reflects shared multi-tenant cloud infrastructure and will vary depending on cluster load. Dedicated AMD Instinct hosts provide consistent low-latency throughput.
-3. **Numeric Grounding Fallback**: If a model response fails numeric verification after one retry prompt, PayLens Solo falls back to a deterministic code-generated explanation template to protect financial accuracy.
+3. **Numeric Grounding Fallback**: If a model response fails numeric verification after one retry prompt, PayLens falls back to a deterministic code-generated explanation template to protect financial accuracy.
 
 ---
 

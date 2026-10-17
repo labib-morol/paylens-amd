@@ -1,4 +1,4 @@
-"""One-Click Live Action Executor for PayLens Solo.
+"""One-Click Live Action Executor for PayLens.
 
 Dispatches approved actions through:
 1. Evolus Business Workflow (dispute notice on connected AMD model)
