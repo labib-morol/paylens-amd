@@ -1,49 +1,39 @@
-# Secrets and environment
-.env
-.env.*
-!.env.example
-*.key
-*.pem
-secrets.toml
-.streamlit/secrets.toml
-.streamlit/*
-!.streamlit/config.toml
-
-# Python bytecode & cache
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
 
-# Virtual environments
-.venv/
-venv/
-ENV/
+# Virtual Environments
 env/
-
-# Test & coverage caches
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
+venv/
+.venv/
+ENV/
 
 # Build & Distribution
 build/
 dist/
 *.egg-info/
 
+# Secrets and environment
+.env
+.env.local
+.env.*.local
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.toml
+.streamlit/secrets.toml
+.streamlit/*
+!.streamlit/config.toml
+
 # DuckDB runtime artifacts
 *.duckdb.wal
 *.duckdb.tmp
 *sandbox*.duckdb
 data/generated/*.duckdb.wal
-
-# Logs
-logs/
-*.log
-*.jsonl
 
 # Temporary video & audio build scratchpads
 temp/
@@ -52,6 +42,7 @@ temp_audio/
 temp_frames/
 temp_video_build/
 artifacts/
+artifacts/video_patch/frames/
 video_frames/
 submission_demo_animated.mp4
 *.wav
@@ -59,6 +50,18 @@ submission_demo_animated.mp4
 !assets/
 !docs/
 !demo_studio/
+
+# Test & coverage caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Logs
+logs/
+*.log
+*.jsonl
 
 # IDE & OS files
 .idea/

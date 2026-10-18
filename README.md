@@ -7,7 +7,9 @@ Serving LLMs (`DeepSeek-V4-Flash`, `google/gemma-4-31b-it`) via AMD Radeon Cloud
 
 <p align="center">
   <img src="docs/demo.gif" alt="PayLens Live Interactive Deal Desk" width="960"><br>
-  🎥 <b><a href="docs/demo.mp4">Watch Full HD Video Walkthrough with Audio Narration (docs/demo.mp4)</a></b>
+  🎥 <b><a href="docs/submission_demo_final.mp4">Watch Final 1080p Walkthrough Video (docs/submission_demo_final.mp4)</a></b> · 
+  📊 <b><a href="docs/paylens_pitch_deck.pdf">Pitch Deck (PDF)</a></b> · 
+  📑 <b><a href="docs/paylens_pitch_deck.pptx">Presentation (PPTX)</a></b>
 </p>
 
 <p align="center">
@@ -229,14 +231,35 @@ streamlit run app.py
 python benchmarks/run_mi300x_benchmark.py
 ```
 
-### Run Test Suite
+### Run Automated 3-Gate Audit
 ```bash
-pytest -q
+python scripts/verify_audit.py
+```
+Validates zero forbidden strings, documentation & benchmark consistency, full pytest test suite (10/10), and headless app compilation.
+
+### Generate Submission Media & Decks
+```bash
+python scripts/generate_pitch_deck.py   # Renders docs/slides/*.png and docs/paylens_pitch_deck.pdf
+python scripts/generate_pptx_deck.py    # Builds 16:9 presentation docs/paylens_pitch_deck.pptx
+python scripts/patch_demo_video.py      # Produces docs/submission_demo_final.mp4
 ```
 
 ---
 
-## 7. Limitations
+## 7. Submission Deliverables
+
+| Deliverable | Location | Description |
+|---|---|---|
+| **Live Web Application** | Streamlit Cloud / `app.py` | Full interactive Deal Desk with AMD hardware telemetry & dynamic goal steering |
+| **Walkthrough Video** | [`docs/submission_demo_final.mp4`](docs/submission_demo_final.mp4) | 1080p 30fps film with voiceover narration, motion graphics, and balanced math |
+| **Pitch Deck (PDF)** | [`docs/paylens_pitch_deck.pdf`](docs/paylens_pitch_deck.pdf) | 7-slide executive presentation covering architecture, benchmarks, and problem statement |
+| **Pitch Deck (PPTX)** | [`docs/paylens_pitch_deck.pptx`](docs/paylens_pitch_deck.pptx) | 16:9 widescreen presentation deck |
+| **Measured Benchmarks** | [`benchmarks/benchmark_results.json`](benchmarks/benchmark_results.json) | Authentic live telemetry across 3 concurrency tiers on AMD TokenFactory |
+| **Verification Suite** | [`scripts/verify_audit.py`](scripts/verify_audit.py) | Automated 3-gate audit ensuring data integrity and zero regressions |
+
+---
+
+## 8. Limitations
 
 1. **Synthetic Data**: PayLens is demonstrated on illustrative synthetic data modeled on global commerce rails. Real merchant deployments require production API tokens and live webhooks.
 2. **Shared vs Dedicated Hardware**: Performance measured on AMD TokenFactory reflects shared multi-tenant cloud infrastructure and will vary depending on cluster load. Dedicated AMD Instinct hosts provide consistent low-latency throughput.
@@ -244,6 +267,6 @@ pytest -q
 
 ---
 
-## 8. License
+## 9. License
 
 MIT License — Copyright (c) 2026 Labib-morol. See `LICENSE` for details.
