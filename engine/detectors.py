@@ -47,7 +47,7 @@ def _clean_email(email: Optional[str]) -> str:
 
 
 def populate_exhaustive_allowed_numbers(card: RecommendationCard) -> None:
-    """Ensure card.allowed_numbers includes all numbers from impact, confidence, formula, and evidence."""
+    """Ensure card.allowed_numbers includes all ledger figures, line-item quantities, computed dollar amounts, formula numbers, and evidence (excluding confidence scores)."""
     numbers = set(card.allowed_numbers if card.allowed_numbers else [])
 
     # Impact
@@ -57,12 +57,6 @@ def populate_exhaustive_allowed_numbers(card: RecommendationCard) -> None:
     if hasattr(card, "impact_taka") and card.impact_taka is not None:
         numbers.add(float(card.impact_taka))
         numbers.add(round(float(card.impact_taka), 2))
-
-    # Confidence
-    if card.confidence is not None:
-        numbers.add(float(card.confidence))
-        numbers.add(round(float(card.confidence) * 100.0, 1))
-        numbers.add(float(round(card.confidence * 100)))
 
     # Formula display numbers
     if card.formula_display:

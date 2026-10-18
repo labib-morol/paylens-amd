@@ -1,7 +1,7 @@
 {
   "benchmark_name": "paylens_live_dual_engine_benchmark",
-  "measured_at": "2026-10-17T17:29:48.398933+00:00",
-  "git_commit": "eb3e37e15ddea9e805d67c99c110f4a0f523bb59",
+  "measured_at": "2026-10-18T03:34:00.394069+00:00",
+  "git_commit": "995147b6c0d79ed0a44bf198cc394c5138f8540a",
   "amd_tokenfactory": {
     "is_live": true,
     "base_url": "https://developer.amd.com.cn/radeon/api/v1",

@@ -361,7 +361,7 @@ with st.sidebar.expander("What-If Simulation Sliders", expanded=False):
 
 # Courier Settlement PDF Extractor
 with st.sidebar.expander("Sample Courier Settlement PDF Inspection", expanded=False):
-    st.caption("Upload carrier remittance PDF or parse sample statement.")
+    st.caption("Parses bundled ExpressBD settlement statements to detect remittance shortfalls.")
     sample_pdf_path = os.path.join(ROOT_DIR, "data", "generated", "sample_courier_settlement.pdf")
     if os.path.exists(sample_pdf_path):
         if st.button("Parse sample_courier_settlement.pdf", width="stretch"):
@@ -813,8 +813,14 @@ def render_deal_desk_workspace(
                     template_note = "True" if active_enriched.used_template_fallback else "False"
                     st.caption(f"**Template Fallback:** `{template_note}`")
 
+                is_grounded = getattr(active_enriched, "grounding_passed", getattr(selected_card, "grounding_passed", False))
                 retries_attempted = getattr(active_enriched, "grounding_retries", getattr(selected_card, "grounding_retries", 0))
-                retries_disp = "N/A — Clean First Pass (100%)" if retries_attempted == 0 else f"{retries_attempted}"
+                if is_grounded is True and retries_attempted == 0:
+                    retries_disp = "N/A — Clean First Pass (100%)"
+                elif is_grounded is True:
+                    retries_disp = f"{retries_attempted}"
+                else:
+                    retries_disp = "N/A — Verification Pending"
                 st.caption(f"**Grounding Telemetry:** Retries: `{retries_disp}` &middot; Template Fallback: `{template_note}`")
 
                 # Grounding Verification Notice

@@ -617,7 +617,7 @@ Evidence Rows:
 {evidence_text}
 ALLOWED_NUMBERS: {card.allowed_numbers}
 
-CRITICAL RULE: Every single number or currency figure you write MUST come verbatim from ALLOWED_NUMBERS: {card.allowed_numbers}. Do NOT write any other digits in your text—write general timeframes in words (e.g., 'twenty-four hours', 'seven days') so no unverified numbers appear.
+CRITICAL RULE: Every single number or currency figure you write MUST come verbatim from ALLOWED_NUMBERS: {card.allowed_numbers}. Do NOT write any other digits in your text—write general timeframes in words (e.g., 'twenty-four hours', 'seven days') so no unverified numbers appear. Do not cite the model confidence score as a financial percentage.
 
 Write concise English explanations and action drafts. Output JSON format: {{"explanation_en": "...", "action_draft_en": "..."}}
 """
@@ -762,7 +762,7 @@ Evidence Rows:
 {evidence_text}
 ALLOWED_NUMBERS: {card.allowed_numbers}
 
-CRITICAL RULE: Every single number or currency figure you write MUST come verbatim from ALLOWED_NUMBERS: {card.allowed_numbers}. Do NOT write any other digits in your text—write general timeframes in words (e.g., 'twenty-four hours', 'seven days') so no unverified numbers appear.
+CRITICAL RULE: Every single number or currency figure you write MUST come verbatim from ALLOWED_NUMBERS: {card.allowed_numbers}. Do NOT write any other digits in your text—write general timeframes in words (e.g., 'twenty-four hours', 'seven days') so no unverified numbers appear. Do not cite the model confidence score as a financial percentage.
 
 Write concise English explanations and action drafts. Output JSON format: {{"explanation_en": "...", "action_draft_en": "..."}}
 """
