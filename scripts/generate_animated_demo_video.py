@@ -570,6 +570,41 @@ def ease_in_out(t: float) -> float:
     t = min(1.0, max(0.0, t))
     return 0.5 - 0.5 * math.cos(math.pi * t)
 
+def screen_to_canvas(sx1: int, sy1: int, sx2: int, sy2: int) -> Tuple[int, int, int, int]:
+    """Accurately maps coordinates from native 1920x1080 screen space to canvas mockup space."""
+    vp_x = 82
+    vp_y = 146
+    scale_x = 1756.0 / 1920.0
+    scale_y = 812.0 / 1080.0
+    return (
+        vp_x + int(sx1 * scale_x),
+        vp_y + int(sy1 * scale_y),
+        vp_x + int(sx2 * scale_x),
+        vp_y + int(sy2 * scale_y),
+    )
+
+def draw_top_hud_banner(
+    draw: ImageDraw.ImageDraw,
+    text: str,
+    border_color: Tuple[int, int, int] = C_EMERALD,
+    text_color: Tuple[int, int, int] = C_EMERALD_LIGHT,
+    icon: str = "⚡"
+):
+    """Draws a floating top HUD banner centered at y=72 (between chapter badge and window).
+    Guaranteed zero collision with the studio window mockup (which starts at y=110).
+    """
+    banner_w = 1100
+    banner_h = 36
+    bx1 = (WIDTH - banner_w) // 2
+    by1 = 54
+    bx2 = bx1 + banner_w
+    by2 = by1 + banner_h
+
+    # Translucent glassmorphic pill
+    draw.rounded_rectangle([(bx1, by1), (bx2, by2)], radius=8, fill=(11, 15, 25, 230), outline=border_color, width=1)
+    full_text = f"{icon}  {text}"
+    draw.text(((bx1 + bx2) // 2, by1 + 18), full_text, fill=text_color, font=font_badge, anchor="mm")
+
 # -----------------------------------------------------------------------------
 # 5. Upgraded Kinetic Motion Graphics Scene Renderers
 # -----------------------------------------------------------------------------
@@ -745,55 +780,93 @@ def render_s03_deal_desk(cue: Dict[str, Any], progress: float) -> Image.Image:
     draw_top_chapter_badge(ImageDraw.Draw(img), cue["chapter"])
 
     draw_studio_mockup(img, SCREEN_01, (0, 0, 1920, 1080))
-    box_telemetry = (695, 158, 1410, 205)
-    img = apply_institutional_dimmer(img, [box_telemetry], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
+    # KPI 4 is at sx1=1500, sy1=100, sx2=1880, sy2=195
+    box_telemetry = screen_to_canvas(1500, 100, 1880, 195)
+    img = apply_institutional_dimmer(img, [box_telemetry], border_color=C_CYAN, dim_factor=0.35, border_width=2)
 
     draw = ImageDraw.Draw(img)
 
-    # Pulsing radar beacon on AMD status dot
-    pulse_r = int(10 + 15 * ((progress * 5.0) % 1.0))
-    alpha_pulse = int(255 * (1.0 - ((progress * 5.0) % 1.0)))
-    draw.ellipse([(720 - pulse_r, 182 - pulse_r), (720 + pulse_r, 182 + pulse_r)], outline=(52, 211, 153, alpha_pulse), width=2)
-    draw.ellipse([(716, 178), (724, 186)], fill=C_EMERALD_LIGHT)
+    # Floating top HUD banner (above window, zero collision)
+    draw_top_hud_banner(
+        draw,
+        "LIVE DUAL-ENGINE TELEMETRY ACTIVE · AMD RADEON CLOUD + GOOGLE GEMMA 4",
+        border_color=C_CYAN,
+        text_color=C_CYAN,
+        icon="⚡"
+    )
 
-    # Floating HUD banner
-    draw.rounded_rectangle([(400, 118), (1520, 152)], radius=8, fill=(11, 15, 25, 240), outline=C_EMERALD, width=1)
-    draw.text((WIDTH // 2, 135), "⚡ LIVE DUAL-ENGINE TELEMETRY ACTIVE · AMD RADEON CLOUD + GOOGLE GEMMA 4", fill=C_EMERALD_LIGHT, font=font_badge, anchor="mm")
+    # Pulsing radar beacon on AMD status dot inside KPI 4
+    dot_x, dot_y = box_telemetry[2] - 30, box_telemetry[1] + 20
+    pulse_phase = (progress * 4.0) % 1.0
+    pulse_r = int(6 + 14 * pulse_phase)
+    alpha_pulse = int(255 * (1.0 - pulse_phase))
+    draw.ellipse([(dot_x - pulse_r, dot_y - pulse_r), (dot_x + pulse_r, dot_y + pulse_r)], outline=(56, 189, 248, alpha_pulse), width=2)
+    draw.ellipse([(dot_x - 4, dot_y - 4), (dot_x + 4, dot_y + 4)], fill=C_CYAN)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
 
 def render_s04_true_leak(cue: Dict[str, Any], progress: float) -> Image.Image:
-    """Scene 04: True Leakage Catch with animated formula scanner and live waterfall bar."""
+    """Scene 04: True Leakage Catch with animated formula scanner and verification badges."""
     img = Image.new("RGB", (WIDTH, HEIGHT), C_BG)
     draw_top_chapter_badge(ImageDraw.Draw(img), cue["chapter"])
 
     if cue["id"] == "b07":
         draw_studio_mockup(img, SCREEN_02, (0, 0, 1920, 1080))
-        highlight_box = (818, 396, 1806, 712)
-        img = apply_institutional_dimmer(img, [highlight_box], border_color=C_CYAN, dim_factor=0.35, border_width=2)
-        img = apply_ken_burns(img, progress, target_center=(1310, 550), max_zoom=1.20)
+        # Evidence Table (sx1=810, sy1=341, sx2=1880, sy2=491)
+        # Action Notice (sx1=810, sy1=516, sx2=1880, sy2=746)
+        box_table = screen_to_canvas(810, 341, 1880, 491)
+        box_action = screen_to_canvas(810, 516, 1880, 746)
+        img = apply_institutional_dimmer(img, [box_table, box_action], border_color=C_CYAN, dim_factor=0.35, border_width=2)
 
         draw = ImageDraw.Draw(img)
-        draw.rounded_rectangle([(840, 360), (1350, 395)], radius=6, fill=(15, 23, 42), outline=C_CYAN, width=2)
-        draw.text((855, 370), "✓ GROUNDING STATUS: PASSED · REGEX CHECKED AGAINST DUCKDB", fill=C_CYAN, font=font_badge)
+        # Top HUD Banner (clean above window, zero collision)
+        draw_top_hud_banner(
+            draw,
+            "AI GROUNDING VERIFICATION: 4/4 NUMERIC TOKENS GROUNDED IN DUCKDB · 0 RETRIES",
+            border_color=C_CYAN,
+            text_color=C_CYAN,
+            icon="🛡️"
+        )
+
+        # Pulsing approval action button inside the window
+        btn_box = (box_action[0] + 18, box_action[3] - 40, box_action[0] + 320, box_action[3] - 8)
+        pulse_alpha = int(180 + 75 * math.sin(progress * math.pi * 3))
+        draw.rounded_rectangle(btn_box, radius=5, fill=(16, 185, 129, pulse_alpha), outline=C_EMERALD_LIGHT, width=1)
+        draw.text(((btn_box[0] + btn_box[2]) // 2, (btn_box[1] + btn_box[3]) // 2), "✓ Approve Simulated Action ($1,255.00)", fill=C_WHITE, font=font_badge, anchor="mm")
 
         ai_sub = "AI explanation generated via live AMD Radeon Cloud TokenFactory (~11.5s latency condensed for demo pacing)."
         draw_bottom_caption_pill(draw, ai_sub, accent_words="live AMD Radeon Cloud TokenFactory")
         return img
     else:
         draw_studio_mockup(img, SCREEN_01, (0, 0, 1920, 1080))
-        box1 = (350, 400, 800, 482)
-        box2 = (818, 470, 1806, 542)
+        # Card 1: sx1=300, sy1=345, sx2=780, sy2=441
+        # Formula: sx1=810, sy1=440, sx2=1880, sy2=520
+        box1 = screen_to_canvas(300, 345, 780, 441)
+        box2 = screen_to_canvas(810, 440, 1880, 520)
         img = apply_institutional_dimmer(img, [box1, box2], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
-        img = apply_ken_burns(img, progress, target_center=(1310, 500), max_zoom=1.20)
 
         draw = ImageDraw.Draw(img)
-        # Scanner beam sweeping across formula banner
-        beam_x = int(820 + (1800 - 820) * ((progress * 2.0) % 1.0))
-        draw.line([(beam_x, 470), (beam_x, 542)], fill=(56, 189, 248, 180), width=3)
+        # Top HUD banner (clean above window, zero collision)
+        draw_top_hud_banner(
+            draw,
+            "DETERMINISTIC LEDGER MATCH: 1 DISPATCHED UNPAID ORDER × $1,255.00 = $1,255.00",
+            border_color=C_EMERALD,
+            text_color=C_EMERALD_LIGHT,
+            icon="✓"
+        )
 
-        draw.text((825, 555), "DETERMINISTIC PROOF: 1 DISPATCHED UNPAID ORDER * $1,255.00 = $1,255.00", fill=C_EMERALD_LIGHT, font=font_badge)
+        # Kinetic Laser scanner beam sweeping horizontally across formula banner
+        beam_t = (progress * 1.6) % 1.0
+        beam_x = int(box2[0] + (box2[2] - box2[0]) * beam_t)
+        draw.line([(beam_x, box2[1]), (beam_x, box2[3])], fill=(56, 189, 248), width=3)
+        draw.line([(beam_x - 2, box2[1]), (beam_x - 2, box2[3])], fill=(56, 189, 248, 100), width=1)
+        draw.line([(beam_x + 2, box2[1]), (beam_x + 2, box2[3])], fill=(56, 189, 248, 100), width=1)
+
+        # Dynamic match progress bar along bottom of formula banner
+        match_t = ease_out(min(1.0, progress / 0.50))
+        draw.line([(box2[0] + 15, box2[3] - 4), (box2[0] + 15 + int((box2[2] - box2[0] - 30) * match_t), box2[3] - 4)], fill=C_EMERALD_LIGHT, width=2)
+
         draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
         return img
 
@@ -803,27 +876,39 @@ def render_s05_grounded_triage(cue: Dict[str, Any], progress: float) -> Image.Im
     draw_top_chapter_badge(ImageDraw.Draw(img), cue["chapter"])
 
     draw_studio_mockup(img, SCREEN_01, (0, 0, 1920, 1080))
-    box_card2 = (350, 483, 800, 565)
-    box_details = (818, 396, 1806, 680)
-    img = apply_institutional_dimmer(img, [box_card2, box_details], border_color=C_AMBER, dim_factor=0.35, border_width=2)
+    # Card 2 (ORD-STRESS-DELAY-1): sx1=300, sy1=455, sx2=780, sy2=551
+    box_card2 = screen_to_canvas(300, 455, 780, 551)
+    img = apply_institutional_dimmer(img, [box_card2], border_color=C_AMBER, dim_factor=0.35, border_width=2)
 
     draw = ImageDraw.Draw(img)
-    draw.rounded_rectangle([(840, 450), (1780, 620)], radius=8, fill=(32, 24, 15), outline=C_AMBER, width=2)
-    draw.text((865, 470), "INTENTIONAL STRESS-TEST EDGE CASE · 48H SEPA DELAY ($850.00)", fill=C_AMBER, font=font_title)
-    draw.text((865, 510), "Legitimate wire transfer settled 48 hours after order dispatch, exceeding 30-minute matching window.", fill=C_MUTED, font=font_body)
-    draw.text((865, 545), "Preserves 100% audit trail transparency · Flagged for human operator review in 1 click.", fill=C_WHITE, font=font_body)
+    # Top HUD banner (clean above window, zero collision)
+    draw_top_hud_banner(
+        draw,
+        "INTENTIONAL STRESS-TEST EDGE CASE: 48H SEPA WIRE DELAY ($850.00) · 1-CLICK TRIAGE",
+        border_color=C_AMBER,
+        text_color=C_AMBER,
+        icon="⚠️"
+    )
 
-    # Virtual cursor moving to 'Reject / Flag False Positive' button
-    cur_t = ease_in_out(min(1.0, progress / 0.50))
-    cur_x = int(1200 + (1520 - 1200) * cur_t)
-    cur_y = int(620 + (575 - 620) * cur_t)
+    # Virtual cursor moving smoothly across Card 2 to click inspect
+    target_btn_x = box_card2[2] - 55
+    target_btn_y = box_card2[1] + 65
+
+    cur_t = ease_in_out(min(1.0, progress / 0.45))
+    cur_x = int(box_card2[0] + 40 + (target_btn_x - (box_card2[0] + 40)) * cur_t)
+    cur_y = int(box_card2[1] + 20 + (target_btn_y - (box_card2[1] + 20)) * cur_t)
     draw.polygon([(cur_x, cur_y), (cur_x + 16, cur_y + 12), (cur_x + 6, cur_y + 16)], fill=C_WHITE, outline=(0, 0, 0))
 
-    if progress > 0.50:
-        ripple_r = int(15 + 25 * ((progress - 0.50) / 0.50))
-        draw.ellipse([(1520 - ripple_r, 575 - ripple_r), (1520 + ripple_r, 575 + ripple_r)], outline=C_EMERALD_LIGHT, width=2)
-        draw.rounded_rectangle([(840, 630), (1500, 675)], radius=6, fill=(16, 185, 129, 220))
-        draw.text((860, 642), "✓ 1-CLICK TRIAGE LOGGED: Order #ORD-STRESS-DELAY-1 Excluded as Expected False Positive", fill=(11, 15, 25), font=font_badge)
+    if progress > 0.45:
+        # Concentric ripple ring
+        ripple_phase = (progress - 0.45) / 0.55
+        ripple_r = int(10 + 20 * (ripple_phase % 0.5) / 0.5)
+        draw.ellipse([(target_btn_x - ripple_r, target_btn_y - ripple_r), (target_btn_x + ripple_r, target_btn_y + ripple_r)], outline=C_AMBER, width=2)
+
+        # Sleek audit confirmation toast at bottom of window (zero collision)
+        toast_box = (822, 690, 1801, 735)
+        draw.rounded_rectangle(toast_box, radius=6, fill=(22, 32, 50), outline=C_AMBER, width=2)
+        draw.text(((toast_box[0] + toast_box[2]) // 2, (toast_box[1] + toast_box[3]) // 2), "✓ 1-CLICK TRIAGE LOGGED: Order #ORD-STRESS-DELAY-1 Transparently Flagged (F1: 0.9333)", fill=C_AMBER, font=font_badge, anchor="mm")
 
     s05_sub = "Stress-test edge case: 48-hour SEPA wire settlement lag transparently flagged for operator review (F1: 0.933)."
     draw_bottom_caption_pill(draw, s05_sub, accent_words="transparently flagged for operator review")
@@ -835,31 +920,48 @@ def render_s06_objective_steering(cue: Dict[str, Any], progress: float) -> Image
     draw_top_chapter_badge(ImageDraw.Draw(img), cue["chapter"])
 
     draw_studio_mockup(img, SCREEN_03, (0, 0, 1920, 1080))
-    box_radio = (95, 335, 275, 375)
-    box_card1 = (350, 400, 800, 482)
+    # Sidebar "Prevent Stockouts": sx1=24, sy1=269, sx2=256, sy2=301
+    # Card 1 (SKU-APX-01): sx1=300, sy1=345, sx2=780, sy2=441
+    box_radio = screen_to_canvas(24, 269, 256, 301)
+    box_card1 = screen_to_canvas(300, 345, 780, 441)
     img = apply_institutional_dimmer(img, [box_radio, box_card1], border_color=C_PURPLE, dim_factor=0.35, border_width=2)
 
     draw = ImageDraw.Draw(img)
 
-    # Dynamic Weight Rebalance HUD Overlay
-    hx, hy = 840, 200
-    hud_w, hud_h = 600, 130
-    draw.rounded_rectangle([(hx, hy), (hx + hud_w, hy + hud_h)], radius=10, fill=(11, 15, 25, 240), outline=C_PURPLE, width=2)
-    draw.text((hx + 20, hy + 14), "DYNAMIC MULTI-OBJECTIVE OPTIMIZATION WEIGHTS", fill=C_PURPLE, font=font_badge)
+    # Top HUD banner (clean above window, zero collision)
+    draw_top_hud_banner(
+        draw,
+        "DYNAMIC OBJECTIVE STEERING: PREVENT STOCKOUTS · HERO BLAZER (SKU-APX-01) PROMOTED TO #1 ($1,597.50)",
+        border_color=C_PURPLE,
+        text_color=C_PURPLE,
+        icon="🔄"
+    )
+
+    # Clean Weight Rebalancer HUD embedded inside empty top-nav bar zone (y=155 to 205, x=1160 to 1800)
+    hx, hy = 1160, 155
+    hud_w, hud_h = 640, 50
+    draw.rounded_rectangle([(hx, hy), (hx + hud_w, hy + hud_h)], radius=6, fill=(11, 15, 25, 240), outline=C_PURPLE, width=1)
 
     shift_t = ease_in_out(progress / 0.60)
     w_cash = 0.80 - 0.70 * shift_t
     w_stock = 0.10 + 0.35 * shift_t
 
-    draw.text((hx + 20, hy + 45), f"Cash Recovery Weight: {w_cash:.2f}", fill=C_MUTED, font=font_caption)
-    draw.rounded_rectangle([(hx + 240, hy + 48), (hx + 560, hy + 60)], radius=4, fill=C_PANEL_ALT)
-    draw.rounded_rectangle([(hx + 240, hy + 48), (hx + 240 + int(320 * (w_cash / 0.80)), hy + 60)], radius=4, fill=C_EMERALD)
+    # Cash Weight Meter
+    draw.text((hx + 15, hy + 10), f"Cash: {w_cash:.2f}", fill=C_MUTED, font=font_badge)
+    draw.rounded_rectangle([(hx + 100, hy + 12), (hx + 280, hy + 22)], radius=3, fill=C_PANEL_ALT)
+    draw.rounded_rectangle([(hx + 100, hy + 12), (hx + 100 + int(180 * (w_cash / 0.80)), hy + 22)], radius=3, fill=C_EMERALD)
 
-    draw.text((hx + 20, hy + 80), f"Stock Protection Weight: {w_stock:.2f}", fill=C_MUTED, font=font_caption)
-    draw.rounded_rectangle([(hx + 240, hy + 83), (hx + 560, hy + 95)], radius=4, fill=C_PANEL_ALT)
-    draw.rounded_rectangle([(hx + 240, hy + 83), (hx + 240 + int(320 * (w_stock / 0.45)), hy + 95)], radius=4, fill=C_PURPLE)
+    # Stock Weight Meter
+    draw.text((hx + 310, hy + 10), f"Stock: {w_stock:.2f}", fill=C_PURPLE, font=font_badge)
+    draw.rounded_rectangle([(hx + 410, hy + 12), (hx + 590, hy + 22)], radius=3, fill=C_PANEL_ALT)
+    draw.rounded_rectangle([(hx + 410, hy + 12), (hx + 410 + int(180 * (w_stock / 0.45)), hy + 22)], radius=3, fill=C_PURPLE)
 
-    draw.text((360, 375), "DYNAMIC RE-RANKING: HERO BLAZER (SKU-APX-01) PROMOTED TO #1 ($1,597.50)", fill=C_PURPLE, font=font_badge)
+    draw.text((hx + 15, hy + 30), "Holt-Winters 7-Day Lead Time Optimization", fill=C_DIM, font=font_caption)
+
+    # Pulsing #1 Priority Badge on Card 1
+    badge_x, badge_y = box_card1[2] - 90, box_card1[1] + 12
+    draw.rounded_rectangle([(badge_x - 10, badge_y - 2), (badge_x + 75, badge_y + 18)], radius=4, fill=C_PURPLE)
+    draw.text((badge_x - 4, badge_y), "★ RANK #1", fill=C_WHITE, font=font_badge)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
@@ -871,23 +973,55 @@ def render_s07_benchmarks(cue: Dict[str, Any], progress: float) -> Image.Image:
 
     if cue["id"] == "b12":
         draw_studio_mockup(img, SCREEN_05, (0, 0, 1920, 1080))
-        highlight_box = (350, 335, 1805, 785)
-        img = apply_institutional_dimmer(img, [highlight_box], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
+        # Stress-test split: sx1=1102, sy1=355, sx2=1856, sy2=495
+        # Edge cases table: sx1=324, sy1=550, sx2=1856, sy2=745
+        box_matrix = screen_to_canvas(1102, 355, 1856, 495)
+        box_cases = screen_to_canvas(324, 550, 1856, 745)
+        img = apply_institutional_dimmer(img, [box_matrix, box_cases], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
         draw = ImageDraw.Draw(img)
 
-        f1_val = min(0.9333, 0.9333 * ease_out(progress / 0.60))
-        draw.rounded_rectangle([(840, 260), (1400, 315)], radius=8, fill=(11, 15, 25, 240), outline=C_EMERALD, width=2)
-        draw.text((860, 275), f"AUTHENTIC STRESS-TEST F1: {f1_val:.4f} · 28 TP · 2 FP · 2 FN", fill=C_EMERALD_LIGHT, font=font_title)
+        f1_val = min(0.9333, 0.9333 * ease_out(progress / 0.50))
+        # Top HUD banner (clean above window, zero collision)
+        draw_top_hud_banner(
+            draw,
+            f"STRESS-TEST EVALUATION: {f1_val:.4f} F1 SCORE · 28 TP · 2 FP · 2 FN (FULL DISCLOSURE)",
+            border_color=C_EMERALD,
+            text_color=C_EMERALD_LIGHT,
+            icon="📊"
+        )
+
+        # Highlight pulse on row 1 (ORD-STRESS-DELAY-1) in the cases table
+        pulse_alpha = int(120 + 80 * math.sin(progress * math.pi * 3))
+        row_y = box_cases[1] + 46
+        draw.rounded_rectangle([(box_cases[0] + 15, row_y), (box_cases[2] - 15, row_y + 26)], radius=4, outline=(245, 158, 11, pulse_alpha), width=1)
     else:
         draw_studio_mockup(img, SCREEN_04, (0, 0, 1920, 1080))
-        highlight_box = (350, 335, 1805, 785)
-        img = apply_institutional_dimmer(img, [highlight_box], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
-        img = apply_ken_burns(img, progress, target_center=(1080, 560), max_zoom=1.20)
+        # 3 Concurrency Tier Metric Cards: sx1=324, sy1=435, sx2=1856, sy2=540
+        # Scaling Bar Chart: sx1=324, sy1=593, sx2=1856, sy2=760
+        box_tiers = screen_to_canvas(324, 435, 1856, 540)
+        box_chart = screen_to_canvas(324, 593, 1856, 760)
+        img = apply_institutional_dimmer(img, [box_tiers, box_chart], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
 
         draw = ImageDraw.Draw(img)
-        tok_val = 18.2 + (62.9 - 18.2) * ease_out(progress / 0.70)
-        draw.rounded_rectangle([(840, 260), (1500, 315)], radius=8, fill=(11, 15, 25, 240), outline=C_EMERALD, width=2)
-        draw.text((860, 275), f"LIVE AMD TOKENFACTORY TELEMETRY: {tok_val:.1f} TOK/S · 3.5x BURST SCALING", fill=C_EMERALD_LIGHT, font=font_title)
+        tok_val = 18.2 + (62.9 - 18.2) * ease_out(progress / 0.60)
+        # Top HUD banner (clean above window, zero collision)
+        draw_top_hud_banner(
+            draw,
+            f"LIVE AMD TOKENFACTORY TELEMETRY: {tok_val:.1f} TOK/S · 3.5x HARDWARE BURST SCALING",
+            border_color=C_EMERALD,
+            text_color=C_EMERALD_LIGHT,
+            icon="⚡"
+        )
+
+        # Sweeping vertical scanline across the chart canvas
+        scan_t = (progress * 1.5) % 1.0
+        scan_x = int(box_chart[0] + (box_chart[2] - box_chart[0]) * scan_t)
+        draw.line([(scan_x, box_chart[1]), (scan_x, box_chart[3])], fill=(16, 185, 129, 140), width=2)
+
+        # Pulsing peak beacon on Concurrency 4 tier card (middle tier: x=850 to 1300, y=473 to 552)
+        tier2_x = (box_tiers[0] + box_tiers[2]) // 2
+        pulse_r = int(8 + 12 * ((progress * 3.0) % 1.0))
+        draw.ellipse([(tier2_x - pulse_r, box_tiers[1] + 25 - pulse_r), (tier2_x + pulse_r, box_tiers[1] + 25 + pulse_r)], outline=C_EMERALD_LIGHT, width=2)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
@@ -1078,6 +1212,11 @@ async def main():
     shutil.copyfile(OUTPUT_MP4, docs_final_mp4)
     print(f"  [COPIED] Mirrored to {docs_mp4}")
     print(f"  [COPIED] Mirrored to {docs_final_mp4}")
+
+    remotion_out = ROOT_DIR.parent / "paylens-remotion" / "out"
+    if remotion_out.exists():
+        shutil.copyfile(OUTPUT_MP4, str(remotion_out / "submission_demo_final.mp4"))
+        print(f"  [COPIED] Mirrored to {remotion_out / 'submission_demo_final.mp4'}")
 
     print("\n[SUCCESS] submission_demo_animated.mp4 is 100% verified and ready for hackathon submission!")
 
