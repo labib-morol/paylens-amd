@@ -55,3 +55,6 @@ def rank_cards(
 
     scored_cards.sort(key=lambda c: c.ranking_score, reverse=True)
     return scored_cards
+
+
+__all__ = ["rank_cards", "get_applicable_weight", "PRESET_GOAL_WEIGHTS"]

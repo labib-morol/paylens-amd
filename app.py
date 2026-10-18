@@ -30,8 +30,22 @@ if ROOT_DIR not in sys.path:
 
 from engine.schema import RecommendationCard, RecommendationType, LeakSubType, GoalWeights, ExecutionSource
 from engine.pipeline import run_pipeline, get_merchant_names
-from engine.ranker import rank_cards, PRESET_GOAL_WEIGHTS
 from engine.evaluator import evaluate_recommendations
+from engine.ranker import rank_cards
+try:
+    from engine.ranker import PRESET_GOAL_WEIGHTS
+except ImportError:
+    PRESET_GOAL_WEIGHTS = {
+        "Urgent Cash Recovery (High Cash)": GoalWeights(
+            cash_now_weight=0.80, margin_protection_weight=0.10, stock_availability_weight=0.10
+        ),
+        "Protect Profit Margins (High Margin)": GoalWeights(
+            cash_now_weight=0.15, margin_protection_weight=0.70, stock_availability_weight=0.15
+        ),
+        "Prevent Stockouts (High Inventory Cover)": GoalWeights(
+            cash_now_weight=0.10, margin_protection_weight=0.20, stock_availability_weight=0.70
+        ),
+    }
 from agent.gemma_agent import (
     check_endpoint_status,
     check_endpoint_health,
