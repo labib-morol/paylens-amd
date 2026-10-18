@@ -1,48 +1,41 @@
-# Byte-compiled / optimized / DLL files
+# Environment & Secret Credentials
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+secrets.toml
+*.pem
+*.key
+
+# Python virtual environment & runtime artifacts
+.venv/
+venv/
+ENV/
+env/
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.Python
-
-# Virtual Environments
-env/
-venv/
-.venv/
-ENV/
-
-# Build & Distribution
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 build/
 dist/
 *.egg-info/
 
-# Secrets and environment
-.env
-.env.local
-.env.*.local
-.env.*
-!.env.example
-*.pem
-*.key
-secrets.toml
-.streamlit/secrets.toml
-.streamlit/*
-!.streamlit/config.toml
-
-# DuckDB runtime artifacts
+# Local data & temporary caches
+data/generated/*.duckdb.wal
 *.duckdb.wal
 *.duckdb.tmp
 *sandbox*.duckdb
-data/generated/*.duckdb.wal
-
-# Temporary video & audio build scratchpads
-temp/
-tmp/
-temp_audio/
-temp_frames/
-temp_video_build/
-artifacts/
 artifacts/video_patch/frames/
+artifacts/video_patch/*.mp4
+artifacts/video_patch/*.aac
+artifacts/video_patch/
+artifacts/
+temp_video_build/
 video_frames/
 submission_demo_animated.mp4
 *.wav
@@ -50,26 +43,18 @@ submission_demo_animated.mp4
 !assets/
 !docs/
 !demo_studio/
-
-# Test & coverage caches
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
-
-# Logs
-logs/
+*.tmp
 *.log
 *.jsonl
+logs/
 
-# IDE & OS files
-.idea/
-.vscode/
-*.swp
-*.swo
+# OS & IDE metadata
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
 
 # Untracked Skills & Third-Party Caches
 .agents/skills/
