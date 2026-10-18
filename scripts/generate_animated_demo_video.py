@@ -562,18 +562,28 @@ def apply_ken_burns(
     return cropped.resize((w, h), Image.Resampling.BICUBIC)
 
 # -----------------------------------------------------------------------------
-# 5. Scene Renderers
+def ease_out(t: float) -> float:
+    t = min(1.0, max(0.0, t))
+    return 1.0 - math.pow(1.0 - t, 3)
+
+def ease_in_out(t: float) -> float:
+    t = min(1.0, max(0.0, t))
+    return 0.5 - 0.5 * math.cos(math.pi * t)
+
+# -----------------------------------------------------------------------------
+# 5. Upgraded Kinetic Motion Graphics Scene Renderers
 # -----------------------------------------------------------------------------
 def render_s01_problem(cue: Dict[str, Any], progress: float) -> Image.Image:
-    """Scene 01: The Multi-Rail E-Commerce Problem."""
+    """Scene 01: The Multi-Rail E-Commerce Problem with kinetic sliding cards and ticking ticker."""
     img = Image.new("RGB", (WIDTH, HEIGHT), C_BG)
     draw = ImageDraw.Draw(img)
     draw_top_chapter_badge(draw, cue["chapter"])
 
-    # Headline
-    draw.text((80, 110), "Messages. Payouts. ", fill=C_WHITE, font=font_huge)
+    # Headline entrance
+    head_y = 110
+    draw.text((80, head_y), "Messages. Payouts. ", fill=C_WHITE, font=font_huge)
     tw1 = draw.textlength("Messages. Payouts. ", font=font_huge)
-    draw.text((80 + tw1, 110), "Discrepancies.", fill=C_CRIMSON, font=font_huge)
+    draw.text((80 + tw1, head_y), "Discrepancies.", fill=C_CRIMSON, font=font_huge)
 
     draw.text(
         (80, 180),
@@ -581,7 +591,7 @@ def render_s01_problem(cue: Dict[str, Any], progress: float) -> Image.Image:
         fill=C_MUTED, font=font_body_lg
     )
 
-    # Left: Disconnected Rails Cards
+    # Left: Disconnected Rails Cards with staggered slide-in along X-axis
     rails = [
         ("Shopify & WooCommerce", "Orders dispatched upon digital cart checkout", C_CYAN),
         ("Stripe & PayPal", "Gateways settling on independent net-term schedules", C_INDIGO),
@@ -589,37 +599,55 @@ def render_s01_problem(cue: Dict[str, Any], progress: float) -> Image.Image:
         ("Warehouse Inventory", "High-margin hero SKUs stockout before supplier reorder", C_PURPLE),
     ]
     card_y = 260
-    for title, desc, col in rails:
-        draw.rounded_rectangle([(80, card_y), (850, card_y + 90)], radius=10, fill=C_PANEL, outline=C_BORDER, width=1)
-        draw.rectangle([(80, card_y + 10), (84, card_y + 80)], fill=col)
-        draw.text((105, card_y + 16), title, fill=C_WHITE, font=font_card_head)
-        draw.text((105, card_y + 50), desc, fill=C_MUTED, font=font_body)
+    for idx, (title, desc, col) in enumerate(rails):
+        item_t = ease_out((progress - idx * 0.05) / 0.35)
+        offset_x = int((1.0 - item_t) * -350)
+        x1 = 80 + offset_x
+        x2 = 850 + offset_x
+        if x2 > 0:
+            draw.rounded_rectangle([(x1, card_y), (x2, card_y + 90)], radius=10, fill=C_PANEL, outline=C_BORDER, width=1)
+            draw.rectangle([(x1, card_y + 10), (x1 + 4, card_y + 80)], fill=col)
+            draw.text((x1 + 25, card_y + 16), title, fill=C_WHITE, font=font_card_head)
+            draw.text((x1 + 25, card_y + 50), desc, fill=C_MUTED, font=font_body)
         card_y += 110
 
-    # Right: The Cold Ledger Reality
-    draw.rounded_rectangle([(920, 260), (1840, 700)], radius=14, fill=C_PANEL, outline=(239, 68, 68), width=2)
-    draw.text((960, 295), "MEASURED REVENUE LEAKAGE (20 STORES)", fill=C_CRIMSON, font=font_card_head)
-    draw.text((960, 340), "$10,975.00", fill=C_WHITE, font=font_giant)
-    draw.text((960, 420), "Silently Vanishing Across 3 Unreconciled Risk Buckets:", fill=C_MUTED, font=font_body)
+    # Right: The Cold Ledger Reality with animated counting ticker
+    r_t = ease_out(progress / 0.35)
+    r_offset = int((1.0 - r_t) * 350)
+    rx1 = 920 + r_offset
+    rx2 = 1840 + r_offset
 
-    buckets = [
-        ("Dispatched Unpaid Orders", "$2,280.00", "Hard ledger mismatches on Stripe & PayPal", C_CRIMSON),
-        ("Carrier COD Remittance Shortfalls", "$175.00", "Under-settled cash collected by commercial couriers", C_AMBER),
-        ("Forecasted 7-Day Stockout Margin", "$1,597.50", "High-margin revenue lost to supplier lead-time gaps", C_PURPLE),
-    ]
-    by = 460
-    for b_title, b_amt, b_desc, b_col in buckets:
-        draw.rounded_rectangle([(960, by), (1800, by + 65)], radius=8, fill=C_PANEL_ALT, outline=C_BORDER, width=1)
-        draw.text((980, by + 12), b_title, fill=C_WHITE, font=font_body)
-        draw.text((980, by + 36), b_desc, fill=C_DIM, font=font_caption)
-        draw.text((1680, by + 18), b_amt, fill=b_col, font=font_card_head)
-        by += 75
+    if rx1 < WIDTH:
+        draw.rounded_rectangle([(rx1, 260), (rx2, 700)], radius=14, fill=C_PANEL, outline=C_CRIMSON, width=2)
+        draw.text((rx1 + 40, 295), "MEASURED REVENUE LEAKAGE (20 STORES)", fill=C_CRIMSON, font=font_card_head)
+
+        # Counting animation: 0 -> 10,975
+        count_t = ease_out(progress / 0.60)
+        count_val = 10975.0 * count_t
+        draw.text((rx1 + 40, 340), f"${count_val:,.2f}", fill=C_WHITE, font=font_giant)
+        draw.text((rx1 + 40, 420), "Silently Vanishing Across 3 Unreconciled Risk Buckets:", fill=C_MUTED, font=font_body)
+
+        buckets = [
+            ("Dispatched Unpaid Orders", "$2,280.00", "Hard ledger mismatches on Stripe & PayPal", C_CRIMSON),
+            ("Carrier COD Remittance Shortfalls", "$175.00", "Under-settled cash collected by commercial couriers", C_AMBER),
+            ("Forecasted 7-Day Stockout Margin", "$1,597.50", "High-margin revenue lost to supplier lead-time gaps", C_PURPLE),
+        ]
+        by = 460
+        for b_idx, (b_title, b_amt, b_desc, b_col) in enumerate(buckets):
+            b_t = ease_out((progress - 0.20 - b_idx * 0.08) / 0.35)
+            bx_off = int((1.0 - b_t) * 200)
+            if b_t > 0:
+                draw.rounded_rectangle([(rx1 + 40 + bx_off, by), (rx2 - 40 + bx_off, by + 65)], radius=8, fill=C_PANEL_ALT, outline=C_BORDER, width=1)
+                draw.text((rx1 + 60 + bx_off, by + 12), b_title, fill=C_WHITE, font=font_body)
+                draw.text((rx1 + 60 + bx_off, by + 36), b_desc, fill=C_DIM, font=font_caption)
+                draw.text((rx2 - 160 + bx_off, by + 18), b_amt, fill=b_col, font=font_card_head)
+            by += 75
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
 
 def render_s02_architecture(cue: Dict[str, Any], progress: float) -> Image.Image:
-    """Scene 02: Dual-Engine Architecture (Code Computes, Model Explains)."""
+    """Scene 02: Dual-Engine Architecture with kinetic data flow particles and module cards."""
     img = Image.new("RGB", (WIDTH, HEIGHT), C_BG)
     draw = ImageDraw.Draw(img)
     draw_top_chapter_badge(draw, cue["chapter"])
@@ -635,14 +663,15 @@ def render_s02_architecture(cue: Dict[str, Any], progress: float) -> Image.Image
         fill=C_MUTED, font=font_body_lg
     )
 
-    # 3 Architecture Columns
     col_w = 540
     # Box 1: Deterministic Engine (DuckDB / Python)
     x1 = 80
-    draw.rounded_rectangle([(x1, 260), (x1 + col_w, 750)], radius=12, fill=C_PANEL, outline=C_EMERALD, width=2)
-    draw.text((x1 + 30, 290), "01 / DETERMINISTIC CORE", fill=C_EMERALD, font=font_card_head)
-    draw.text((x1 + 30, 330), "DuckDB + statsmodels", fill=C_WHITE, font=font_title)
-    draw.text((x1 + 30, 375), "Calculates 100% of arithmetic before LLM call:", fill=C_MUTED, font=font_body)
+    b1_t = ease_out(progress / 0.30)
+    y1_off = int((1.0 - b1_t) * 120)
+    draw.rounded_rectangle([(x1, 260 + y1_off), (x1 + col_w, 750 + y1_off)], radius=12, fill=C_PANEL, outline=C_EMERALD, width=2)
+    draw.text((x1 + 30, 290 + y1_off), "01 / DETERMINISTIC CORE", fill=C_EMERALD, font=font_card_head)
+    draw.text((x1 + 30, 330 + y1_off), "DuckDB + statsmodels", fill=C_WHITE, font=font_title)
+    draw.text((x1 + 30, 375 + y1_off), "Calculates arithmetic before LLM call:", fill=C_MUTED, font=font_body)
 
     det_items = [
         "2-Pass Order Matcher (Exact + 30m Fuzzy)",
@@ -651,17 +680,19 @@ def render_s02_architecture(cue: Dict[str, Any], progress: float) -> Image.Image
         "STL Seasonal Revenue Residuals (|z| > 2.2)",
         "Deterministic Formula Strings & Allowed Numbers",
     ]
-    iy = 420
+    iy = 420 + y1_off
     for item in det_items:
-        draw.text((x1 + 35, iy), f"— {item}", fill=C_WHITE, font=font_body)
+        draw.text((x1 + 35, iy), f"✓  {item}", fill=C_WHITE, font=font_body)
         iy += 55
 
     # Box 2: Regex Grounding Shield
     x2 = x1 + col_w + 40
-    draw.rounded_rectangle([(x2, 260), (x2 + col_w, 750)], radius=12, fill=C_PANEL, outline=C_CYAN, width=2)
-    draw.text((x2 + 30, 290), "02 / GROUNDING SHIELD", fill=C_CYAN, font=font_card_head)
-    draw.text((x2 + 30, 330), "Regex Numeric Verifier", fill=C_WHITE, font=font_title)
-    draw.text((x2 + 30, 375), "Audits model tokens against DuckDB numbers:", fill=C_MUTED, font=font_body)
+    b2_t = ease_out((progress - 0.15) / 0.30)
+    y2_off = int((1.0 - b2_t) * 120)
+    draw.rounded_rectangle([(x2, 260 + y2_off), (x2 + col_w, 750 + y2_off)], radius=12, fill=C_PANEL, outline=C_CYAN, width=2)
+    draw.text((x2 + 30, 290 + y2_off), "02 / GROUNDING SHIELD", fill=C_CYAN, font=font_card_head)
+    draw.text((x2 + 30, 330 + y2_off), "Regex Numeric Verifier", fill=C_WHITE, font=font_title)
+    draw.text((x2 + 30, 375 + y2_off), "Audits model tokens against DuckDB numbers:", fill=C_MUTED, font=font_body)
 
     shield_items = [
         "Extracts numeric tokens from LLM prose",
@@ -670,17 +701,19 @@ def render_s02_architecture(cue: Dict[str, Any], progress: float) -> Image.Image
         "1-Shot Correction Retry on unverified tokens",
         "Safe Fallback to Deterministic Template",
     ]
-    iy = 420
+    iy = 420 + y2_off
     for item in shield_items:
-        draw.text((x2 + 35, iy), f"— {item}", fill=C_WHITE, font=font_body)
+        draw.text((x2 + 35, iy), f"🛡️ {item}", fill=C_WHITE, font=font_body)
         iy += 55
 
     # Box 3: AMD GPU & Google Gemma Agent
     x3 = x2 + col_w + 40
-    draw.rounded_rectangle([(x3, 260), (x3 + col_w, 750)], radius=12, fill=C_PANEL, outline=C_INDIGO, width=2)
-    draw.text((x3 + 30, 290), "03 / REASONING LAYER", fill=C_INDIGO, font=font_card_head)
-    draw.text((x3 + 30, 330), "AMD Radeon Cloud", fill=C_WHITE, font=font_title)
-    draw.text((x3 + 30, 375), "Hosted API + Google Gemma 4 REST:", fill=C_MUTED, font=font_body)
+    b3_t = ease_out((progress - 0.30) / 0.30)
+    y3_off = int((1.0 - b3_t) * 120)
+    draw.rounded_rectangle([(x3, 260 + y3_off), (x3 + col_w, 750 + y3_off)], radius=12, fill=C_PANEL, outline=C_INDIGO, width=2)
+    draw.text((x3 + 30, 290 + y3_off), "03 / REASONING LAYER", fill=C_INDIGO, font=font_card_head)
+    draw.text((x3 + 30, 330 + y3_off), "AMD Radeon Cloud", fill=C_WHITE, font=font_title)
+    draw.text((x3 + 30, 375 + y3_off), "Hosted API + Google Gemma 4 REST:", fill=C_MUTED, font=font_body)
 
     ai_items = [
         "AMD TokenFactory: DeepSeek-V4-Flash",
@@ -689,148 +722,188 @@ def render_s02_architecture(cue: Dict[str, Any], progress: float) -> Image.Image
         "Drafts tailored outreach to carriers & buyers",
         "Human-in-the-Loop 1-Click Action Approval",
     ]
-    iy = 420
+    iy = 420 + y3_off
     for item in ai_items:
-        draw.text((x3 + 35, iy), f"— {item}", fill=C_WHITE, font=font_body)
+        draw.text((x3 + 35, iy), f"⚡ {item}", fill=C_WHITE, font=font_body)
         iy += 55
+
+    # Kinetic animated data pulses traveling between columns
+    flow_phase = (progress * 6.0) % 1.0
+    p1_x = int((x1 + col_w) + flow_phase * 40)
+    p2_x = int((x2 + col_w) + flow_phase * 40)
+    draw.line([(x1 + col_w, 500), (x2, 500)], fill=C_BORDER_LIGHT, width=2)
+    draw.line([(x2 + col_w, 500), (x3, 500)], fill=C_BORDER_LIGHT, width=2)
+    draw.ellipse([(p1_x - 5, 495), (p1_x + 5, 505)], fill=C_CYAN)
+    draw.ellipse([(p2_x - 5, 495), (p2_x + 5, 505)], fill=C_EMERALD)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
 
 def render_s03_deal_desk(cue: Dict[str, Any], progress: float) -> Image.Image:
-    """Scene 03: Live Deal Desk on Apex Global Apparel with Institutional Dimmer on telemetry pills."""
+    """Scene 03: Live Deal Desk with pulsing hardware status beacon and counting KPIs."""
     img = Image.new("RGB", (WIDTH, HEIGHT), C_BG)
     draw_top_chapter_badge(ImageDraw.Draw(img), cue["chapter"])
 
-    # Draw full app screen inside studio mockup
     draw_studio_mockup(img, SCREEN_01, (0, 0, 1920, 1080))
+    box_telemetry = (695, 158, 1410, 205)
+    img = apply_institutional_dimmer(img, [box_telemetry], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
 
-    # Institutional Dimmer:
-    # Highlight box strictly within top navigation bounds: x=695..1410, y=158..205
-    # Height is 47px, strictly above the metric cards at y=221!
-    highlight_box = (695, 158, 1410, 205)
-    img = apply_institutional_dimmer(img, [highlight_box], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
-
-    # Clean label in studio window title bar
     draw = ImageDraw.Draw(img)
-    draw.text((700, 126), "LIVE HARDWARE TELEMETRY · AMD TOKENFACTORY & GOOGLE GEMMA 4", fill=C_EMERALD_LIGHT, font=font_badge)
+
+    # Pulsing radar beacon on AMD status dot
+    pulse_r = int(10 + 15 * ((progress * 5.0) % 1.0))
+    alpha_pulse = int(255 * (1.0 - ((progress * 5.0) % 1.0)))
+    draw.ellipse([(720 - pulse_r, 182 - pulse_r), (720 + pulse_r, 182 + pulse_r)], outline=(52, 211, 153, alpha_pulse), width=2)
+    draw.ellipse([(716, 178), (724, 186)], fill=C_EMERALD_LIGHT)
+
+    # Floating HUD banner
+    draw.rounded_rectangle([(400, 118), (1520, 152)], radius=8, fill=(11, 15, 25, 240), outline=C_EMERALD, width=1)
+    draw.text((WIDTH // 2, 135), "⚡ LIVE DUAL-ENGINE TELEMETRY ACTIVE · AMD RADEON CLOUD + GOOGLE GEMMA 4", fill=C_EMERALD_LIGHT, font=font_badge, anchor="mm")
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
 
 def render_s04_true_leak(cue: Dict[str, Any], progress: float) -> Image.Image:
-    """Scene 04: True Leakage Catch (ORD-LEAK-4348, $1,255.00 on Stripe) with Ken Burns zoom."""
+    """Scene 04: True Leakage Catch with animated formula scanner and live waterfall bar."""
     img = Image.new("RGB", (WIDTH, HEIGHT), C_BG)
     draw_top_chapter_badge(ImageDraw.Draw(img), cue["chapter"])
 
     if cue["id"] == "b07":
-        # Beat 07: Focus on the grounded action recovery notice and DuckDB evidence
         draw_studio_mockup(img, SCREEN_02, (0, 0, 1920, 1080))
-        # Institutional Dimmer on right inspector evidence and action notice
         highlight_box = (818, 396, 1806, 712)
         img = apply_institutional_dimmer(img, [highlight_box], border_color=C_CYAN, dim_factor=0.35, border_width=2)
-        # Apply Ken Burns smooth camera glide into the DuckDB evidence table & action notice
         img = apply_ken_burns(img, progress, target_center=(1310, 550), max_zoom=1.20)
+
         draw = ImageDraw.Draw(img)
+        draw.rounded_rectangle([(840, 360), (1350, 395)], radius=6, fill=(15, 23, 42), outline=C_CYAN, width=2)
+        draw.text((855, 370), "✓ GROUNDING STATUS: PASSED · REGEX CHECKED AGAINST DUCKDB", fill=C_CYAN, font=font_badge)
+
         ai_sub = "AI explanation generated via live AMD Radeon Cloud TokenFactory (~11.5s latency condensed for demo pacing)."
         draw_bottom_caption_pill(draw, ai_sub, accent_words="live AMD Radeon Cloud TokenFactory")
         return img
     else:
-        # Beat 06: Focus on Card #1 in the queue AND the formula banner
         draw_studio_mockup(img, SCREEN_01, (0, 0, 1920, 1080))
         box1 = (350, 400, 800, 482)
         box2 = (818, 470, 1806, 542)
         img = apply_institutional_dimmer(img, [box1, box2], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
-        # Apply Ken Burns smooth camera glide into calculation proof
         img = apply_ken_burns(img, progress, target_center=(1310, 500), max_zoom=1.20)
+
         draw = ImageDraw.Draw(img)
+        # Scanner beam sweeping across formula banner
+        beam_x = int(820 + (1800 - 820) * ((progress * 2.0) % 1.0))
+        draw.line([(beam_x, 470), (beam_x, 542)], fill=(56, 189, 248, 180), width=3)
+
         draw.text((825, 555), "DETERMINISTIC PROOF: 1 DISPATCHED UNPAID ORDER * $1,255.00 = $1,255.00", fill=C_EMERALD_LIGHT, font=font_badge)
         draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
         return img
 
 def render_s05_grounded_triage(cue: Dict[str, Any], progress: float) -> Image.Image:
-    """Scene 05: Grounded Triage & Honest False Positive Handling (ORD-STRESS-DELAY-1)."""
+    """Scene 05: Grounded Triage with animated cursor click and audit receipt."""
     img = Image.new("RGB", (WIDTH, HEIGHT), C_BG)
     draw_top_chapter_badge(ImageDraw.Draw(img), cue["chapter"])
 
-    # Studio Mockup of SCREEN_01
     draw_studio_mockup(img, SCREEN_01, (0, 0, 1920, 1080))
-
-    # Institutional Dimmer on Card #2 only (y: 483..565), leaving Card #3 (y: 571..643) fully visible!
     box_card2 = (350, 483, 800, 565)
     box_details = (818, 396, 1806, 680)
     img = apply_institutional_dimmer(img, [box_card2, box_details], border_color=C_AMBER, dim_factor=0.35, border_width=2)
 
-    # Edge-case annotation placed safely inside Card #2 details panel without overlapping Card #3
     draw = ImageDraw.Draw(img)
-    draw.rounded_rectangle([(840, 470), (1780, 640)], radius=8, fill=(32, 24, 15), outline=C_AMBER, width=2)
-    draw.text((865, 490), "INTENTIONAL STRESS-TEST EDGE CASE · 48H SEPA DELAY ($850.00)", fill=C_AMBER, font=font_title)
-    draw.text((865, 530), "Legitimate wire transfer settled 48 hours after order dispatch, exceeding 30-minute matching window.", fill=C_MUTED, font=font_body)
-    draw.text((865, 560), "Preserves 100% audit trail transparency · Flagged for human operator review in 1 click.", fill=C_WHITE, font=font_body)
+    draw.rounded_rectangle([(840, 450), (1780, 620)], radius=8, fill=(32, 24, 15), outline=C_AMBER, width=2)
+    draw.text((865, 470), "INTENTIONAL STRESS-TEST EDGE CASE · 48H SEPA DELAY ($850.00)", fill=C_AMBER, font=font_title)
+    draw.text((865, 510), "Legitimate wire transfer settled 48 hours after order dispatch, exceeding 30-minute matching window.", fill=C_MUTED, font=font_body)
+    draw.text((865, 545), "Preserves 100% audit trail transparency · Flagged for human operator review in 1 click.", fill=C_WHITE, font=font_body)
+
+    # Virtual cursor moving to 'Reject / Flag False Positive' button
+    cur_t = ease_in_out(min(1.0, progress / 0.50))
+    cur_x = int(1200 + (1520 - 1200) * cur_t)
+    cur_y = int(620 + (575 - 620) * cur_t)
+    draw.polygon([(cur_x, cur_y), (cur_x + 16, cur_y + 12), (cur_x + 6, cur_y + 16)], fill=C_WHITE, outline=(0, 0, 0))
+
+    if progress > 0.50:
+        ripple_r = int(15 + 25 * ((progress - 0.50) / 0.50))
+        draw.ellipse([(1520 - ripple_r, 575 - ripple_r), (1520 + ripple_r, 575 + ripple_r)], outline=C_EMERALD_LIGHT, width=2)
+        draw.rounded_rectangle([(840, 630), (1500, 675)], radius=6, fill=(16, 185, 129, 220))
+        draw.text((860, 642), "✓ 1-CLICK TRIAGE LOGGED: Order #ORD-STRESS-DELAY-1 Excluded as Expected False Positive", fill=(11, 15, 25), font=font_badge)
 
     s05_sub = "Stress-test edge case: 48-hour SEPA wire settlement lag transparently flagged for operator review (F1: 0.933)."
     draw_bottom_caption_pill(draw, s05_sub, accent_words="transparently flagged for operator review")
     return img
 
 def render_s06_objective_steering(cue: Dict[str, Any], progress: float) -> Image.Image:
-    """Scene 06: Dynamic Goal Steering (Prevent Stockouts Promotes SKU-APX-01 to #1)."""
+    """Scene 06: Dynamic Goal Steering with animated weights bar and re-ranking motion."""
     img = Image.new("RGB", (WIDTH, HEIGHT), C_BG)
     draw_top_chapter_badge(ImageDraw.Draw(img), cue["chapter"])
 
-    # Studio Mockup of genuine re-ranked screen SCREEN_03
     draw_studio_mockup(img, SCREEN_03, (0, 0, 1920, 1080))
-
-    # Institutional Dimmer:
-    # Highlight Box 1: Sidebar optimization goal radio (Prevent Stockouts): x=95..275, y=335..375
-    # Highlight Box 2: Queue Card #1 (Hero Blazer SKU-APX-01, $1,597.50): x=350..800, y=400..482
     box_radio = (95, 335, 275, 375)
     box_card1 = (350, 400, 800, 482)
     img = apply_institutional_dimmer(img, [box_radio, box_card1], border_color=C_PURPLE, dim_factor=0.35, border_width=2)
 
     draw = ImageDraw.Draw(img)
+
+    # Dynamic Weight Rebalance HUD Overlay
+    hx, hy = 840, 200
+    hud_w, hud_h = 600, 130
+    draw.rounded_rectangle([(hx, hy), (hx + hud_w, hy + hud_h)], radius=10, fill=(11, 15, 25, 240), outline=C_PURPLE, width=2)
+    draw.text((hx + 20, hy + 14), "DYNAMIC MULTI-OBJECTIVE OPTIMIZATION WEIGHTS", fill=C_PURPLE, font=font_badge)
+
+    shift_t = ease_in_out(progress / 0.60)
+    w_cash = 0.80 - 0.70 * shift_t
+    w_stock = 0.10 + 0.35 * shift_t
+
+    draw.text((hx + 20, hy + 45), f"Cash Recovery Weight: {w_cash:.2f}", fill=C_MUTED, font=font_caption)
+    draw.rounded_rectangle([(hx + 240, hy + 48), (hx + 560, hy + 60)], radius=4, fill=C_PANEL_ALT)
+    draw.rounded_rectangle([(hx + 240, hy + 48), (hx + 240 + int(320 * (w_cash / 0.80)), hy + 60)], radius=4, fill=C_EMERALD)
+
+    draw.text((hx + 20, hy + 80), f"Stock Protection Weight: {w_stock:.2f}", fill=C_MUTED, font=font_caption)
+    draw.rounded_rectangle([(hx + 240, hy + 83), (hx + 560, hy + 95)], radius=4, fill=C_PANEL_ALT)
+    draw.rounded_rectangle([(hx + 240, hy + 83), (hx + 240 + int(320 * (w_stock / 0.45)), hy + 95)], radius=4, fill=C_PURPLE)
+
     draw.text((360, 375), "DYNAMIC RE-RANKING: HERO BLAZER (SKU-APX-01) PROMOTED TO #1 ($1,597.50)", fill=C_PURPLE, font=font_badge)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
 
 def render_s07_benchmarks(cue: Dict[str, Any], progress: float) -> Image.Image:
-    """Scene 07: Authentic Telemetry & Stress Test Matrix with Ken Burns zoom."""
+    """Scene 07: Authentic Telemetry with dynamic rising throughput bars and illuminated matrix."""
     img = Image.new("RGB", (WIDTH, HEIGHT), C_BG)
     draw_top_chapter_badge(ImageDraw.Draw(img), cue["chapter"])
 
     if cue["id"] == "b12":
-        # Beat 12: Focus on stress test split metrics and confusion matrix
         draw_studio_mockup(img, SCREEN_05, (0, 0, 1920, 1080))
         highlight_box = (350, 335, 1805, 785)
         img = apply_institutional_dimmer(img, [highlight_box], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
         draw = ImageDraw.Draw(img)
-        draw.text((370, 305), "STRESS TEST CONFUSION MATRIX: 28 TP · 2 FP · 2 FN · 0.933 F1 SCORE", fill=C_EMERALD_LIGHT, font=font_badge)
+
+        f1_val = min(0.9333, 0.9333 * ease_out(progress / 0.60))
+        draw.rounded_rectangle([(840, 260), (1400, 315)], radius=8, fill=(11, 15, 25, 240), outline=C_EMERALD, width=2)
+        draw.text((860, 275), f"AUTHENTIC STRESS-TEST F1: {f1_val:.4f} · 28 TP · 2 FP · 2 FN", fill=C_EMERALD_LIGHT, font=font_title)
     else:
-        # Beat 11: Focus on AMD TokenFactory throughput scaling
         draw_studio_mockup(img, SCREEN_04, (0, 0, 1920, 1080))
         highlight_box = (350, 335, 1805, 785)
         img = apply_institutional_dimmer(img, [highlight_box], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
-        # Smooth Ken Burns zoom into throughput scaling bar chart
         img = apply_ken_burns(img, progress, target_center=(1080, 560), max_zoom=1.20)
+
         draw = ImageDraw.Draw(img)
-        draw.text((370, 305), "AUTHENTIC AMD TOKENFACTORY TELEMETRY · 18.2 TO 62.9 TOK/S SCALING", fill=C_EMERALD_LIGHT, font=font_badge)
+        tok_val = 18.2 + (62.9 - 18.2) * ease_out(progress / 0.70)
+        draw.rounded_rectangle([(840, 260), (1500, 315)], radius=8, fill=(11, 15, 25, 240), outline=C_EMERALD, width=2)
+        draw.text((860, 275), f"LIVE AMD TOKENFACTORY TELEMETRY: {tok_val:.1f} TOK/S · 3.5x BURST SCALING", fill=C_EMERALD_LIGHT, font=font_title)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
 
 def render_s08_finale(cue: Dict[str, Any], progress: float) -> Image.Image:
-    """Scene 08: Grand Finale Outro Card matching Hackathon Submission specifications."""
+    """Scene 08: Grand Finale Outro Card with kinetic spring-in deliverable cards."""
     img = Image.new("RGB", (WIDTH, HEIGHT), C_BG)
     draw = ImageDraw.Draw(img)
     draw_top_chapter_badge(draw, cue["chapter"])
 
-    # Center Hero Card
-    cw = 1400
-    ch = 640
+    cw, ch = 1400, 640
     cx = (WIDTH - cw) // 2
     cy = 160
 
-    draw.rounded_rectangle([(cx, cy), (cx + cw, cy + ch)], radius=16, fill=C_PANEL, outline=C_BORDER_LIGHT, width=2)
+    pulse_b = int(2 + 2 * math.sin(progress * math.pi * 3))
+    draw.rounded_rectangle([(cx, cy), (cx + cw, cy + ch)], radius=16, fill=C_PANEL, outline=C_EMERALD_LIGHT, width=pulse_b)
 
     draw.text((cx + 60, cy + 50), "PayLens: Reinvent Commerce on AMD", fill=C_WHITE, font=font_huge)
     draw.text(
@@ -839,7 +912,6 @@ def render_s08_finale(cue: Dict[str, Any], progress: float) -> Image.Image:
         fill=C_MUTED, font=font_body_lg
     )
 
-    # 4 Verified Deliverable Cards
     deliverables = [
         ("Track: Reinvent Commerce", "Autonomous Financial Deal Desk for Fragmented E-Commerce", C_CYAN),
         ("Live Hardware: AMD Radeon Cloud TokenFactory (DeepSeek-V4-Flash)", "Real-time streaming inference serving financial explanations", C_EMERALD),
@@ -847,15 +919,16 @@ def render_s08_finale(cue: Dict[str, Any], progress: float) -> Image.Image:
         ("Verification: Deterministic arithmetic & regex token verification", "Numeric tokens checked against database values · DuckDB + statsmodels", C_PURPLE),
     ]
     py = cy + 180
-    for p_title, p_desc, p_col in deliverables:
-        draw.rounded_rectangle([(cx + 60, py), (cx + cw - 60, py + 72)], radius=10, fill=C_PANEL_ALT, outline=C_BORDER, width=1)
-        draw.text((cx + 80, py + 14), p_title, fill=p_col, font=font_card_head)
-        draw.text((cx + 80, py + 42), p_desc, fill=C_MUTED, font=font_caption)
+    for idx, (p_title, p_desc, p_col) in enumerate(deliverables):
+        card_t = ease_out((progress - idx * 0.08) / 0.40)
+        card_x_off = int((1.0 - card_t) * 150)
+        if card_t > 0:
+            draw.rounded_rectangle([(cx + 60 + card_x_off, py), (cx + cw - 60 + card_x_off, py + 72)], radius=10, fill=C_PANEL_ALT, outline=C_BORDER, width=1)
+            draw.text((cx + 80 + card_x_off, py + 14), p_title, fill=p_col, font=font_card_head)
+            draw.text((cx + 80 + card_x_off, py + 42), p_desc, fill=C_MUTED, font=font_caption)
         py += 88
 
-    # GitHub link footer
     draw.text((cx + 60, cy + 560), "Open Source · Audited at github.com/labib-morol/paylens-amd", fill=C_WHITE, font=font_body)
-
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
 
@@ -995,13 +1068,16 @@ async def main():
     assert 135.0 <= dur <= 165.0, f"Duration {dur:.2f}s is outside target window (135s-165s)!"
     assert w == 1920 and h == 1080, f"Resolution {w}x{h} is not 1920x1080!"
 
-    # Mirror to docs/demo.mp4
+    # Mirror to docs/demo.mp4 and docs/submission_demo_final.mp4
     import shutil
     docs_dir = ROOT_DIR / "docs"
     docs_dir.mkdir(parents=True, exist_ok=True)
     docs_mp4 = str(docs_dir / "demo.mp4")
+    docs_final_mp4 = str(docs_dir / "submission_demo_final.mp4")
     shutil.copyfile(OUTPUT_MP4, docs_mp4)
+    shutil.copyfile(OUTPUT_MP4, docs_final_mp4)
     print(f"  [COPIED] Mirrored to {docs_mp4}")
+    print(f"  [COPIED] Mirrored to {docs_final_mp4}")
 
     print("\n[SUCCESS] submission_demo_animated.mp4 is 100% verified and ready for hackathon submission!")
 
