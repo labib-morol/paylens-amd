@@ -1,50 +1,72 @@
-# Environments and Secrets
+# Secrets and environment
 .env
-.env.local
-*.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets.toml
 .streamlit/secrets.toml
+.streamlit/*
+!.streamlit/config.toml
 
-# Logs
-logs/
-*.log
-*.jsonl
-
-# Databases
-*.duckdb.wal
-*sandbox*.duckdb
-
-# Python & Virtual Environments
-.venv/
-venv/
-ENV/
-env/
+# Python bytecode & cache
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+.Python
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Test & coverage caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
 # Build & Distribution
 build/
 dist/
 *.egg-info/
 
-# Testing & Caches
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
+# DuckDB runtime artifacts
+*.duckdb.wal
+*.duckdb.tmp
+*sandbox*.duckdb
+data/generated/*.duckdb.wal
 
-# Streamlit
-.streamlit/*
-!.streamlit/config.toml
+# Logs
+logs/
+*.log
+*.jsonl
 
-# OS Specific
+# Temporary video & audio build scratchpads
+temp/
+tmp/
+temp_audio/
+temp_frames/
+temp_video_build/
+video_frames/
+submission_demo_animated.mp4
+*.wav
+*.mp3
+!assets/
+!docs/
+!demo_studio/
+
+# IDE & OS files
+.idea/
+.vscode/
+*.swp
+*.swo
 .DS_Store
 Thumbs.db
 
 # Untracked Skills & Third-Party Caches
 .agents/skills/
 skills-lock.json
-
-# Temporary video build assets
-temp_video_build/
-submission_demo_animated.mp4
