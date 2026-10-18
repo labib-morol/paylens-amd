@@ -27,6 +27,9 @@ import scipy.io.wavfile as wav
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 OUTPUT_MP4 = str(ROOT_DIR / "submission_demo_animated.mp4")
 TEMP_DIR = ROOT_DIR / "temp_video_build"
 SCREENS_DIR = TEMP_DIR / "live_screens"
@@ -337,28 +340,26 @@ def build_sound_design_track(cues: List[Dict[str, Any]], total_duration: float) 
 # -----------------------------------------------------------------------------
 # 4. Motion Graphics & Visual Staging Engine
 # -----------------------------------------------------------------------------
-def load_app_screen(filename: str) -> Image.Image:
-    path = SCREENS_DIR / filename
-    if path.exists():
-        try:
-            im = Image.open(path).convert("RGB")
-            # If valid size and not fully black
-            if im.size == (WIDTH, HEIGHT) and np.array(im).mean() > 5.0:
-                return im
-        except Exception:
-            pass
+from scripts.build_ui_screens import (
+    build_screen_01,
+    build_screen_02,
+    build_screen_03,
+    build_screen_04,
+    build_screen_05,
+)
 
-    # High-Fidelity Institutional Fallback Graphic
-    img = Image.new("RGB", (WIDTH, HEIGHT), C_PANEL)
-    d = ImageDraw.Draw(img)
-    d.text((100, 100), f"PayLens Institutional View: {filename}", fill=C_WHITE, font=font_title)
-    return img
+print("[UI] Building fresh high-fidelity institutional screens for 1080p compositing...")
+SCREEN_01 = build_screen_01()
+SCREEN_02 = build_screen_02()
+SCREEN_03 = build_screen_03()
+SCREEN_04 = build_screen_04()
+SCREEN_05 = build_screen_05()
 
-SCREEN_01 = load_app_screen("01_deal_desk_live.png")
-SCREEN_02 = load_app_screen("02_evidence_and_action.png")
-SCREEN_03 = load_app_screen("03_stockout_promoted.png")
-SCREEN_04 = load_app_screen("04_amd_benchmark_scaling.png")
-SCREEN_05 = load_app_screen("05_stress_confusion_matrix.png")
+SCREEN_01.save(SCREENS_DIR / "01_deal_desk_live.png")
+SCREEN_02.save(SCREENS_DIR / "02_evidence_and_action.png")
+SCREEN_03.save(SCREENS_DIR / "03_stockout_promoted.png")
+SCREEN_04.save(SCREENS_DIR / "04_amd_benchmark_scaling.png")
+SCREEN_05.save(SCREENS_DIR / "05_stress_confusion_matrix.png")
 
 def draw_top_chapter_badge(draw: ImageDraw.ImageDraw, chapter_text: str):
     """Draws top-left numbered chapter badge in HumanPatch/T2V style."""
@@ -513,6 +514,17 @@ def apply_institutional_dimmer(
 
         # Draw soft glowing 2px border
         draw = ImageDraw.Draw(dimmed_canvas)
+        halo_color = (
+            int(border_color[0] * 0.40),
+            int(border_color[1] * 0.40),
+            int(border_color[2] * 0.40),
+        )
+        draw.rounded_rectangle(
+            [(bx1 - 1, by1 - 1), (bx2 + 1, by2 + 1)],
+            radius=corner_radius + 1,
+            outline=halo_color,
+            width=1
+        )
         draw.rounded_rectangle(
             [(bx1, by1), (bx2, by2)],
             radius=corner_radius,
@@ -693,14 +705,14 @@ def render_s03_deal_desk(cue: Dict[str, Any], progress: float) -> Image.Image:
     draw_studio_mockup(img, SCREEN_01, (0, 0, 1920, 1080))
 
     # Institutional Dimmer:
-    # Highlight box strictly within top navigation bounds: x=660..1500, y=154..212
-    # Height is 58px, strictly above the metric card at y=232!
-    highlight_box = (660, 154, 1500, 212)
+    # Highlight box strictly within top navigation bounds: x=695..1410, y=158..205
+    # Height is 47px, strictly above the metric cards at y=221!
+    highlight_box = (695, 158, 1410, 205)
     img = apply_institutional_dimmer(img, [highlight_box], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
 
     # Clean label in studio window title bar
     draw = ImageDraw.Draw(img)
-    draw.text((670, 122), "LIVE HARDWARE TELEMETRY · AMD TOKENFACTORY & GOOGLE GEMMA 4", fill=C_EMERALD_LIGHT, font=font_badge)
+    draw.text((700, 126), "LIVE HARDWARE TELEMETRY · AMD TOKENFACTORY & GOOGLE GEMMA 4", fill=C_EMERALD_LIGHT, font=font_badge)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
@@ -713,24 +725,23 @@ def render_s04_true_leak(cue: Dict[str, Any], progress: float) -> Image.Image:
     if cue["id"] == "b07":
         # Beat 07: Focus on the grounded action recovery notice and DuckDB evidence
         draw_studio_mockup(img, SCREEN_02, (0, 0, 1920, 1080))
-        # Smooth Ken Burns zoom into the DuckDB evidence table & action draft notice
-        img = apply_ken_burns(img, progress, target_center=(1220, 620), max_zoom=1.20)
-        # Institutional Dimmer on right inspector action notice
-        highlight_box = (775, 410, 1705, 830)
+        # Institutional Dimmer on right inspector evidence and action notice
+        highlight_box = (818, 396, 1806, 712)
         img = apply_institutional_dimmer(img, [highlight_box], border_color=C_CYAN, dim_factor=0.35, border_width=2)
+        # Apply Ken Burns smooth camera glide into the DuckDB evidence table & action notice
+        img = apply_ken_burns(img, progress, target_center=(1310, 550), max_zoom=1.20)
         draw = ImageDraw.Draw(img)
-        draw.text((790, 840), "REGEX-SHIELDED AUDIT-READY RECOVERY NOTICE DRAFTED VIA AMD TOKENFACTORY", fill=C_CYAN, font=font_badge)
+        draw.text((825, 725), "REGEX-SHIELDED AUDIT-READY RECOVERY NOTICE DRAFTED VIA AMD TOKENFACTORY", fill=C_CYAN, font=font_badge)
     else:
         # Beat 06: Focus on Card #1 in the queue AND the formula banner
         draw_studio_mockup(img, SCREEN_01, (0, 0, 1920, 1080))
-        # Smooth Ken Burns zoom into calculation proof
-        img = apply_ken_burns(img, progress, target_center=(1220, 560), max_zoom=1.20)
-        # Institutional Dimmer on Card #1 and Formula Banner
-        box1 = (300, 410, 745, 545)
-        box2 = (775, 480, 1705, 620)
+        box1 = (350, 400, 800, 482)
+        box2 = (818, 470, 1806, 542)
         img = apply_institutional_dimmer(img, [box1, box2], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
+        # Apply Ken Burns smooth camera glide into calculation proof
+        img = apply_ken_burns(img, progress, target_center=(1310, 500), max_zoom=1.20)
         draw = ImageDraw.Draw(img)
-        draw.text((790, 630), "DETERMINISTIC PROOF: 1 DISPATCHED UNPAID ORDER * $1,255.00 = $1,255.00", fill=C_EMERALD_LIGHT, font=font_badge)
+        draw.text((825, 555), "DETERMINISTIC PROOF: 1 DISPATCHED UNPAID ORDER * $1,255.00 = $1,255.00", fill=C_EMERALD_LIGHT, font=font_badge)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
@@ -743,15 +754,17 @@ def render_s05_grounded_triage(cue: Dict[str, Any], progress: float) -> Image.Im
     # Studio Mockup of SCREEN_01
     draw_studio_mockup(img, SCREEN_01, (0, 0, 1920, 1080))
 
-    # Institutional Dimmer on Card #2 only (y: 555..690), leaving Card #3 (y: 700..835) fully visible
-    box_card2 = (300, 555, 745, 690)
-    img = apply_institutional_dimmer(img, [box_card2], border_color=C_AMBER, dim_factor=0.35, border_width=2)
+    # Institutional Dimmer on Card #2 only (y: 483..565), leaving Card #3 (y: 571..643) fully visible!
+    box_card2 = (350, 483, 800, 565)
+    box_details = (818, 396, 1806, 680)
+    img = apply_institutional_dimmer(img, [box_card2, box_details], border_color=C_AMBER, dim_factor=0.35, border_width=2)
 
     # Edge-case annotation placed safely inside Card #2 details panel without overlapping Card #3
     draw = ImageDraw.Draw(img)
-    draw.text((790, 560), "INTENTIONAL STRESS-TEST EDGE CASE · 48H SEPA DELAY", fill=C_AMBER, font=font_title)
-    draw.text((790, 605), "Settled 48h after order dispatch, exceeding 30-minute fuzzy reconciliation window.", fill=C_MUTED, font=font_body)
-    draw.text((790, 635), "Flagged for human operator review in 1 click · Maintains 100% audit trail transparency.", fill=C_WHITE, font=font_body)
+    draw.rounded_rectangle([(840, 470), (1780, 640)], radius=8, fill=(32, 24, 15), outline=C_AMBER, width=2)
+    draw.text((865, 490), "INTENTIONAL STRESS-TEST EDGE CASE · 48H SEPA DELAY ($850.00)", fill=C_AMBER, font=font_title)
+    draw.text((865, 530), "Legitimate wire transfer settled 48 hours after order dispatch, exceeding 30-minute matching window.", fill=C_MUTED, font=font_body)
+    draw.text((865, 560), "Preserves 100% audit trail transparency · Flagged for human operator review in 1 click.", fill=C_WHITE, font=font_body)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
@@ -765,14 +778,14 @@ def render_s06_objective_steering(cue: Dict[str, Any], progress: float) -> Image
     draw_studio_mockup(img, SCREEN_03, (0, 0, 1920, 1080))
 
     # Institutional Dimmer:
-    # Highlight Box 1: Sidebar optimization goal radio (Prevent Stockouts): x=90..275, y=420..510
-    # Highlight Box 2: Queue Card #1 (Hero Blazer SKU-APX-01, $1,597.50): x=300..745, y=410..545
-    box_radio = (90, 420, 275, 510)
-    box_card1 = (300, 410, 745, 545)
+    # Highlight Box 1: Sidebar optimization goal radio (Prevent Stockouts): x=95..275, y=335..375
+    # Highlight Box 2: Queue Card #1 (Hero Blazer SKU-APX-01, $1,597.50): x=350..800, y=400..482
+    box_radio = (95, 335, 275, 375)
+    box_card1 = (350, 400, 800, 482)
     img = apply_institutional_dimmer(img, [box_radio, box_card1], border_color=C_PURPLE, dim_factor=0.35, border_width=2)
 
     draw = ImageDraw.Draw(img)
-    draw.text((310, 385), "DYNAMIC RE-RANKING: HERO BLAZER (SKU-APX-01) PROMOTED TO #1 ($1,597.50)", fill=C_PURPLE, font=font_badge)
+    draw.text((360, 375), "DYNAMIC RE-RANKING: HERO BLAZER (SKU-APX-01) PROMOTED TO #1 ($1,597.50)", fill=C_PURPLE, font=font_badge)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
@@ -785,19 +798,19 @@ def render_s07_benchmarks(cue: Dict[str, Any], progress: float) -> Image.Image:
     if cue["id"] == "b12":
         # Beat 12: Focus on stress test split metrics and confusion matrix
         draw_studio_mockup(img, SCREEN_05, (0, 0, 1920, 1080))
-        highlight_box = (300, 310, 1705, 870)
+        highlight_box = (350, 335, 1805, 785)
         img = apply_institutional_dimmer(img, [highlight_box], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
         draw = ImageDraw.Draw(img)
-        draw.text((320, 275), "STRESS TEST CONFUSION MATRIX: 28 TP · 2 FP · 2 FN · 0.933 F1 SCORE", fill=C_EMERALD_LIGHT, font=font_badge)
+        draw.text((370, 305), "STRESS TEST CONFUSION MATRIX: 28 TP · 2 FP · 2 FN · 0.933 F1 SCORE", fill=C_EMERALD_LIGHT, font=font_badge)
     else:
         # Beat 11: Focus on AMD TokenFactory throughput scaling
         draw_studio_mockup(img, SCREEN_04, (0, 0, 1920, 1080))
-        # Smooth Ken Burns zoom into throughput scaling bar chart
-        img = apply_ken_burns(img, progress, target_center=(1000, 600), max_zoom=1.20)
-        highlight_box = (300, 310, 1705, 870)
+        highlight_box = (350, 335, 1805, 785)
         img = apply_institutional_dimmer(img, [highlight_box], border_color=C_EMERALD, dim_factor=0.35, border_width=2)
+        # Smooth Ken Burns zoom into throughput scaling bar chart
+        img = apply_ken_burns(img, progress, target_center=(1080, 560), max_zoom=1.20)
         draw = ImageDraw.Draw(img)
-        draw.text((320, 275), "AUTHENTIC AMD TOKENFACTORY TELEMETRY · 18.2 TO 62.9 TOK/S SCALING", fill=C_EMERALD_LIGHT, font=font_badge)
+        draw.text((370, 305), "AUTHENTIC AMD TOKENFACTORY TELEMETRY · 18.2 TO 62.9 TOK/S SCALING", fill=C_EMERALD_LIGHT, font=font_badge)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
@@ -978,6 +991,15 @@ async def main():
     # Assertions
     assert 135.0 <= dur <= 165.0, f"Duration {dur:.2f}s is outside target window (135s-165s)!"
     assert w == 1920 and h == 1080, f"Resolution {w}x{h} is not 1920x1080!"
+
+    # Mirror to docs/demo.mp4
+    import shutil
+    docs_dir = ROOT_DIR / "docs"
+    docs_dir.mkdir(parents=True, exist_ok=True)
+    docs_mp4 = str(docs_dir / "demo.mp4")
+    shutil.copyfile(OUTPUT_MP4, docs_mp4)
+    print(f"  [COPIED] Mirrored to {docs_mp4}")
+
     print("\n[SUCCESS] submission_demo_animated.mp4 is 100% verified and ready for hackathon submission!")
 
 if __name__ == "__main__":
