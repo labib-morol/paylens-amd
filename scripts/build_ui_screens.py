@@ -379,9 +379,9 @@ def build_screen_02() -> Image.Image:
     draw.text((rx + 36, ay + 68), "SUBJECT: [Action Required] Settlement Inquiry for Dispatched Order ORD-LEAK-4348", fill=C_WHITE, font=font_h3)
     draw.text(
         (rx + 36, ay + 96),
-        "Our reconciliation deal desk flagged that order ORD-LEAK-4348 was fulfilled on digital card rails,\n"
-        "but the expected net payout of $1,255.00 has not been deposited by Stripe after forty-eight hours.\n"
-        "Please review gateway transaction batch #9481 or initiate manual clawback with the acquiring bank.",
+        "Order #ORD-LEAK-4348 was dispatched via digital storefront, but gateway settlement records show\n"
+        "zero inbound remittance. Recommended action: Place shipping hold on future consignments and\n"
+        "dispatch polite settlement reminder.",
         fill=C_MUTED, font=font_body
     )
     

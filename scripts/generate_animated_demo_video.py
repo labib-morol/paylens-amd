@@ -390,7 +390,8 @@ def draw_bottom_caption_pill(draw: ImageDraw.ImageDraw, text: str, accent_words:
         "18.2 tokens per second", "18.2", "0.933 F1", "0.933", "DeepSeek-V4-Flash",
         "Google Gemma 4", "Gemma 4", "SKU-APX-01", "$1,597.50", "$1,597",
         "DuckDB", "$850", "48 hours", "20 stores", "ten thousand dollars", "$10,000",
-        "100%", "order 4348", "Apex Global Apparel", "Prevent Stockouts", "regex-checked"
+        "100%", "order 4348", "Apex Global Apparel", "Prevent Stockouts", "regex-checked",
+        "AMD Radeon Cloud TokenFactory", "F1: 0.933", "SEPA wire"
     ]
     if accent_words and accent_words not in highlight_terms:
         highlight_terms.append(accent_words)
@@ -731,8 +732,8 @@ def render_s04_true_leak(cue: Dict[str, Any], progress: float) -> Image.Image:
         # Apply Ken Burns smooth camera glide into the DuckDB evidence table & action notice
         img = apply_ken_burns(img, progress, target_center=(1310, 550), max_zoom=1.20)
         draw = ImageDraw.Draw(img)
-        ai_sub = "AI explanation generated via live AMD TokenFactory endpoint (~11.5s latency condensed for demo pacing)."
-        draw_bottom_caption_pill(draw, ai_sub, accent_words="live AMD TokenFactory endpoint")
+        ai_sub = "AI explanation generated via live AMD Radeon Cloud TokenFactory (~11.5s latency condensed for demo pacing)."
+        draw_bottom_caption_pill(draw, ai_sub, accent_words="live AMD Radeon Cloud TokenFactory")
         return img
     else:
         # Beat 06: Focus on Card #1 in the queue AND the formula banner
@@ -767,7 +768,8 @@ def render_s05_grounded_triage(cue: Dict[str, Any], progress: float) -> Image.Im
     draw.text((865, 530), "Legitimate wire transfer settled 48 hours after order dispatch, exceeding 30-minute matching window.", fill=C_MUTED, font=font_body)
     draw.text((865, 560), "Preserves 100% audit trail transparency · Flagged for human operator review in 1 click.", fill=C_WHITE, font=font_body)
 
-    draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
+    s05_sub = "Stress-test edge case: 48-hour SEPA wire settlement lag transparently flagged for operator review (F1: 0.933)."
+    draw_bottom_caption_pill(draw, s05_sub, accent_words="transparently flagged for operator review")
     return img
 
 def render_s06_objective_steering(cue: Dict[str, Any], progress: float) -> Image.Image:
@@ -842,7 +844,7 @@ def render_s08_finale(cue: Dict[str, Any], progress: float) -> Image.Image:
         ("Track: Reinvent Commerce", "Autonomous Financial Deal Desk for Fragmented E-Commerce", C_CYAN),
         ("Live Hardware: AMD Radeon Cloud TokenFactory (DeepSeek-V4-Flash)", "Real-time streaming inference serving financial explanations", C_EMERALD),
         ("AI Reasoning: Google AI Studio (Gemma 4 REST)", "Dual-Engine Inference with 1-Click Action Dispatch", C_INDIGO),
-        ("Verification: Deterministic arithmetic & regex token guardrail", "Numeric tokens checked against database values · DuckDB + statsmodels", C_PURPLE),
+        ("Verification: Deterministic arithmetic & regex token verification", "Numeric tokens checked against database values · DuckDB + statsmodels", C_PURPLE),
     ]
     py = cy + 180
     for p_title, p_desc, p_col in deliverables:
@@ -852,7 +854,7 @@ def render_s08_finale(cue: Dict[str, Any], progress: float) -> Image.Image:
         py += 88
 
     # GitHub link footer
-    draw.text((cx + 60, cy + 560), "Open Source & Fully Audited: https://github.com/labib-morol/paylens-amd", fill=C_WHITE, font=font_body)
+    draw.text((cx + 60, cy + 560), "Open Source · Audited at github.com/labib-morol/paylens-amd", fill=C_WHITE, font=font_body)
 
     draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
     return img
