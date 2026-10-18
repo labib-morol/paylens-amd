@@ -277,7 +277,7 @@ def build_screen_01() -> Image.Image:
     draw.rounded_rectangle([(rx, fy), (rx + rw, fy + 80)], radius=8, fill=C_PANEL, outline=C_BORDER, width=1)
     draw.text((rx + 20, fy + 12), "Deterministic Calculation Formula (DuckDB Ledger Match)", fill=C_EMERALD_LIGHT, font=font_badge)
     draw.rounded_rectangle([(rx + 20, fy + 34), (rx + rw - 20, fy + 68)], radius=4, fill=(11, 15, 25), outline=C_BORDER, width=1)
-    draw.text((rx + 32, fy + 42), "Impact = 1 dispatched order * $1,255.00 unit value = $1,255.00 | Grounding Numbers: [1255.0, 95.0, 1.0]", fill=C_EMERALD_LIGHT, font=font_mono)
+    draw.text((rx + 32, fy + 42), "Impact = 1 dispatched order * $1,255.00 unit value = $1,255.00 | Grounding Numbers: [1255.0, 1.0]", fill=C_EMERALD_LIGHT, font=font_mono)
     
     # Visual Chart
     cy = fy + 100
@@ -370,7 +370,7 @@ def build_screen_02() -> Image.Image:
     
     # Status badges
     draw.rounded_rectangle([(rx + 20, ay + 16), (rx + 420, ay + 44)], radius=4, fill=(16, 185, 129, 30), outline=C_EMERALD, width=1)
-    draw.text((rx + 30, ay + 22), "✓ REGEX-VERIFIED GROUNDING: PASSED (100% NUMERIC MATCH)", fill=C_EMERALD_LIGHT, font=font_badge)
+    draw.text((rx + 30, ay + 22), "✓ REGEX-VERIFIED GROUNDING: PASSED (NUMERIC MATCH)", fill=C_EMERALD_LIGHT, font=font_badge)
     
     draw.text((rx + 440, ay + 22), "Engine: AMD Radeon Cloud TokenFactory · DeepSeek-V4-Flash", fill=C_MUTED, font=font_caption)
     

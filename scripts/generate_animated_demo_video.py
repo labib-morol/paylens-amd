@@ -179,7 +179,7 @@ BEATS = [
     # Act 7: Grand Finale
     {
         "id": "b13", "scene": "s08", "chapter": "08 —— CONCLUSION",
-        "text": "Deterministic arithmetic. Grounded AMD intelligence. Zero guesswork. PayLens brings mathematical truth back to commerce.",
+        "text": "Deterministic arithmetic. Grounded AMD intelligence. Numeric tokens checked against database values. PayLens brings mathematical truth back to commerce.",
         "rate": "+1%", "pitch": "+1Hz", "pause": 0.50, "sfx": "chime",
         "accent_words": "mathematical truth",
     },
@@ -731,7 +731,9 @@ def render_s04_true_leak(cue: Dict[str, Any], progress: float) -> Image.Image:
         # Apply Ken Burns smooth camera glide into the DuckDB evidence table & action notice
         img = apply_ken_burns(img, progress, target_center=(1310, 550), max_zoom=1.20)
         draw = ImageDraw.Draw(img)
-        draw.text((825, 725), "REGEX-SHIELDED AUDIT-READY RECOVERY NOTICE DRAFTED VIA AMD TOKENFACTORY", fill=C_CYAN, font=font_badge)
+        ai_sub = "AI explanation generated via live AMD TokenFactory endpoint (~11.5s latency condensed for demo pacing)."
+        draw_bottom_caption_pill(draw, ai_sub, accent_words="live AMD TokenFactory endpoint")
+        return img
     else:
         # Beat 06: Focus on Card #1 in the queue AND the formula banner
         draw_studio_mockup(img, SCREEN_01, (0, 0, 1920, 1080))
@@ -742,9 +744,8 @@ def render_s04_true_leak(cue: Dict[str, Any], progress: float) -> Image.Image:
         img = apply_ken_burns(img, progress, target_center=(1310, 500), max_zoom=1.20)
         draw = ImageDraw.Draw(img)
         draw.text((825, 555), "DETERMINISTIC PROOF: 1 DISPATCHED UNPAID ORDER * $1,255.00 = $1,255.00", fill=C_EMERALD_LIGHT, font=font_badge)
-
-    draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
-    return img
+        draw_bottom_caption_pill(draw, cue["text"], cue.get("accent_words"))
+        return img
 
 def render_s05_grounded_triage(cue: Dict[str, Any], progress: float) -> Image.Image:
     """Scene 05: Grounded Triage & Honest False Positive Handling (ORD-STRESS-DELAY-1)."""
@@ -838,10 +839,10 @@ def render_s08_finale(cue: Dict[str, Any], progress: float) -> Image.Image:
 
     # 4 Verified Deliverable Cards
     deliverables = [
-        ("TRACK 3: REINVENT COMMERCE (Vibe Generation)", "Autonomous Deal Desk for Multi-Rail E-Commerce", C_CYAN),
-        ("LIVE HARDWARE: AMD Radeon Cloud TokenFactory", "DeepSeek-V4-Flash + Dedicated ROCm MI300X vLLM Recipe", C_EMERALD),
-        ("AI REASONING: DeepSeek-V4-Flash & Google Gemma 4", "Dual-Engine Inference with 1-Click Action Dispatch", C_INDIGO),
-        ("DETERMINISTIC VERIFICATION: Zero LLM Math · 100% Regex Shield", "DuckDB Matchers + statsmodels Holt-Winters Demand Forecasting", C_PURPLE),
+        ("Track: Reinvent Commerce", "Autonomous Financial Deal Desk for Fragmented E-Commerce", C_CYAN),
+        ("Live Hardware: AMD Radeon Cloud TokenFactory (DeepSeek-V4-Flash)", "Real-time streaming inference serving financial explanations", C_EMERALD),
+        ("AI Reasoning: Google AI Studio (Gemma 4 REST)", "Dual-Engine Inference with 1-Click Action Dispatch", C_INDIGO),
+        ("Verification: Deterministic arithmetic & regex token guardrail", "Numeric tokens checked against database values · DuckDB + statsmodels", C_PURPLE),
     ]
     py = cy + 180
     for p_title, p_desc, p_col in deliverables:
